@@ -1,4 +1,5 @@
 import React from 'react';
+import {Container} from "react-bootstrap";
 
 type Props = {
     children?: JSX.Element
@@ -6,9 +7,9 @@ type Props = {
 
 function AppLayout({children} : Props) {
     return (
-        <div className="px-4 py-3 d-flex flex-column text-center">
+        <Container className="my-3 d-flex flex-column text-center">
             {children}
-        </div>
+        </Container>
     );
 }
 

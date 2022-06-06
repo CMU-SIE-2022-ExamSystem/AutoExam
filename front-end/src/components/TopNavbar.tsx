@@ -10,8 +10,8 @@ const TopNavbar = ({brand} : Props) => {
     const username: string = "John Smith"
     return (
         <>
-            <Navbar bg="dark" variant="dark">
-                <Container>
+            <Navbar collapseOnSelect expand="md" bg="dark" variant="dark" className="text-start">
+                <Container fluid>
                     <Navbar.Brand href="#home">
                         {brandName}
                     </Navbar.Brand>
