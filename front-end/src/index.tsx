@@ -16,9 +16,8 @@ const root = ReactDOM.createRoot(
 root.render(
     <BrowserRouter>
         <Routes>
-            <Route path='/' element={<App />}>
-                <Route index element={<Assessments />} />
-            </Route>
+            <Route path='/' element={<App />} />
+            <Route path="assessments" element={<Assessments />} />
             <Route path="oauth" element={<AuthRedirect />} />
             <Route path="oauth-callback" element={<AuthCallback />} />
         </Routes>

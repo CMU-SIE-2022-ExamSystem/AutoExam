@@ -10,8 +10,8 @@ const AutolabLogo = () => {
     return <></>
 }
 
-const RedirectPage = ({pageLink} : {pageLink: string}) => {
-    const handleSubmit= (e: SyntheticEvent) => {
+const RedirectPage = ({pageLink}: { pageLink: string }) => {
+    const handleSubmit = (e: SyntheticEvent) => {
         e.preventDefault();
         const $authCode = document.getElementById("AutolabAuthcode") as HTMLInputElement;
         console.log($authCode.value);
@@ -26,16 +26,19 @@ const RedirectPage = ({pageLink} : {pageLink: string}) => {
                     <Container className="mt-3 mb-5">
                         <Container className="text-start">
                             <p>Click the banner to visit Autolab authorization page.</p>
-                            <p>After the authorization, there will be an authorization code. Paste the code here to finish binding.</p>
+                            <p>After the authorization, there will be an authorization code. Paste the code here to
+                                finish binding.</p>
                         </Container>
                         <a target="_blank" href={pageLink}>
-                            <Image src={autolab_logo}  alt="Autolab Logo">
+                            <Image src={autolab_logo} alt="Autolab Logo">
                             </Image>
                         </a>
                     </Container>
-                    <Form className="mb-3" onSubmit={e => {handleSubmit(e)}}>
+                    <Form className="mb-3" onSubmit={e => {
+                        handleSubmit(e)
+                    }}>
                         <Form.Group controlId="AutolabAuthcode">
-                            <Form.Control type="text" placeholder="Enter Auth Code" />
+                            <Form.Control type="text" placeholder="Enter Auth Code"/>
                         </Form.Group>
                         <Button className="mt-3" variant="primary" type="submit">
                             Submit
@@ -57,13 +60,18 @@ function AuthRedirect() {
     localStorage.setItem('authStateValue', stateValue);
     autolabLink += `&state=` + stateValue;
 
+    if (process.env.REACT_APP_REDIRECT_URI === 'urn:ietf:wg:oauth:2.0:oob') {
+        autolabLink += '&redirect_uri=' + encodeURIComponent(process.env.REACT_APP_REDIRECT_URI);
+        return (<RedirectPage pageLink={autolabLink}/>);
+    }
+
     const location = window.location.hostname;
     let redirect_uri = location + '/oauth-callback';
 
     redirect_uri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI || redirect_uri);
     autolabLink += '&redirect_uri=' + redirect_uri;
-
-    return (<RedirectPage pageLink={autolabLink}/>);
+    window.location.replace(autolabLink);
+    return <></>;
 }
 
 export default AuthRedirect;
