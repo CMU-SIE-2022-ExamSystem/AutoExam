@@ -6,14 +6,21 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 
+import AuthRedirect from './routes/auth/AuthRedirect';
+import AuthCallback from './routes/auth/AuthCallback';
+import Assessments from "./routes/course/Assessments";
+
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
 root.render(
     <BrowserRouter>
         <Routes>
-            <Route path='/' element={<App />} />
-            
+            <Route path='/' element={<App />}>
+                <Route index element={<Assessments />} />
+            </Route>
+            <Route path="oauth" element={<AuthRedirect />} />
+            <Route path="oauth-callback" element={<AuthCallback />} />
         </Routes>
     </BrowserRouter>
 );
