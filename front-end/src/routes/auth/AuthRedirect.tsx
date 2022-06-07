@@ -65,7 +65,7 @@ function AuthRedirect() {
         return (<RedirectPage pageLink={autolabLink}/>);
     }
 
-    const location = window.location.hostname;
+    const location = window.location.origin;
     let redirect_uri = location + '/oauth-callback';
 
     redirect_uri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI || redirect_uri);
