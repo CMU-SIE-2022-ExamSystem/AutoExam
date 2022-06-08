@@ -1,0 +1,33 @@
+definitions:
+  authentication.Authentication:
+    properties:
+      client_id:
+        type: string
+      client_secret:
+        type: string
+      ip:
+        type: string
+      redirect_uri:
+        type: string
+      scope:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /auth:
+    get:
+      consumes:
+      - application/json
+      description: get autolab authentication info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            $ref: '#/definitions/authentication.Authentication'
+      summary: get auth info
+      tags:
+      - auth
+swagger: "2.0"
