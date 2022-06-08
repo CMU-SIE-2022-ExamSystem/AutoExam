@@ -9,6 +9,7 @@ import {BrowserRouter, Routes, Route} from "react-router-dom";
 import AuthRedirect from './routes/auth/AuthRedirect';
 import AuthCallback from './routes/auth/AuthCallback';
 import Assessments from "./routes/course/Assessments";
+import Dashboard from "./routes/course/Dashboard";
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -17,6 +18,7 @@ root.render(
     <BrowserRouter>
         <Routes>
             <Route path='/' element={<App />} />
+            <Route path="dashboard" element={<Dashboard />} />
             <Route path="assessments" element={<Assessments />} />
             <Route path="oauth" element={<AuthRedirect />} />
             <Route path="oauth-callback" element={<AuthCallback />} />
