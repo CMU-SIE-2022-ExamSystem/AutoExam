@@ -88,6 +88,7 @@ func Authtoken_Handler(c *gin.Context) {
 	}
 
 	response := autolab_resp_trans(string(body))
+	//todo store user information into database
 
 	c.JSON(http.StatusOK, response)
 }

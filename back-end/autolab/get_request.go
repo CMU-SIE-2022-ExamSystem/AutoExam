@@ -31,7 +31,7 @@ func user_courses_trans(str string) []user_Courses {
 func Userinfo_Handler(c *gin.Context) {
 	autolab := Read_Autolab_Env()
 
-	//todo: get token from mysql
+	//todo: get token from database
 	token := c.Query("token")
 
 	client := &http.Client{}
@@ -49,6 +49,7 @@ func Userinfo_Handler(c *gin.Context) {
 	// fmt.Println(string(body))
 
 	response := user_info_trans(string(body))
+	//todo store user information into database
 
 	c.JSON(http.StatusOK, response)
 }
@@ -56,7 +57,7 @@ func Userinfo_Handler(c *gin.Context) {
 func Usercourses_Handler(c *gin.Context) {
 	autolab := Read_Autolab_Env()
 
-	//todo: get token from mysql
+	//todo: get token from database
 	token := c.Query("token")
 
 	client := &http.Client{}
