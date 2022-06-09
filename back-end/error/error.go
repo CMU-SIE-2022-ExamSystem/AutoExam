@@ -37,6 +37,10 @@ func EnvResponse(title string) ErrorResponse {
 	return InternalErrorResponse(Authentication, title+" is not existed in settings-dev.yaml, please add it and restart the server")
 }
 
+func AutolabResponse() ErrorResponse {
+	return InternalErrorResponse(Authentication, "There may be something wrong with Autolab's web server, please try again later.")
+}
+
 func AuthRespnse(message string) ErrorResponse {
 	return ErrorResponse{Status: http.StatusUnauthorized, Scope: Authentication, Message: message}
 }

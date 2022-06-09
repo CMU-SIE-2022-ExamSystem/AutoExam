@@ -8,8 +8,8 @@ import (
 
 func Routers() *gin.Engine {
 	Router := gin.Default()
-	Router.Use(middlewares.GinLogger(), middlewares.GinRecovery(true))
-	// Router.Use(middlewares.GinLogger())
+	// Router.Use(middlewares.GinLogger(), middlewares.GinRecovery(true))
+	Router.Use(middlewares.GinLogger())
 	// Router.Use(gin.CustomRecovery(error.ErrorHandler))
 	ApiGroup := Router.Group("/")
 	router.AuthRouter(ApiGroup)

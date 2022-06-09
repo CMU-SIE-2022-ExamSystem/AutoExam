@@ -1,5 +1,5 @@
-name: "123"
-port: 8080
+name: "backend-auth-test"
+port: 9097
 logsAddress: "./logs/"
 
 # "info" for all http request, "alarm" for all non 200 http request
@@ -13,8 +13,8 @@ mysql:
  dbName: "test"
  
 autolab:
-  ip: "18.117.157.20"
-  client_id: "688nTs5cGUVTFFLI07H4qEUKTl-AkHDb7jOVFe_hmOo"
-  client_secret: "JhRucUW95Y6Gn1jyk--T9-9RiVC3ND66LDFusj9vPow"
-  redirect_uri: "urn:ietf:wg:oauth:2.0:oob"
+  ip: "18.219.35.63"
+  client_id: "tu0V2ggc8b5RDPEgwWIig0abCLY_MnpyaAOYMZCBF-Q"
+  client_secret: "_xlQUFMH0Qs7dm8G3XW8852asnPykqsBneQ6KoRicS0"
+  redirect_uri: "https://sie-examserver-frontend.herokuapp.com/oauth-callback"
   scope:  "user_info user_courses user_scores user_submit instructor_all admin_all"

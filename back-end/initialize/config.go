@@ -3,6 +3,7 @@ package initialize
 import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/config"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
+	"github.com/fatih/color"
 	"github.com/spf13/viper"
 )
 
@@ -17,5 +18,5 @@ func InitConfig() {
 		panic(err)
 	}
 	global.Settings = serverConfig
-	// color.Blue("11111111", global.Settings.LogsAddress)
+	color.Blue("Here is the Log file path for our exam system: " + global.Settings.LogsAddress)
 }
