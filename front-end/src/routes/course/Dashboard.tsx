@@ -12,11 +12,11 @@ interface CourseProps {
 const Course = (props: CourseProps) => {
     const { name, semester, authLevel } = props
     return (
-        <Card>
-            <Card.Body>
-                <Card.Title>{name}</Card.Title>
+        <Card className="text-start h-100">
+            <Card.Body className="d-flex flex-column">
+                <Card.Title className="fs-4 fw-bold">{name}</Card.Title>
                 <Card.Text>{semester}</Card.Text>
-                <footer className="text-muted">{authLevel}</footer>
+                <footer className="text-muted mt-auto">{authLevel}</footer>
             </Card.Body>
         </Card>
     )
@@ -41,8 +41,8 @@ function Dashboard() {
             <TopNavbar brand={null}/>
             <AppLayout>
                 <>
-                    <h1>My Courses</h1>
-                    <Row xs={1} md={2} className="g-4">
+                    <h1 className="mb-4">My Courses</h1>
+                    <Row xs={1} md={2} lg={3} className="g-4">
                         {listOfCourses.map(course => (
                             <Col>
                                 <Course {...course}/>
