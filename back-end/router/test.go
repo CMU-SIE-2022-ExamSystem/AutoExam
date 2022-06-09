@@ -11,7 +11,7 @@ func TestRouter(Router *gin.RouterGroup) {
 		TestRouter.GET("/", func(c *gin.Context) {
 			panic("123")
 		})
-		TestRouter.GET("/info", autolab.Userinfo_Handler)
+		// TestRouter.GET("/info", autolab.Userinfo_Handler)
 		TestRouter.GET("/courses", autolab.Usercourses_Handler)
 	}
 }

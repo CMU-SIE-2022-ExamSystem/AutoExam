@@ -28,11 +28,8 @@ func user_courses_trans(str string) []user_Courses {
 	return response
 }
 
-func Userinfo_Handler(c *gin.Context) {
+func Userinfo_Handler(c *gin.Context, token string) {
 	autolab := Read_Autolab_Env()
-
-	//todo: get token from database
-	token := c.Query("token")
 
 	client := &http.Client{}
 	request, _ := http.NewRequest(http.MethodGet, "http://"+autolab.Ip+"/api/v1/user", nil)
