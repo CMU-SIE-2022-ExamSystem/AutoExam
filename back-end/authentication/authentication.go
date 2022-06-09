@@ -8,29 +8,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/config"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/error"
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/gin-gonic/gin"
 )
 
-func read() (auth config.AutolabConfig) {
-	auth = global.Settings.Autolabinfo
-	if auth.Ip == "" {
-		panic(error.EnvResponse("ip"))
-	} else if auth.Client_id == "" {
-		panic(error.EnvResponse("client_id"))
-	} else if auth.Client_secret == "" {
-		panic(error.EnvResponse("client_secret"))
-	} else if auth.Redirect_uri == "" {
-		panic(error.EnvResponse("redirect_uri"))
-	} else if auth.Scope == "" {
-		panic(error.EnvResponse("scope"))
-	}
-	return auth
-}
-
-func Autolab_Err(str string) autolab_err_Response {
+func autolab_err_trans(str string) autolab_err_Response {
 	var response autolab_err_Response
 	err := json.Unmarshal([]byte(str), &response)
 	if err != nil {
@@ -39,7 +22,7 @@ func Autolab_Err(str string) autolab_err_Response {
 	return response
 }
 
-func Autolab_Response(str string) autolab_Response {
+func autolab_resp_trans(str string) autolab_Response {
 	var response autolab_Response
 	err := json.Unmarshal([]byte(str), &response)
 	if err != nil {
@@ -58,7 +41,7 @@ func Autolab_Response(str string) autolab_Response {
 // @Success 200 {object} Authentication "desc"
 // @Router /auth/info [get]
 func Authinfo_Handler(c *gin.Context) {
-	auth := read()
+	auth := autolab.Read_Autolab_Env()
 	c.JSON(http.StatusOK, gin.H{
 		"Client_id": auth.Client_id,
 		"Scope":     auth.Scope,
@@ -75,7 +58,7 @@ func Authinfo_Handler(c *gin.Context) {
 // @Success 200 {object} Authentication "desc"
 // @Router /auth [post]
 func Authtoken_Handler(c *gin.Context) {
-	auth := read()
+	auth := autolab.Read_Autolab_Env()
 	code := c.Query("code")
 
 	http_body := http_Body{
@@ -96,15 +79,15 @@ func Authtoken_Handler(c *gin.Context) {
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+	// fmt.Println(string(body))
 
 	if strings.Contains(string(body), "error") {
-		err_response := Autolab_Err(string(body))
+		err_response := autolab_err_trans(string(body))
 		c.JSON(http.StatusOK, err_response)
 		return
 	}
 
-	response := Autolab_Response(string(body))
+	response := autolab_resp_trans(string(body))
 
 	c.JSON(http.StatusOK, response)
 }

@@ -6,11 +6,11 @@ logsAddress: "./logs/"
 logger: "info" 
 
 mysql:
- name: "root"
- host: "120.XX.XX.XX"
+ name: "user"
+ host: "18.219.35.63"
  port: 3306
- password: "XXXXXXXX"
- dbName: "test"
+ password: "password"
+ dbName: "xxxxx"
  
 autolab:
   ip: "18.219.35.63"

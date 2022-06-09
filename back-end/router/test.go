@@ -1,14 +1,17 @@
 package router
 
 import (
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/gin-gonic/gin"
 )
 
 func TestRouter(Router *gin.RouterGroup) {
-	AuthRouter := Router.Group("test")
+	TestRouter := Router.Group("test")
 	{
-		AuthRouter.GET("/", func(c *gin.Context) {
+		TestRouter.GET("/", func(c *gin.Context) {
 			panic("123")
 		})
+		TestRouter.GET("/info", autolab.Userinfo_Handler)
+		TestRouter.GET("/courses", autolab.Usercourses_Handler)
 	}
 }
