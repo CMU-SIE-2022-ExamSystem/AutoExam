@@ -14,7 +14,7 @@ const Course = (props: CourseProps) => {
     return (
         <Card>
             <Card.Body>
-                <Card.Title>{name}</Card.Title>
+                <Card.Title className="mb-2"><h3>{name}</h3></Card.Title>
                 <Card.Text>{semester}</Card.Text>
                 <footer className="text-muted">{authLevel}</footer>
             </Card.Body>

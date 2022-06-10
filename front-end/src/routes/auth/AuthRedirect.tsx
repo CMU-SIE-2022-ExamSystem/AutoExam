@@ -1,19 +1,17 @@
-import React, {SyntheticEvent} from 'react';
+import React, {SyntheticEvent, useEffect, useState} from 'react';
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
 import {Container, Image, Form, Button} from "react-bootstrap";
 import {nanoid} from "nanoid";
 import autolab_logo from '../../images/autolab_logo.png';
+import {getBackendApiUrl, getFrontendUrl} from "../../utils/url";
 
-const AutolabLogo = () => {
-    //return <img src={autolab_logo}  alt="Autolab Logo"/>
-    return <></>
-}
+const axios = require('axios').default;
 
 const RedirectPage = ({pageLink}: { pageLink: string }) => {
     const handleSubmit = (e: SyntheticEvent) => {
         e.preventDefault();
-        const $authCode = document.getElementById("AutolabAuthcode") as HTMLInputElement;
+        const $authCode = document.getElementById("AutolabAuthCode") as HTMLInputElement;
         console.log($authCode.value);
     }
 
@@ -37,7 +35,7 @@ const RedirectPage = ({pageLink}: { pageLink: string }) => {
                     <Form className="mb-3" onSubmit={e => {
                         handleSubmit(e)
                     }}>
-                        <Form.Group controlId="AutolabAuthcode">
+                        <Form.Group controlId="AutolabAuthCode">
                             <Form.Control type="text" placeholder="Enter Auth Code"/>
                         </Form.Group>
                         <Button className="mt-3" variant="primary" type="submit">
@@ -52,26 +50,54 @@ const RedirectPage = ({pageLink}: { pageLink: string }) => {
 
 function AuthRedirect() {
 
-    let autolabLink: string = process.env.REACT_APP_AUTOLAB_LOCATION + "/oauth/authorize";
+    const [page, setPage] = useState(<div><h1>Redirecting...</h1></div>);
 
-    autolabLink += `?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}`;
+    const renderPage = async () => {
+        // Autolab link URL
+        let autolabLink: string = process.env.REACT_APP_AUTOLAB_LOCATION + "/oauth/authorize";
 
-    const stateValue = nanoid();
-    localStorage.setItem('authStateValue', stateValue);
-    autolabLink += `&state=` + stateValue;
+        // Backend Authentication API URL, detect whether I need auth (returns Client ID & scope), or I already had token and good to go.
+        const backendAuthUrl = getBackendApiUrl("/auth");
+        const authInfo = await axios.get(backendAuthUrl);
 
-    if (process.env.REACT_APP_REDIRECT_URI === 'urn:ietf:wg:oauth:2.0:oob') {
-        autolabLink += '&redirect_uri=' + encodeURIComponent(process.env.REACT_APP_REDIRECT_URI);
-        return (<RedirectPage pageLink={autolabLink}/>);
+        // If I am good to go, go to dashboard
+        if (authInfo.type === 1) {
+            window.location.replace(getFrontendUrl('/dashboard'));
+        }
+
+        // Otherwise I need authentication. Keep going through OAuth2 process.
+
+        // Client ID
+        const clientId = process.env.REACT_APP_CLIENT_ID || authInfo.data.cliendId;
+        autolabLink += `?response_type=code&client_id=${clientId}`;
+
+        // Scope
+        autolabLink += `&scope=` + encodeURIComponent("user_info user_courses user_scores user_submit instructor_all admin_all");
+
+        // State
+        const stateValue = nanoid();
+        localStorage.setItem('authStateValue', stateValue);
+        autolabLink += `&state=` + stateValue;
+
+        // RedirectURI: if local, display the page
+        if (process.env.REACT_APP_REDIRECT_URI === 'urn:ietf:wg:oauth:2.0:oob') {
+            autolabLink += '&redirect_uri=' + encodeURIComponent(process.env.REACT_APP_REDIRECT_URI);
+            setPage(<RedirectPage pageLink={autolabLink}/>);
+        }
+
+        // Otherwise, set up redirectURI and redirect to Autolab.
+        let redirectUri = getFrontendUrl('/oauth-callback');
+
+        redirectUri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI || redirectUri);
+        autolabLink += '&redirect_uri=' + redirectUri;
+        window.location.replace(autolabLink);
     }
 
-    const location = window.location.origin;
-    let redirect_uri = location + '/oauth-callback';
+    useEffect(() => {
+        renderPage();
+    })
 
-    redirect_uri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI || redirect_uri);
-    autolabLink += '&redirect_uri=' + redirect_uri;
-    window.location.replace(autolabLink);
-    return <></>;
+    return <>{page}</>
 }
 
 export default AuthRedirect;
