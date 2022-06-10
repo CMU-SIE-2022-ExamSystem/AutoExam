@@ -7,21 +7,21 @@ import (
 )
 
 type Response struct {
-	Status int
-	Type   int
-	Error  Error
-	Data   interface{}
+	Status int         `json:"status"`
+	Type   int         `json:"type"`
+	Error  Error       `json:"error"`
+	Data   interface{} `json:"data"`
 }
 
 type SwaggerResponse struct {
-	Type  int
-	Error Error
-	Data  interface{}
+	Type  int         `json:"type"`
+	Error Error       `json:"error"`
+	Data  interface{} `json:"data"`
 }
 
 type Error struct {
-	Type    string
-	Message string
+	Type    string `json:"type"`
+	Message string `json:"message"`
 }
 
 var (
@@ -60,7 +60,7 @@ func ErrorInternalResponse(c *gin.Context, err Error) {
 	c.JSON(http.StatusInternalServerError, gin.H{
 		"type":  0,
 		"error": err,
-		"data":  nil,
+		"data":  struct{}{},
 	})
 }
 

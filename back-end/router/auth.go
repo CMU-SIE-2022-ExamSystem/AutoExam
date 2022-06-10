@@ -8,6 +8,7 @@ import (
 func AuthRouter(Router *gin.RouterGroup) {
 	AuthRouter := Router.Group("auth")
 	{
-		AuthRouter.GET("/info", authentication.AuthInfo)
+		AuthRouter.GET("/info", authentication.Authinfo_Handler)
+		AuthRouter.POST("/", authentication.Authtoken_Handler)
 	}
 }
