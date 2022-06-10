@@ -8,16 +8,16 @@ import (
 )
 
 func TestRouter(Router *gin.RouterGroup) {
-	AuthRouter := Router.Group("test")
+	TestRouter := Router.Group("test")
 	{
-		AuthRouter.GET("/", func(c *gin.Context) {
+		TestRouter.GET("/", func(c *gin.Context) {
 			panic("123")
 		})
 
-		AuthRouter.GET("/users", middlewares.JWTAuth(), test.GetUsers)
+		TestRouter.GET("/users", middlewares.JWTAuth(), test.GetUsers)
 		// AuthRouter.GET("/users", test.GetUsers)
-		AuthRouter.GET("/login", test.Login)
-		AuthRouter.GET("/courses", autolab.Usercourses_Handler)
+		TestRouter.GET("/login", test.Login)
+		TestRouter.GET("/courses", middlewares.JWTAuth(), autolab.Usercourses_Handler)
 
 	}
 }

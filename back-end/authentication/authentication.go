@@ -3,34 +3,17 @@ package authentication
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/gin-gonic/gin"
 )
-
-func autolab_err_trans(str string) autolab_err_Response {
-	var response autolab_err_Response
-	err := json.Unmarshal([]byte(str), &response)
-	if err != nil {
-		fmt.Println("json transfer error>>> ", err)
-	}
-	return response
-}
-
-func autolab_resp_trans(str string) autolab_Response {
-	var response autolab_Response
-	err := json.Unmarshal([]byte(str), &response)
-	if err != nil {
-		fmt.Println("json transfer error>>> ", err)
-	}
-	return response
-}
 
 // Authinfo_Handler godoc
 // @Summary get auth info
@@ -62,7 +45,7 @@ func Authtoken_Handler(c *gin.Context) {
 	auth := global.Settings.Autolabinfo
 	code := c.Query("code")
 
-	http_body := http_Body{
+	http_body := models.Http_Body{
 		Grant_type:    "authorization_code",
 		Code:          code,
 		Redirect_uri:  auth.Redirect_uri,
@@ -83,14 +66,12 @@ func Authtoken_Handler(c *gin.Context) {
 	// fmt.Println(string(body))
 
 	if strings.Contains(string(body), "error") {
-		err_response := autolab_err_trans(string(body))
+		err_response := utils.Autolab_err_trans(string(body))
 		response.ErrUnauthResponse(c, err_response.Error_description)
 		return
 	}
 
-	autolab_resp := autolab_resp_trans(string(body))
+	autolab_resp := utils.Autolab_resp_trans(string(body))
 
-	//todo store user information into database
-	autolab.Userinfo_Handler(c, autolab_resp.Access_token)
-	fmt.Println(autolab_resp.Access_token)
+	autolab.Userinfo_Handler(c, autolab_resp.Access_token, autolab_resp.Refresh_token)
 }

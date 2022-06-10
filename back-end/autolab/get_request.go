@@ -1,35 +1,17 @@
 package autolab
 
 import (
-	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func user_info_trans(str string) user_Info {
-	var response user_Info
-	err := json.Unmarshal([]byte(str), &response)
-	if err != nil {
-		fmt.Println("json transfer error>>> ", err)
-	}
-	return response
-}
-
-func user_courses_trans(str string) []user_Courses {
-	var response []user_Courses
-	err := json.Unmarshal([]byte(str), &response)
-	if err != nil {
-		fmt.Println("json transfer error>>> ", err)
-	}
-	return response
-}
-
-func Userinfo_Handler(c *gin.Context, token string) {
+func Userinfo_Handler(c *gin.Context, token string, refresh string) {
 	autolab := global.Settings.Autolabinfo
 
 	client := &http.Client{}
@@ -46,17 +28,32 @@ func Userinfo_Handler(c *gin.Context, token string) {
 	body, _ := ioutil.ReadAll(resp.Body)
 	// fmt.Println(string(body))
 
-	autolab_resp := user_info_trans(string(body))
-	//todo store user information into database
+	autolab_resp := utils.User_info_trans(string(body))
 
-	response.SuccessResponse(c, autolab_resp)
+	user := models.User{
+		Email:         autolab_resp.Email,
+		First_name:    autolab_resp.First_name,
+		Last_name:     autolab_resp.Last_name,
+		Access_token:  token,
+		Refresh_token: refresh,
+	}
+
+	global.DB.Create(&user)
+	jwt_token := utils.CreateToken(c, user.ID, token)
+	response.SuccessResponse(c, gin.H{
+		"token":     jwt_token,
+		"firstName": autolab_resp.First_name,
+		"lastName":  autolab_resp.Last_name,
+	})
 }
 
 func Usercourses_Handler(c *gin.Context) {
 	autolab := global.Settings.Autolabinfo
 
-	//todo: get token from database
-	token := c.Query("token")
+	user_token := utils.GetToken(c)
+	user := models.User{ID: user_token.ID}
+	global.DB.Find(&user)
+	token := user.Access_token
 
 	client := &http.Client{}
 	request, _ := http.NewRequest(http.MethodGet, "http://"+autolab.Ip+"/api/v1//courses", nil)
@@ -72,7 +69,7 @@ func Usercourses_Handler(c *gin.Context) {
 	body, _ := ioutil.ReadAll(resp.Body)
 	// fmt.Println(string(body))
 
-	autolab_resp := user_courses_trans(string(body))
+	autolab_resp := utils.User_courses_trans(string(body))
 
 	response.SuccessResponse(c, autolab_resp)
 }
