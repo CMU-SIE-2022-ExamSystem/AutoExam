@@ -13,7 +13,7 @@ import (
 
 type CustomClaims struct {
 	ID    uint   //
-	Token string //
+	Email string //
 	jwt.StandardClaims
 }
 
@@ -43,7 +43,7 @@ func JWTAuth() gin.HandlerFunc {
 		// fmt.Println(c)
 		c.Set("claims", claims)
 		c.Set("userId", claims.ID)
-		c.Set("token", claims.Token)
+		c.Set("email", claims.Email)
 		c.Next()
 	}
 }

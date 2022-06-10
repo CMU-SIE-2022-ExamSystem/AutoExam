@@ -37,6 +37,7 @@ func main() {
 
 	if err != nil {
 		zap.L().Info("error function", zap.String("error", "start error!"))
+		fmt.Println(err)
 	}
 
 }

@@ -13,6 +13,7 @@ mysql:
  dbName: "autolab_development"
 
 autolab:
+  protocol: http  # http or https
   ip: "3.141.18.114"
   client_id: "tu0V2ggc8b5RDPEgwWIig0abCLY_MnpyaAOYMZCBF-Q"
   client_secret: "_xlQUFMH0Qs7dm8G3XW8852asnPykqsBneQ6KoRicS0"

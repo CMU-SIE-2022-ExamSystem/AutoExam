@@ -10,11 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateToken(c *gin.Context, Id uint, token string) string {
+func CreateToken(c *gin.Context, Id uint, email string) string {
 	j := middlewares.NewJWT()
 	claims := middlewares.CustomClaims{
 		ID:    uint(Id),
-		Token: token,
+		Email: email,
 		StandardClaims: jwt.StandardClaims{
 			NotBefore: time.Now().Unix(),
 			ExpiresAt: time.Now().Unix() + 60*60*24,

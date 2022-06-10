@@ -8,6 +8,14 @@ type Http_Body struct {
 	Client_secret string `json:"client_secret"`
 }
 
+type Http_Body_Refresh struct {
+	Grant_type    string `json:"grant_type"`
+	Refresh_token string `json:"refresh_token"`
+	Scope         string `json:"scope"`
+	Client_id     string `json:"client_id"`
+	Client_secret string `json:"client_secret"`
+}
+
 type Autolab_Response struct {
 	Access_token  string `json:"access_token"`
 	Token_type    string `json:"token_type"`
