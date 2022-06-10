@@ -1,16 +1,16 @@
 name: "123"
 port: 8080
-logsAddress: "./logs/"
+logsAddress: "./backend_logs/"
 
 # "info" for all http request, "alarm" for all non 200 http request
 logger: "info" 
 
 mysql:
- name: "root"
- host: "120.XX.XX.XX"
+ name: "user"
+ host: "3.141.18.114"
  port: 3306
- password: "XXXXXXXX"
- dbName: "test"
+ password: "password"
+ dbName: "autolab_development"
  
 autolab:
   ip: "18.117.157.20"
@@ -18,3 +18,6 @@ autolab:
   client_secret: "JhRucUW95Y6Gn1jyk--T9-9RiVC3ND66LDFusj9vPow"
   redirect_uri: "urn:ietf:wg:oauth:2.0:oob"
   scope:  "user_info user_courses user_scores user_submit instructor_all admin_all"
+
+jwt:
+  key: "CJzzsyJ7FRqWRQn8UkqOGn6tEishf0sgbwJt75H1O6ztnpEPVOAlwCkoKjWbbejoJnPLWBNW5TW7tHRWfh2nNoCdEpkkSTQADf0"

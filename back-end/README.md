@@ -41,6 +41,8 @@
 ## Swagger usage
 *   Example
     *   [autheticaion/Auth function](authentication/authentication.go)
+*   Swagger UI
+    *   http://localhost:8080/swagger/index.html
 *   Reference
     *   https://github.com/swaggo/swag/blob/master/README.md#declarative-comments-format
 

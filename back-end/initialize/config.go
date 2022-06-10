@@ -17,5 +17,22 @@ func InitConfig() {
 		panic(err)
 	}
 	global.Settings = serverConfig
-	// color.Blue("11111111", global.Settings.LogsAddress)
+
+	// check autolab information
+	autolabInfoCheck()
+}
+
+func autolabInfoCheck() {
+	auth := global.Settings.Autolabinfo
+	if auth.Ip == "" {
+		panic("ip is not found in .yaml file, please check")
+	} else if auth.Client_id == "" {
+		panic("client_id is not found in .yaml file, please check")
+	} else if auth.Client_secret == "" {
+		panic("client_secret is not found in .yaml file, please check")
+	} else if auth.Redirect_uri == "" {
+		panic("redirect_uri is not found in .yaml file, please check")
+	} else if auth.Scope == "" {
+		panic("scope is not found in .yaml file, please check")
+	}
 }
