@@ -6,7 +6,7 @@ type User_Info struct {
 	Last_name  string `json:"last_name"`
 	School     string `json:"school"`
 	Major      string `json:"major"`
-	Year       string `json:"year"`
+	Year       int    `json:"year"`
 }
 
 type User_Courses struct {
