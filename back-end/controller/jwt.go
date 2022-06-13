@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/middlewares"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
@@ -10,8 +9,8 @@ import (
 )
 
 func CreateToken(c *gin.Context, Id uint, email string) string {
-	j := middlewares.NewJWT()
-	claims := middlewares.CustomClaims{
+	j := NewJWT()
+	claims := CustomClaims{
 		ID:    uint(Id),
 		Email: email,
 		StandardClaims: jwt.StandardClaims{

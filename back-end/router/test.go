@@ -3,7 +3,6 @@ package router
 import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/controller"
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/middlewares"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/test"
 	"github.com/gin-gonic/gin"
 )
@@ -15,10 +14,10 @@ func TestRouter(Router *gin.RouterGroup) {
 			panic("123")
 		})
 
-		TestRouter.GET("/users", middlewares.JWTAuth(), test.GetUsers)
+		TestRouter.GET("/users", controller.JWTAuth(), test.GetUsers)
 		// AuthRouter.GET("/users", test.GetUsers)
 		TestRouter.GET("/login", test.Login)
-		TestRouter.GET("/courses", middlewares.JWTAuth(), autolab.Usercourses_Handler)
-		TestRouter.GET("/refresh", middlewares.JWTAuth(), controller.Userrefresh_Handler)
+		TestRouter.GET("/courses", controller.JWTAuth(), autolab.Usercourses_Handler)
+		TestRouter.GET("/refresh", controller.JWTAuth(), controller.Userrefresh_Handler)
 	}
 }

@@ -1,11 +1,13 @@
-package middlewares
+package controller
 
 import (
 	"errors"
 	"strings"
 	"time"
 
+	// "github.com/CMU-SIE-2022-ExamSystem/exam-system/controller"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -25,6 +27,12 @@ func JWTAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		if !strings.Contains(auth, "Bearer ") {
+			response.ErrUnauthResponse(c, "please use \"Bearer \" token to call api")
+			c.Abort()
+			return
+		}
+
 		token := strings.Split(auth, " ")[1]
 		j := NewJWT()
 		claims, err := j.ParseToken(token)
@@ -36,15 +44,28 @@ func JWTAuth() gin.HandlerFunc {
 					return
 				}
 			}
-			response.ErrUnauthResponse(c, "couldn't handle this token")
+			response.ErrUnauthResponse(c, "unknown error")
 			c.Abort()
 			return
 		}
+
 		// fmt.Println(c)
 		c.Set("claims", claims)
 		c.Set("userId", claims.ID)
 		c.Set("email", claims.Email)
+
+		validateToken(c, *claims)
 		c.Next()
+	}
+}
+
+func validateToken(c *gin.Context, claims CustomClaims) {
+	user := models.User{ID: claims.ID}
+	global.DB.First(&user)
+
+	now := time.Now().Unix()
+	if user.Create_at+user.Expires_in < now {
+		Userrefresh_Handler(c)
 	}
 }
 
