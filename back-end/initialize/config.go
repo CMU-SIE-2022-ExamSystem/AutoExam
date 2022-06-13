@@ -24,7 +24,9 @@ func InitConfig() {
 
 func autolabInfoCheck() {
 	auth := global.Settings.Autolabinfo
-	if auth.Ip == "" {
+	if auth.Protocol == "" {
+		panic("protocol is not found in .yaml file, please check")
+	} else if auth.Ip == "" {
 		panic("ip is not found in .yaml file, please check")
 	} else if auth.Client_id == "" {
 		panic("client_id is not found in .yaml file, please check")

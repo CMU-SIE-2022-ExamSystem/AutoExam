@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"time"
-
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/middlewares"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
@@ -16,8 +14,8 @@ func CreateToken(c *gin.Context, Id uint, email string) string {
 		ID:    uint(Id),
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
-			NotBefore: time.Now().Unix(),
-			ExpiresAt: time.Now().Unix() + 60*60*24,
+			NotBefore: GetNowTime(),
+			ExpiresAt: GetNowTime() + 60*60*24,
 			Issuer:    "test",
 		},
 	}
@@ -34,11 +32,11 @@ func GetEmail(c *gin.Context) (user models.UserToken) {
 
 	email, err := c.Get("email")
 	if !err {
-		response.ErrorInternalResponse(c, response.Error{Type: response.Authentication, Message: "there is no toke in gin.Context"})
+		response.ErrorInternalResponse(c, response.Error{Type: response.Authentication, Message: "there is no token in gin.Context"})
 	}
 	id, err := c.Get("userId")
 	if !err {
-		response.ErrorInternalResponse(c, response.Error{Type: response.Authentication, Message: "there is no toke in gin.Context"})
+		response.ErrorInternalResponse(c, response.Error{Type: response.Authentication, Message: "there is no token in gin.Context"})
 	}
 
 	user = models.UserToken{ID: id.(uint), Email: email.(string)}

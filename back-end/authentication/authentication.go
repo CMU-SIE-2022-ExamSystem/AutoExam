@@ -46,24 +46,6 @@ func Authtoken_Handler(c *gin.Context) {
 		Client_secret: auth.Client_secret,
 	}
 
-	// resp_body, _ := json.Marshal(http_body)
-	// resp, err := http.Post("http://"+auth.Ip+"/oauth/token", "application/json", bytes.NewBuffer(resp_body))
-
-	// if err != nil {
-	// 	response.ErrUnauthResponse(c, "There may be something wrong with Autolab's web server, please try again later.")
-	// }
-
-	// defer resp.Body.Close()
-
-	// body, _ := ioutil.ReadAll(resp.Body)
-	// // fmt.Println(string(body))
-
-	// if strings.Contains(string(body), "error") {
-	// 	err_response := utils.Autolab_err_trans(string(body))
-	// 	response.ErrUnauthResponse(c, err_response.Error_description)
-	// 	return
-	// }
-
 	autolab_resp, flag := autolab.Autolab_Auth_Handler(c, "/oauth/token", http_body)
 
 	if flag {

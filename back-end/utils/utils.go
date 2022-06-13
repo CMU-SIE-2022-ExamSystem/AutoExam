@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+func GetNowTime() int64 {
+	now := time.Now().Unix()
+	return now
+}
+
 func GetNowFormatTodayTime() string {
 
 	now := time.Now()
@@ -12,9 +17,4 @@ func GetNowFormatTodayTime() string {
 		now.Day())
 
 	return dateStr
-}
-
-func GetNowTime() int64 {
-	now := time.Now().Unix()
-	return now
 }

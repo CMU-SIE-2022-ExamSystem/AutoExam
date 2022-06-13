@@ -18,6 +18,6 @@ func TestRouter(Router *gin.RouterGroup) {
 		// AuthRouter.GET("/users", test.GetUsers)
 		TestRouter.GET("/login", test.Login)
 		TestRouter.GET("/courses", middlewares.JWTAuth(), autolab.Usercourses_Handler)
-		TestRouter.GET("/refresh", middlewares.JWTAuth(), autolab.Refresh_Handler)
+		TestRouter.GET("/refresh", middlewares.JWTAuth(), autolab.Userrefresh_Handler)
 	}
 }

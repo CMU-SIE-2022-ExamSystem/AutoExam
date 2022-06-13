@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func autolab_oauth_url(endpoint string) string {
+func autolab_Oauth_Url(endpoint string) string {
 	autolab_url := global.Settings.Autolabinfo.Protocol + "://" + global.Settings.Autolabinfo.Ip
 	autolab_api_url := autolab_url + endpoint
 	return autolab_api_url
@@ -22,7 +22,7 @@ func autolab_oauth_url(endpoint string) string {
 
 func Autolab_Auth_Handler(c *gin.Context, endpoint string, http_body interface{}) (models.Autolab_Response, bool) {
 	resp_body, _ := json.Marshal(http_body)
-	resp, err := http.Post(autolab_oauth_url(endpoint), "application/json", bytes.NewBuffer(resp_body))
+	resp, err := http.Post(autolab_Oauth_Url(endpoint), "application/json", bytes.NewBuffer(resp_body))
 
 	if err != nil {
 		Autolab_Error_Hander(c, resp, err)
