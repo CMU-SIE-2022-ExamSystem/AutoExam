@@ -1,32 +1,31 @@
 package autolab
 
 import (
-	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
+	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	autolab_url     string = global.Settings.Autolabinfo.Protocol + "://" + global.Settings.Autolabinfo.Ip
-	autolab_api_url string = autolab_url + "/api/v1"
-)
+func autolab_api_url(endpoint string) string {
+	autolab_url := global.Settings.Autolabinfo.Protocol + "://" + global.Settings.Autolabinfo.Ip
+	autolab_api_url := autolab_url + "/api/v1" + endpoint
+	return autolab_api_url
+}
 
 func Userinfo_Handler(c *gin.Context, token string, refresh string) {
 	client := &http.Client{}
-	request, _ := http.NewRequest(http.MethodGet, autolab_api_url+"/user", nil)
+	request, _ := http.NewRequest(http.MethodGet, autolab_api_url("/user"), nil)
 	request.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(request)
 
 	if err != nil {
-		response.ErrUnauthResponse(c, "There may be something wrong with Autolab's web server, please try again later.")
+		Autolab_Error_Hander(c, resp, err)
 	}
 
 	defer resp.Body.Close()
@@ -54,18 +53,18 @@ func Userinfo_Handler(c *gin.Context, token string, refresh string) {
 }
 
 func Usercourses_Handler(c *gin.Context) {
-	user_token := utils.GetToken(c)
+	user_token := utils.GetEmail(c)
 	user := models.User{ID: user_token.ID}
 	global.DB.Find(&user)
 	token := user.Access_token
 
 	client := &http.Client{}
-	request, _ := http.NewRequest(http.MethodGet, autolab_api_url+"/courses", nil)
+	request, _ := http.NewRequest(http.MethodGet, autolab_api_url("/courses"), nil)
 	request.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(request)
 
 	if err != nil {
-		response.ErrUnauthResponse(c, "There may be something wrong with Autolab's web server, please try again later.")
+		Autolab_Error_Hander(c, resp, err)
 	}
 
 	defer resp.Body.Close()
@@ -78,9 +77,9 @@ func Usercourses_Handler(c *gin.Context) {
 	response.SuccessResponse(c, autolab_resp)
 }
 
-func refresh_Handler(c *gin.Context) {
-	user_token := utils.GetToken(c)
-	user := models.User{ID: user_token.ID}
+func Refresh_Handler(c *gin.Context) {
+	user_email := utils.GetEmail(c)
+	user := models.User{ID: user_email.ID}
 	global.DB.Find(&user)
 	// token := user.Access_token
 	refresh := user.Refresh_token
@@ -95,48 +94,13 @@ func refresh_Handler(c *gin.Context) {
 		Client_secret: auth.Client_secret,
 	}
 
-	autolab_resp := Autolab_Auth_Handler(c, http_body)
+	autolab_resp, flag := Autolab_Auth_Handler(c, "/oauth/token", http_body)
 
-	user.Access_token = autolab_resp.Access_token
-	user.Refresh_token = autolab_resp.Refresh_token
-	global.DB.Save(&user)
-}
-
-func Autolab_Auth_Handler(c *gin.Context, http_body interface{}) models.Autolab_Response {
-	resp_body, _ := json.Marshal(http_body)
-	resp, err := http.Post(autolab_url+"/oauth/token", "application/json", bytes.NewBuffer(resp_body))
-
-	if err != nil {
-		Autolab_Error_Hander(c, resp, err)
-	}
-
-	defer resp.Body.Close()
-
-	body, _ := ioutil.ReadAll(resp.Body)
-	// fmt.Println(string(body))
-
-	if strings.Contains(string(body), "error") {
-		err_response := utils.Autolab_err_trans(string(body))
-		response.ErrUnauthResponse(c, err_response.Error_description)
-		c.Abort()
-	}
-
-	autolab_resp := utils.Autolab_resp_trans(string(body))
-	return autolab_resp
-}
-
-func Autolab_Error_Hander(c *gin.Context, resp *http.Response, err error) {
-	if err != nil {
-		response.ErrUnauthResponse(c, "There may be something wrong with Autolab's web server, please try again later.")
-	}
-
-	status := resp.StatusCode
-	if status >= http.StatusOK && status <= 299 {
-		return
-	} else {
-		if status == http.StatusUnauthorized {
-		} else {
-			response.ErrorInternalResponse(c, response.Error{Type: "Autolab", Message: "Unknown error"})
-		}
+	if flag {
+		user.Access_token = autolab_resp.Access_token
+		user.Refresh_token = autolab_resp.Refresh_token
+		color.Yellow(user.Access_token)
+		color.Yellow(user.Refresh_token)
+		global.DB.Save(&user)
 	}
 }

@@ -30,9 +30,9 @@ func CreateToken(c *gin.Context, Id uint, email string) string {
 	return token
 }
 
-func GetToken(c *gin.Context) (user models.UserToken) {
+func GetEmail(c *gin.Context) (user models.UserToken) {
 
-	token, err := c.Get("token")
+	email, err := c.Get("email")
 	if !err {
 		response.ErrorInternalResponse(c, response.Error{Type: response.Authentication, Message: "there is no toke in gin.Context"})
 	}
@@ -41,6 +41,6 @@ func GetToken(c *gin.Context) (user models.UserToken) {
 		response.ErrorInternalResponse(c, response.Error{Type: response.Authentication, Message: "there is no toke in gin.Context"})
 	}
 
-	user = models.UserToken{ID: id.(uint), Token: token.(string)}
+	user = models.UserToken{ID: id.(uint), Email: email.(string)}
 	return
 }

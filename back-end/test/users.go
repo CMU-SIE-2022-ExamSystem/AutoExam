@@ -65,7 +65,7 @@ func getUser(id uint, email string) models.User {
 func GetUsers(c *gin.Context) {
 	users := getUsers()
 	fmt.Println("=====================")
-	fmt.Println(utils.GetToken(c))
+	fmt.Println(utils.GetEmail(c))
 	fmt.Println("=====================")
 	response.SuccessResponse(c, users)
 }
