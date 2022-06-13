@@ -67,6 +67,6 @@ func Authtoken_Handler(c *gin.Context) {
 	autolab_resp, flag := autolab.Autolab_Auth_Handler(c, "/oauth/token", http_body)
 
 	if flag {
-		autolab.Userinfo_Handler(c, autolab_resp.Access_token, autolab_resp.Refresh_token)
+		autolab.Userinfo_Handler(c, autolab_resp)
 	}
 }

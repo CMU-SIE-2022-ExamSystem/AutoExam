@@ -13,3 +13,8 @@ func GetNowFormatTodayTime() string {
 
 	return dateStr
 }
+
+func GetNowTime() int64 {
+	now := time.Now().Unix()
+	return now
+}

@@ -8,7 +8,6 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,10 +17,10 @@ func autolab_api_url(endpoint string) string {
 	return autolab_api_url
 }
 
-func Userinfo_Handler(c *gin.Context, token string, refresh string) {
+func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 	client := &http.Client{}
 	request, _ := http.NewRequest(http.MethodGet, autolab_api_url("/user"), nil)
-	request.Header.Add("Authorization", "Bearer "+token)
+	request.Header.Add("Authorization", "Bearer "+autolab_resp.Access_token)
 	resp, err := client.Do(request)
 
 	if err != nil {
@@ -33,22 +32,24 @@ func Userinfo_Handler(c *gin.Context, token string, refresh string) {
 	body, _ := ioutil.ReadAll(resp.Body)
 	// fmt.Println(string(body))
 
-	autolab_resp := utils.User_info_trans(string(body))
+	userinfo_resp := utils.User_info_trans(string(body))
 
 	user := models.User{
-		Email:         autolab_resp.Email,
-		First_name:    autolab_resp.First_name,
-		Last_name:     autolab_resp.Last_name,
-		Access_token:  token,
-		Refresh_token: refresh,
+		Email:         userinfo_resp.Email,
+		First_name:    userinfo_resp.First_name,
+		Last_name:     userinfo_resp.Last_name,
+		Access_token:  autolab_resp.Access_token,
+		Refresh_token: autolab_resp.Refresh_token,
+		Create_at:     utils.GetNowTime(),
+		Expires_in:    autolab_resp.Expires_in,
 	}
 
 	global.DB.Create(&user)
-	jwt_token := utils.CreateToken(c, user.ID, token)
+	jwt_token := utils.CreateToken(c, user.ID, user.Email)
 	response.SuccessResponse(c, gin.H{
 		"token":     jwt_token,
-		"firstName": autolab_resp.First_name,
-		"lastName":  autolab_resp.Last_name,
+		"firstName": user.First_name,
+		"lastName":  user.Last_name,
 	})
 }
 
@@ -99,8 +100,8 @@ func Refresh_Handler(c *gin.Context) {
 	if flag {
 		user.Access_token = autolab_resp.Access_token
 		user.Refresh_token = autolab_resp.Refresh_token
-		color.Yellow(user.Access_token)
-		color.Yellow(user.Refresh_token)
+		user.Create_at = utils.GetNowTime()
+		user.Expires_in = autolab_resp.Expires_in
 		global.DB.Save(&user)
 	}
 }
