@@ -21,4 +21,4 @@ autolab:
   scope:  "user_info user_courses user_scores user_submit instructor_all admin_all"
 
 jwt:
-  key: "CJzzsyJ7FRqWRQn8UkqOGn6tEishf0sgbwJt75H1O6ztnpEPVOAlwCkoKjWbbejoJnPLWBNW5TW7tHRWfh2nNoCdEpkkSTQADf0"
+  key: "afbf104a5f1c72391f03114cd741b2e7714df6270a2502dfe4ff7efd11997780"

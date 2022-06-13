@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/controller"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
@@ -46,7 +47,7 @@ func Authtoken_Handler(c *gin.Context) {
 		Client_secret: auth.Client_secret,
 	}
 
-	autolab_resp, flag := autolab.Autolab_Auth_Handler(c, "/oauth/token", http_body)
+	autolab_resp, flag := controller.Autolab_Auth_Handler(c, "/oauth/token", http_body)
 
 	if flag {
 		autolab.Userinfo_Handler(c, autolab_resp)

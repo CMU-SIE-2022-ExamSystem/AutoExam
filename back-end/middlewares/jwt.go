@@ -36,7 +36,7 @@ func JWTAuth() gin.HandlerFunc {
 					return
 				}
 			}
-			response.ErrUnauthResponse(c, "known error")
+			response.ErrUnauthResponse(c, "couldn't handle this token")
 			c.Abort()
 			return
 		}
