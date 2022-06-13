@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/controller"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -65,7 +65,7 @@ func getUser(id uint, email string) models.User {
 func GetUsers(c *gin.Context) {
 	users := getUsers()
 	fmt.Println("=====================")
-	fmt.Println(utils.GetEmail(c))
+	fmt.Println(controller.GetEmail(c))
 	fmt.Println("=====================")
 	response.SuccessResponse(c, users)
 }
@@ -96,6 +96,6 @@ func GetUser(c *gin.Context) {
 // @Success 200 {object} models.UserToken "desc"
 // @Router /test/login/ [get]
 func Login(c *gin.Context) {
-	token := utils.CreateToken(c, 1, "test@gmail")
+	token := controller.CreateToken(c, 1, "test@gmail")
 	c.JSON(http.StatusOK, token)
 }

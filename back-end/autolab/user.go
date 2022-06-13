@@ -28,7 +28,7 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 		user.Expires_in = autolab_resp.Expires_in
 
 		global.DB.Save(&user)
-		jwt_token := utils.CreateToken(c, user.ID, user.Email)
+		jwt_token := controller.CreateToken(c, user.ID, user.Email)
 		response.SuccessResponse(c, gin.H{
 			"token":     jwt_token,
 			"firstName": user.First_name,
@@ -47,7 +47,7 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 		}
 
 		global.DB.Create(&new_user)
-		jwt_token := utils.CreateToken(c, new_user.ID, new_user.Email)
+		jwt_token := controller.CreateToken(c, new_user.ID, new_user.Email)
 		response.SuccessResponse(c, gin.H{
 			"token":     jwt_token,
 			"firstName": new_user.First_name,
@@ -57,7 +57,7 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 }
 
 func Usercourses_Handler(c *gin.Context) {
-	user_email := utils.GetEmail(c)
+	user_email := controller.GetEmail(c)
 	user := models.User{ID: user_email.ID}
 	global.DB.Find(&user)
 	token := user.Access_token

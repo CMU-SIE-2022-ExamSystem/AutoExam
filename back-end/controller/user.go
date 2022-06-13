@@ -21,7 +21,7 @@ func FindUserInfo(email string) (*models.User, bool) {
 }
 
 func Userrefresh_Handler(c *gin.Context) {
-	user_email := utils.GetEmail(c)
+	user_email := GetEmail(c)
 	user := models.User{ID: user_email.ID}
 	global.DB.Find(&user)
 	refresh := user.Refresh_token

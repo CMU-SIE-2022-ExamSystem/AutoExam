@@ -1,9 +1,10 @@
-package utils
+package controller
 
 import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/middlewares"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
@@ -14,8 +15,8 @@ func CreateToken(c *gin.Context, Id uint, email string) string {
 		ID:    uint(Id),
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
-			NotBefore: GetNowTime(),
-			ExpiresAt: GetNowTime() + 60*60*24,
+			NotBefore: utils.GetNowTime(),
+			ExpiresAt: utils.GetNowTime() + 60*60*24,
 			Issuer:    "test",
 		},
 	}
