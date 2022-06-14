@@ -46,9 +46,11 @@
 *   Reference
     *   https://github.com/swaggo/swag/blob/master/README.md#declarative-comments-format
 
-## .env file
+## .yaml file
+*   Usage
+    *   Use viper to process yaml configuration files and integrate into gin framework
 *   Reference
-    *   https://github.com/joho/godotenv
+    *   https://github.com/spf13/viper
 
 ## Develop reference
 *   https://juejin.cn/column/6968662583138238478
