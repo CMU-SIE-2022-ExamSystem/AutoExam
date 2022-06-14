@@ -19,11 +19,12 @@ function AuthCallback() {
     const authCode = searchParams.get('code');
 
     // Here, call auth API to the back-end
-    const backendTokenUrl = getBackendApiUrl("/auth");
+    const backendTokenUrl = getBackendApiUrl("/auth/token");
     axios.post(backendTokenUrl, {code: authCode})
         .then((result: AxiosResponse) => {
             // Success, jump to dashboard
-            window.location.assign(getFrontendUrl('/dashboard'));
+            console.log(result);
+            //window.location.assign(getFrontendUrl('/dashboard'));
         })
         .catch((error: AxiosError) => {
             //Error

@@ -14,7 +14,7 @@ const RedirectPage = ({pageLink}: { pageLink: string }) => {
         const $authCode = document.getElementById("AutolabAuthCode") as HTMLInputElement;
         const $stateCode = localStorage.getItem('authStateValue');
         console.log($authCode.value);
-        const url = "/oauth-callback?code=" + $authCode + "&state=" + $stateCode;
+        const url = "/oauth-callback?code=" + $authCode.value + "&state=" + $stateCode;
         window.location.replace(getFrontendUrl(url));
     }
 
@@ -75,7 +75,8 @@ function AuthRedirect() {
         autolabLink += `?response_type=code&client_id=${clientId}`;
 
         // Scope
-        const scope = authInfo.data.scope || "user_info user_courses user_scores user_submit instructor_all admin_all";
+        //const scope = authInfo.data.scope || "user_info user_courses user_scores user_submit instructor_all admin_all";
+        const scope = "user_info user_courses user_scores user_submit instructor_all admin_all";
         autolabLink += `&scope=` + encodeURIComponent(scope);
 
         // State
@@ -87,19 +88,19 @@ function AuthRedirect() {
         if (process.env.REACT_APP_REDIRECT_URI === 'urn:ietf:wg:oauth:2.0:oob') {
             autolabLink += '&redirect_uri=' + encodeURIComponent(process.env.REACT_APP_REDIRECT_URI);
             setPage(<RedirectPage pageLink={autolabLink}/>);
+        } else {
+            // Otherwise, set up redirectURI and redirect to Autolab.
+            let redirectUri = getFrontendUrl('/oauth-callback');
+
+            redirectUri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI || redirectUri);
+            autolabLink += '&redirect_uri=' + redirectUri;
+            window.location.replace(autolabLink);
         }
-
-        // Otherwise, set up redirectURI and redirect to Autolab.
-        let redirectUri = getFrontendUrl('/oauth-callback');
-
-        redirectUri = encodeURIComponent(process.env.REACT_APP_REDIRECT_URI || redirectUri);
-        autolabLink += '&redirect_uri=' + redirectUri;
-        window.location.replace(autolabLink);
     }
 
     useEffect(() => {
         renderPage();
-    })
+    }, [])
 
     return <>{page}</>
 }
