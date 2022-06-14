@@ -12,7 +12,10 @@ const RedirectPage = ({pageLink}: { pageLink: string }) => {
     const handleSubmit = (e: SyntheticEvent) => {
         e.preventDefault();
         const $authCode = document.getElementById("AutolabAuthCode") as HTMLInputElement;
+        const $stateCode = localStorage.getItem('authStateValue');
         console.log($authCode.value);
+        const url = "/oauth-callback?code=" + $authCode + "&state=" + $stateCode;
+        window.location.replace(getFrontendUrl(url));
     }
 
     return (
@@ -57,11 +60,11 @@ function AuthRedirect() {
         let autolabLink: string = process.env.REACT_APP_AUTOLAB_LOCATION + "/oauth/authorize";
 
         // Backend Authentication API URL, detect whether I need auth (returns Client ID & scope), or I already had token and good to go.
-        const backendAuthUrl = getBackendApiUrl("/auth");
+        const backendAuthUrl = getBackendApiUrl("/auth/info");
         const authInfo = await axios.get(backendAuthUrl);
 
         // If I am good to go, go to dashboard
-        if (authInfo.type === 1) {
+        if (authInfo.type === 0) {
             window.location.replace(getFrontendUrl('/dashboard'));
         }
 
@@ -72,7 +75,8 @@ function AuthRedirect() {
         autolabLink += `?response_type=code&client_id=${clientId}`;
 
         // Scope
-        autolabLink += `&scope=` + encodeURIComponent("user_info user_courses user_scores user_submit instructor_all admin_all");
+        const scope = authInfo.data.scope || "user_info user_courses user_scores user_submit instructor_all admin_all";
+        autolabLink += `&scope=` + encodeURIComponent(scope);
 
         // State
         const stateValue = nanoid();

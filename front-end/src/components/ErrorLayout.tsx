@@ -1,5 +1,5 @@
 import React from 'react';
-import {Container} from "react-bootstrap";
+import {Container, Alert} from "react-bootstrap";
 
 type Props = {
     children?: JSX.Element
@@ -8,7 +8,9 @@ type Props = {
 function ErrorLayout({children} : Props) {
     return (
         <Container className="my-3 d-flex flex-column text-center">
-            {children}
+            <Alert key="danger" variant="danger">
+                {children}
+            </Alert>
         </Container>
     );
 }
