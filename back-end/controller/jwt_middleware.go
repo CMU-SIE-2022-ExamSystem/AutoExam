@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	// "github.com/CMU-SIE-2022-ExamSystem/exam-system/controller"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
@@ -44,7 +43,7 @@ func JWTAuth() gin.HandlerFunc {
 					return
 				}
 			}
-			response.ErrUnauthResponse(c, "unknown error")
+			response.ErrUnauthResponse(c, "couldn't handle this token")
 			c.Abort()
 			return
 		}
