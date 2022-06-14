@@ -47,6 +47,8 @@
     *   https://github.com/swaggo/swag/blob/master/README.md#declarative-comments-format
 
 ## .yaml file
+*   Usage
+    *   Use viper to process yaml configuration files and integrate into gin framework
 *   Reference
     *   https://github.com/spf13/viper
 
