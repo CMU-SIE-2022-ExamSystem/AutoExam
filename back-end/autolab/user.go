@@ -29,11 +29,10 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 
 		global.DB.Save(&user)
 		jwt_token := controller.CreateToken(c, user.ID, user.Email)
-		response.SuccessResponse(c, gin.H{
-			"token":     jwt_token,
-			"firstName": user.First_name,
-			"lastName":  user.Last_name,
-		})
+		set_cookie(c, jwt_token)
+
+		user_info := models.User_Info_Front{Token: jwt_token, First_name: user.First_name, Last_name: user.Last_name}
+		response.SuccessResponse(c, user_info)
 	} else {
 		color.Yellow("User is not in our DB!")
 		new_user := models.User{
@@ -48,12 +47,16 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 
 		global.DB.Create(&new_user)
 		jwt_token := controller.CreateToken(c, new_user.ID, new_user.Email)
-		response.SuccessResponse(c, gin.H{
-			"token":     jwt_token,
-			"firstName": new_user.First_name,
-			"lastName":  new_user.Last_name,
-		})
+		set_cookie(c, jwt_token)
+
+		user_info := models.User_Info_Front{Token: jwt_token, First_name: new_user.First_name, Last_name: new_user.Last_name}
+		response.SuccessResponse(c, user_info)
 	}
+}
+
+func set_cookie(c *gin.Context, cookie string) {
+	// c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("gin_cookie", "Bearer "+cookie, int(controller.Expire_time), "/", "", false, false)
 }
 
 func Usercourses_Handler(c *gin.Context) {

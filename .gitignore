@@ -70,3 +70,13 @@ package-lock.json
 
 #tmp
 tmp
+tmp/main
+
+#settings-dev.yaml
+settings-dev.yaml
+
+#bin
+bin
+
+# swagger-docs
+back-end/docs

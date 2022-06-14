@@ -2,6 +2,7 @@ package config
 
 type ServerConfig struct {
 	Name        string        `mapstructure:"name"`
+	Ip          string        `mapstructure:"ip"`
 	Port        int           `mapstructure:"port"`
 	Mysqlinfo   MysqlConfig   `mapstructure:"mysql"`
 	LogsAddress string        `mapstructure:"logsAddress"`

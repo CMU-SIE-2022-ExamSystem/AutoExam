@@ -21,12 +21,19 @@ type CustomClaims struct {
 
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		auth := c.Request.Header.Get("Authorization")
-		if auth == "" {
-			response.ErrUnauthResponse(c, "please use token to call api")
-			c.Abort()
-			return
+		var auth string
+		var err error
+
+		auth, err = c.Cookie("gin_cookie")
+		if err != nil {
+			auth = c.Request.Header.Get("Authorization")
+			if auth == "" {
+				response.ErrUnauthResponse(c, "please use token to call api")
+				c.Abort()
+				return
+			}
 		}
+
 		if !strings.Contains(auth, "Bearer ") {
 			response.ErrUnauthResponse(c, "please use \"Bearer \" token to call api")
 			c.Abort()

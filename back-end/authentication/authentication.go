@@ -16,14 +16,12 @@ import (
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} Authentication "desc"
+// @Success 200 {object} response.Response{data=models.Autolab_Info_Front} "desc"
 // @Router /auth/info [get]
 func Authinfo_Handler(c *gin.Context) {
 	auth := global.Settings.Autolabinfo
-	response.SuccessResponseWithType(c, gin.H{
-		"clientId": auth.Client_id,
-		"scope":    auth.Scope,
-	}, 1)
+	user_front := models.Autolab_Info_Front{Client_id: auth.Client_id, Scope: auth.Scope}
+	response.SuccessResponseWithType(c, user_front, 1)
 }
 
 // Authtoken_Handler godoc
@@ -33,15 +31,18 @@ func Authinfo_Handler(c *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} Authentication "desc"
-// @Router /auth [post]
+// @Param data body models.Auth_Code true "body data"
+// @Success 200 {object} response.Response{data=models.User_Info_Front} "desc"
+// @Router /auth/token [post]
 func Authtoken_Handler(c *gin.Context) {
 	auth := global.Settings.Autolabinfo
-	code := c.Query("code")
+
+	body := models.Auth_Code{}
+	c.BindJSON(&body)
 
 	http_body := models.Http_Body{
 		Grant_type:    "authorization_code",
-		Code:          code,
+		Code:          body.Code,
 		Redirect_uri:  auth.Redirect_uri,
 		Client_id:     auth.Client_id,
 		Client_secret: auth.Client_secret,

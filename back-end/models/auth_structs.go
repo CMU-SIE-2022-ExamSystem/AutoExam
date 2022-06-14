@@ -29,3 +29,7 @@ type Autolab_err_Response struct {
 	Error             string `json:"error"`
 	Error_description string `json:"error_description"`
 }
+
+type Auth_Code struct {
+	Code string `json:"code"`
+}

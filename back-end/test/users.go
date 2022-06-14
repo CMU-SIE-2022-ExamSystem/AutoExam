@@ -99,3 +99,26 @@ func Login(c *gin.Context) {
 	token := controller.CreateToken(c, 1, "test@gmail")
 	c.JSON(http.StatusOK, token)
 }
+
+// AuthInfo godoc
+// @Summary test
+// @Schemes
+// @Description test
+// @Tags test
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.SwaggerResponse "desc"
+// @Security ApiKeyAuth
+// @Router /test/cookie/ [get]
+func CookieTest(c *gin.Context) {
+	cookie, err := c.Cookie("gin_cookie")
+
+	if err != nil {
+		cookie = "NotSet"
+		c.SetCookie("gin_cookie", "test", int(controller.Expire_time), "/", "localhost", false, true)
+	}
+	fmt.Println("============================")
+	fmt.Printf("Cookie value: %s \n", cookie)
+	fmt.Println("============================")
+
+}

@@ -19,5 +19,6 @@ func TestRouter(Router *gin.RouterGroup) {
 		TestRouter.GET("/login", test.Login)
 		TestRouter.GET("/courses", controller.JWTAuth(), autolab.Usercourses_Handler)
 		TestRouter.GET("/refresh", controller.JWTAuth(), controller.Userrefresh_Handler)
+		TestRouter.GET("/cookie", test.CookieTest)
 	}
 }

@@ -16,6 +16,17 @@ type UserToken struct {
 	Email string `json:"email"`
 }
 
+type Autolab_Info_Front struct {
+	Scope     string `json:"scope"`
+	Client_id string `json:"clientId"`
+}
+
+type User_Info_Front struct {
+	Token      string `json:"token"`
+	First_name string `json:"firstName"`
+	Last_name  string `json:"lastName"`
+}
+
 func (User) TableName() string {
 	return "user"
 }

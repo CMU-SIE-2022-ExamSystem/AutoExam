@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	Expire_time int64 = 60 * 60 * 24
+)
+
 func CreateToken(c *gin.Context, Id uint, email string) string {
 	j := NewJWT()
 	claims := CustomClaims{
@@ -15,7 +19,7 @@ func CreateToken(c *gin.Context, Id uint, email string) string {
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
 			NotBefore: utils.GetNowTime(),
-			ExpiresAt: utils.GetNowTime() + 60*60*24,
+			ExpiresAt: utils.GetNowTime() + Expire_time,
 			Issuer:    "test",
 		},
 	}

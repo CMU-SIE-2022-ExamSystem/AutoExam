@@ -20,12 +20,11 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8080
+// @host      global.Settings.Ip:8080
 // @securityDefinitions.apikey  ApiKeyAuth
 // @in header
 // @name Authorization
 func main() {
-
 	initialize.InitConfig()
 
 	Router := initialize.Routers()
@@ -39,5 +38,4 @@ func main() {
 		zap.L().Info("error function", zap.String("error", "start error!"))
 		fmt.Println(err)
 	}
-
 }
