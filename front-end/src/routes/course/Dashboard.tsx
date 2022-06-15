@@ -1,7 +1,10 @@
-import React from 'react';
+import React, {useCallback, useEffect} from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import AppLayout from "../../components/AppLayout";
 import TopNavbar from "../../components/TopNavbar";
+import {getBackendApiUrl} from "../../utils/url";
+import {secureGet} from "../../utils/axios";
+import {useCookies} from "react-cookie";
 
 interface CourseProps {
     name: string;
@@ -36,6 +39,21 @@ function Dashboard() {
         semester: "Fall 2022",
         authLevel: "Student"
     }]
+
+    const [cookies] = useCookies(['token']);
+
+    const getUsers = useCallback(async () => {
+        const url = getBackendApiUrl("/test/users");
+        const token = cookies.token;
+        console.log(token);
+        const result = await secureGet(url, {headers: {Authorization: "Bearer " + token}});
+        console.log(result);
+    }, [cookies]);
+
+    useEffect(() => {
+        getUsers();
+    }, [getUsers])
+
     return (
         <div>
             <TopNavbar brand={null}/>
