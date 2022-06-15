@@ -18,6 +18,7 @@ func Routers() *gin.Engine {
 
 	ApiGroup := Router.Group("/")
 	router.AuthRouter(ApiGroup)
+	router.UserRouter(ApiGroup)
 	router.SwaggerRouter(ApiGroup)
 	router.TestRouter(ApiGroup)
 	return Router

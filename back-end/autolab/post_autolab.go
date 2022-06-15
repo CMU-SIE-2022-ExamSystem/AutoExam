@@ -1,4 +1,4 @@
-package controller
+package autolab
 
 import (
 	"bytes"
@@ -20,12 +20,12 @@ func autolab_Oauth_Url(endpoint string) string {
 	return autolab_api_url
 }
 
-func Autolab_Auth_Handler(c *gin.Context, endpoint string, http_body interface{}) (models.Autolab_Response, bool) {
+func AutolabAuthHandler(c *gin.Context, endpoint string, http_body interface{}) (models.Autolab_Response, bool) {
 	resp_body, _ := json.Marshal(http_body)
 	resp, err := http.Post(autolab_Oauth_Url(endpoint), "application/json", bytes.NewBuffer(resp_body))
 
 	if err != nil {
-		Autolab_Error_Hander(c, resp, err)
+		AutolabErrorHander(c, resp, err)
 	}
 
 	defer resp.Body.Close()

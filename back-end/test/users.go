@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/controller"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/gin-gonic/gin"
@@ -65,7 +65,7 @@ func getUser(id uint, email string) models.User {
 func GetUsers(c *gin.Context) {
 	users := getUsers()
 	fmt.Println("=====================")
-	fmt.Println(controller.GetEmail(c))
+	fmt.Println(jwt.GetEmail(c))
 	fmt.Println("=====================")
 	response.SuccessResponse(c, users)
 }
@@ -93,10 +93,10 @@ func GetUser(c *gin.Context) {
 // @Tags test
 // @Accept json
 // @Produce json
-// @Success 200 {object} models.UserToken "desc"
+// @Success 200 {object} models.User_Token "desc"
 // @Router /test/login/ [get]
 func Login(c *gin.Context) {
-	token := controller.CreateToken(c, 1, "test@gmail")
+	token := jwt.CreateToken(c, 1, "test@gmail")
 	c.JSON(http.StatusOK, token)
 }
 
@@ -115,7 +115,7 @@ func CookieTest(c *gin.Context) {
 
 	if err != nil {
 		cookie = "NotSet"
-		c.SetCookie("gin_cookie", "test", int(controller.Expire_time), "/", "localhost", false, true)
+		c.SetCookie("gin_cookie", "test", int(jwt.Expire_time), "/", "localhost", false, true)
 	}
 	fmt.Println("============================")
 	fmt.Printf("Cookie value: %s \n", cookie)

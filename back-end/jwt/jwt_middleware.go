@@ -1,4 +1,4 @@
-package controller
+package jwt
 
 import (
 	"errors"
@@ -71,7 +71,7 @@ func validateToken(c *gin.Context, claims CustomClaims) {
 
 	now := time.Now().Unix()
 	if user.Create_at+user.Expires_in < now {
-		Userrefresh_Handler(c)
+		UserRefreshHandler(c)
 	}
 }
 

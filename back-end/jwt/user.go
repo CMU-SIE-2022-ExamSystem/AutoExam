@@ -1,8 +1,7 @@
-package controller
+package jwt
 
 import (
-	"fmt"
-
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
@@ -10,17 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func FindUserInfo(email string) (*models.User, bool) {
-	var user models.User
-	rows := global.DB.Where(&models.User{Email: email}).Find(&user)
-	fmt.Println(&user)
-	if rows.RowsAffected < 1 {
-		return &user, false
-	}
-	return &user, true
-}
-
-func Userrefresh_Handler(c *gin.Context) {
+func UserRefreshHandler(c *gin.Context) {
 	user_email := GetEmail(c)
 	user := models.User{ID: user_email.ID}
 	global.DB.Find(&user)
@@ -36,7 +25,7 @@ func Userrefresh_Handler(c *gin.Context) {
 		Client_secret: auth.Client_secret,
 	}
 
-	autolab_resp, flag := Autolab_Auth_Handler(c, "/oauth/token", http_body)
+	autolab_resp, flag := autolab.AutolabAuthHandler(c, "/oauth/token", http_body)
 
 	if flag {
 		user.Access_token = autolab_resp.Access_token

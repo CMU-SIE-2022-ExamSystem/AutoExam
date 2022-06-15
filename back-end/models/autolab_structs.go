@@ -17,3 +17,8 @@ type User_Courses struct {
 	Display_name string `json:"display_name"`
 	Auth_level   string `json:"auth_level"`
 }
+
+type Autolab_Info_Front struct {
+	Scope     string `json:"scope"`
+	Client_id string `json:"clientId"`
+}

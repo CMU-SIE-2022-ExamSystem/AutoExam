@@ -11,14 +11,9 @@ type User struct {
 	Expires_in    int64  `json:"expires_in"`
 }
 
-type UserToken struct {
+type User_Token struct {
 	ID    uint   `json:"id" gorm:"primaryKey"`
 	Email string `json:"email"`
-}
-
-type Autolab_Info_Front struct {
-	Scope     string `json:"scope"`
-	Client_id string `json:"clientId"`
 }
 
 type User_Info_Front struct {

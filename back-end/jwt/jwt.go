@@ -1,4 +1,4 @@
-package controller
+package jwt
 
 import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
@@ -32,7 +32,7 @@ func CreateToken(c *gin.Context, Id uint, email string) string {
 	return token
 }
 
-func GetEmail(c *gin.Context) (user models.UserToken) {
+func GetEmail(c *gin.Context) (user models.User_Token) {
 
 	email, err := c.Get("email")
 	if !err {
@@ -43,6 +43,6 @@ func GetEmail(c *gin.Context) (user models.UserToken) {
 		response.ErrorInternalResponse(c, response.Error{Type: response.Authentication, Message: "there is no token in gin.Context"})
 	}
 
-	user = models.UserToken{ID: id.(uint), Email: email.(string)}
+	user = models.User_Token{ID: id.(uint), Email: email.(string)}
 	return
 }

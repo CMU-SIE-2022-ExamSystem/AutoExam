@@ -1,4 +1,4 @@
-name: "123"
+name: "name"
 ip: "localhost"
 port: 8080
 logsAddress: "./backend_logs/"

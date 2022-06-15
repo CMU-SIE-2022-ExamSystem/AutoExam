@@ -1,4 +1,4 @@
-package controller
+package autolab
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Autolab_Error_Hander(c *gin.Context, resp *http.Response, err error) {
+func AutolabErrorHander(c *gin.Context, resp *http.Response, err error) {
 	if err != nil {
 		response.ErrUnauthResponse(c, "There may be something wrong with Autolab's web server, please try again later.")
 	}

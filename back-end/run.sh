@@ -2,7 +2,7 @@
 
 # install swag and initialize
 FILE=~/go/bin/swag
-if [ !-f "$FILE" ]; then
+if [ ! -f "$FILE" ]; then
     echo "install swag"  
    go install github.com/swaggo/swag/cmd/swag@latest
 fi
@@ -13,7 +13,7 @@ echo "swag initialize"
 FOLDER=./bin
 if [ ! -d "$FOLDER" ]; then
     echo "install air"  
-   curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s > temp.html
+   curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s
 fi
 
 # # run server
