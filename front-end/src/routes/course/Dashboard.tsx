@@ -62,7 +62,7 @@ function Dashboard() {
                     <h1 className="mb-4">My Courses</h1>
                     <Row xs={1} md={2} lg={3} className="g-4">
                         {listOfCourses.map(course => (
-                            <Col>
+                            <Col key={course.name}>
                                 <Course {...course}/>
                             </Col>
                         ))}

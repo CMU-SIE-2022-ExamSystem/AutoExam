@@ -1,20 +1,27 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './App.css';
-import TopNavbar from "./components/TopNavbar";
-import AppLayout from "./components/AppLayout";
-import {Link} from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
+import Dashboard from "./routes/course/Dashboard";
+import Assessments from "./routes/course/Assessments";
+import AuthRedirect from "./routes/auth/AuthRedirect";
+import AuthCallback from "./routes/auth/AuthCallback";
+import Index from "./routes/Index";
 
-function App() {
+import GlobalConfigContext from "./components/GlobalConfigContext";
+
+const App = () => {
+    const [globalConfig] = useState(null);
     return (
         <div className="App">
-            <TopNavbar />
-            <AppLayout>
-                <div>
-                    <h1>Exam Server</h1>
-                    <h4 className="mb-3">This website needs authorization from Autolab.</h4>
-                    <div><Link to="/oauth">OAuth 2.0 Redirect</Link></div>
-                </div>
-            </AppLayout>
+            <GlobalConfigContext.Provider value={globalConfig}>
+                <Routes>
+                    <Route path='/' element={<Index />}/>
+                    <Route path="dashboard" element={<Dashboard/>}/>
+                    <Route path="assessments" element={<Assessments/>}/>
+                    <Route path="oauth" element={<AuthRedirect/>}/>
+                    <Route path="oauth-callback" element={<AuthCallback/>}/>
+                </Routes>
+            </GlobalConfigContext.Provider>
         </div>
     );
 }
