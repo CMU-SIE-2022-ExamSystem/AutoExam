@@ -3,7 +3,18 @@ The goal of this project is to build a web-based system for autolab's instructor
 
 ## Front-end
 ### Tech Stack
-*   React
+*   Language: TypeScript
+    *   Pros:
+        *   Strong Typed: provide robustness development
+
+*   Framework: React / `create-react-app`
+    *   Pros:
+        *   Widely-used
+        *   Many examples and libraries
+
+*   User Interface: Bootstrap (`React-Bootstrap`)
+
+
 
 
 ## Back-end
@@ -22,7 +33,7 @@ The goal of this project is to build a web-based system for autolab's instructor
         *   Error management mechanism: can collect errors in the program.
 *   Database:   MySQL, MongoDB
     *   MySQL: For gin customized structure by gin gorm package
-    *   MongoDB: For json object storation
+    *   MongoDB: For JSON object storage
 
 
 ### Process
@@ -31,10 +42,10 @@ The goal of this project is to build a web-based system for autolab's instructor
     *   UI Development
 
 *   Back-end    
-    | Process                        | Status      |
-    |--------------------------------|-------------|
-    | Framework Structure Design     | Finished    |
-    | Authentication                 | Integrating |
-    | Autolab and Tango Intergration | Developing  |
-    | Questions Storage              | Developing  |
-    | Exam Generator                 | Developing  |
+    | Process                       | Status      |
+    | ----------------------------- | ----------- |
+    | Framework Structure Design    | Finished    |
+    | Authentication                | Integrating |
+    | Autolab and Tango Integration | Developing  |
+    | Questions Storage             | Developing  |
+    | Exam Generator                | Developing  |
