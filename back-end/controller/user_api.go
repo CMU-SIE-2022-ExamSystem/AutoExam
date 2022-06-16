@@ -79,7 +79,7 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 // @Produce json
 // @Success 200 {object} response.Response{data=models.User_Courses} "desc"
 // @Security ApiKeyAuth
-// @Router /test/courses [get]
+// @Router /user/courses [get]
 func Usercourses_Handler(c *gin.Context) {
 	user_email := jwt.GetEmail(c)
 	user := models.User{ID: user_email.ID}
@@ -87,7 +87,7 @@ func Usercourses_Handler(c *gin.Context) {
 	token := user.Access_token
 
 	body := autolab.AutolabUserHandler(c, token, "/courses")
-	fmt.Println(string(body))
+	// fmt.Println(string(body))
 
 	autolab_resp := utils.User_courses_trans(string(body))
 
