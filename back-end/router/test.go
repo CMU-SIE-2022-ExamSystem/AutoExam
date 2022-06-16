@@ -1,8 +1,8 @@
 package router
 
 import (
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/controller"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/test"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,9 +13,9 @@ func TestRouter(Router *gin.RouterGroup) {
 			panic("123")
 		})
 
-		TestRouter.GET("/users", jwt.JWTAuth(), test.GetUsers)
-		TestRouter.GET("/login", test.Login)
+		TestRouter.GET("/users", jwt.JWTAuth(), controller.GetUsers)
+		TestRouter.GET("/login", controller.Login)
 		TestRouter.GET("/refresh", jwt.JWTAuth(), jwt.UserRefreshHandler)
-		TestRouter.GET("/cookie", test.CookieTest)
+		TestRouter.GET("/cookie", controller.CookieTest)
 	}
 }

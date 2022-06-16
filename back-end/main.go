@@ -25,14 +25,8 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	initialize.InitConfig()
-
-	Router := initialize.Routers()
-
-	initialize.InitLogger()
-	initialize.InitMysqlDB()
-
-	err := Router.Run(fmt.Sprintf(":%d", global.Settings.Port))
+	server := initialize.SetupServer()
+	err := server.Run(fmt.Sprintf(":%d", global.Settings.Port))
 
 	if err != nil {
 		zap.L().Info("error function", zap.String("error", "start error!"))
