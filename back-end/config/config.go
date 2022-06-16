@@ -9,6 +9,7 @@ type ServerConfig struct {
 	Logger      string        `mapstructure:"logger"`
 	Autolabinfo AutolabConfig `mapstructure:"autolab"`
 	JWTKey      JWTconfig     `mapstructure:"jwt"`
+	MongoDB     MongoDBConfig `mapstructure:"mongodb"`
 }
 
 type AutolabConfig struct {
@@ -30,4 +31,9 @@ type MysqlConfig struct {
 
 type JWTconfig struct {
 	SigningKey string `mapstructure:"key" json:"key"`
+}
+
+type MongoDBConfig struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
 }

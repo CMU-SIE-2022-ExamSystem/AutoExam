@@ -20,7 +20,7 @@ func InitMysqlDB() {
 
 	if err != nil {
 		color.Red("========================================================")
-		color.Red("DB connection is not correct, please check settings-dev.yaml file and rerun the server again")
+		color.Red("MySQL connection is not correct, please check settings-dev.yaml file and rerun the server again")
 		color.Red("========================================================")
 		os.Exit(3)
 	}

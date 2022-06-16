@@ -9,6 +9,7 @@ func SetupServer() *gin.Engine {
 
 	InitLogger()
 	InitMysqlDB()
+	InitMongoDB()
 
 	return server
 }
