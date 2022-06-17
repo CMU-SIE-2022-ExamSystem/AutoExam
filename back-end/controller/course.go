@@ -21,6 +21,7 @@ import (
 // @Success 200 {object} response.Response "desc"
 // @Param        course_name   		path      string  true  "Course Name"
 // @Param        assessment_name   	path      string  true  "Assessment Name"
+// @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name}/exam [get]
 func Exam_Handler(c *gin.Context) {
 	response.SuccessResponse(c, dao.GetQuestions())
@@ -35,6 +36,7 @@ func Exam_Handler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=models.Assessments} "desc"
+// @Param        course_name   		path      string  true  "Course Name"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments [get]
 func Assessments_Handler(c *gin.Context) {
