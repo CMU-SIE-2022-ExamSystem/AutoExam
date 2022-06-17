@@ -1,5 +1,6 @@
 import React from 'react';
 import {} from 'react-bootstrap';
+import { Link } from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
 
@@ -13,7 +14,7 @@ const AssessmentRow = ({name}: AssessmentProps) => {
             <td></td>
             <td></td>
             <td></td>
-            <td></td>
+            <td><Link to={name} className="btn btn-primary">Take Exam</Link></td>
         </tr>
     )
 }

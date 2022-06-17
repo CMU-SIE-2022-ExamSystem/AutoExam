@@ -11,6 +11,8 @@ import AuthRedirect from './routes/auth/AuthRedirect';
 import AuthCallback from './routes/auth/AuthCallback';
 import Assessments from "./routes/course/Assessments";
 import Dashboard from "./routes/course/Dashboard";
+import ExamInstructions from './routes/course/ExamInstructions';
+import ExamQuestions from './routes/course/ExamQuestions';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -22,6 +24,9 @@ root.render(
                 <Route path='/' element={<App/>}/>
                 <Route path="dashboard" element={<Dashboard/>}/>
                 <Route path="assessments" element={<Assessments/>}/>
+                <Route path="assessments/:exam_id" element={<ExamInstructions/>}/>
+                <Route path="assessments/:exam_id/questions" element={<ExamQuestions/>}/>
+                <Route path="questions" element={<ExamQuestions/>}/>
                 <Route path="oauth" element={<AuthRedirect/>}/>
                 <Route path="oauth-callback" element={<AuthCallback/>}/>
             </Routes>
