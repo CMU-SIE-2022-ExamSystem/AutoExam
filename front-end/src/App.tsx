@@ -7,13 +7,13 @@ import AuthRedirect from "./routes/auth/AuthRedirect";
 import AuthCallback from "./routes/auth/AuthCallback";
 import Index from "./routes/Index";
 
-import GlobalConfigContext from "./components/GlobalConfigContext";
+import {GlobalStateProvider} from "./components/GlobalStateProvider";
 
 const App = () => {
-    const [globalConfig] = useState(null);
+    const [config, setConfig] = useState<any>({});
     return (
         <div className="App">
-            <GlobalConfigContext.Provider value={globalConfig}>
+            <GlobalStateProvider>
                 <Routes>
                     <Route path='/' element={<Index />}/>
                     <Route path="dashboard" element={<Dashboard/>}/>
@@ -21,7 +21,7 @@ const App = () => {
                     <Route path="oauth" element={<AuthRedirect/>}/>
                     <Route path="oauth-callback" element={<AuthCallback/>}/>
                 </Routes>
-            </GlobalConfigContext.Provider>
+            </GlobalStateProvider>
         </div>
     );
 }

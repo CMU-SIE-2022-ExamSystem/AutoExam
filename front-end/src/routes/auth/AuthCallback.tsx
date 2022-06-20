@@ -1,16 +1,16 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import {useSearchParams} from "react-router-dom";
 import ErrorLayout from "../../components/ErrorLayout";
 import {AxiosError, AxiosResponse} from "axios";
 import {getBackendApiUrl, getFrontendUrl} from "../../utils/url";
-import {useCookies} from "react-cookie";
+import {useGlobalState} from "../../components/GlobalStateProvider";
 
 const axios = require('axios').default;
 
 function AuthCallback() {
     let [authCode, setAuthCode] = useState("N/A");
     let [searchParams] = useSearchParams();
-    const [cookies, setCookie] = useCookies(['token']);
+    const {setState} = useGlobalState();
 
     const CallBack = useCallback(async () => {
         const stateValue = localStorage.getItem('authStateValue')
@@ -30,14 +30,16 @@ function AuthCallback() {
                 // Success, jump to dashboard
 
                 const data = result.data.data;
-                setCookie('token', data.token, {path: '/'});
+                const myName = data.firstName + " " + data.lastName;
 
-                window.location.assign(getFrontendUrl('/dashboard'));
+                setState({name: myName, token: data.token});
+
+                //window.location.assign(getFrontendUrl('/dashboard'));
             })
             .catch((error: AxiosError) => {
                 //Error
             })
-    }, [searchParams, setCookie])
+    }, [searchParams, setState])
 
     useEffect(() => {
         CallBack();

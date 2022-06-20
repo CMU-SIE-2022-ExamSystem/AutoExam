@@ -1,11 +1,7 @@
 import React from 'react';
 import {Container} from "react-bootstrap";
 
-type Props = {
-    children?: JSX.Element
-}
-
-function AppLayout({children} : Props) {
+function AppLayout({children} : {children: React.ReactNode}) {
     return (
         <Container className="my-3 d-flex flex-column text-center">
             {children}
