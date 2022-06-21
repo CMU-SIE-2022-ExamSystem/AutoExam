@@ -14,6 +14,7 @@ type ServerConfig struct {
 
 type AutolabConfig struct {
 	Protocol      string `mapstructure:"protocol"`
+	Skip_Secure   bool   `mapstructure:"skip_secure"`
 	Ip            string `mapstructure:"ip"`
 	Client_id     string `mapstructure:"client_id"`
 	Client_secret string `mapstructure:"client_secret"`
