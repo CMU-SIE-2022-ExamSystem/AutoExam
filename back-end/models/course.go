@@ -9,3 +9,10 @@ type Assessments struct {
 	Category_name    string `json:"category_name"`
 	Grading_deadline string `json:"grading_deadline"`
 }
+
+type Submissions struct {
+	Version    int         `json:"version"`
+	Filename   string      `json:"filename"`
+	Created_at string      `json:"created_at"`
+	Scores     interface{} `json:"scores"`
+}
