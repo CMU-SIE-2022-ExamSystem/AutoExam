@@ -1,5 +1,3 @@
-import React from 'react';
-
 // Frontend Path
 const getFrontendUrl = (path: string) => {
     return window.location.origin + path;

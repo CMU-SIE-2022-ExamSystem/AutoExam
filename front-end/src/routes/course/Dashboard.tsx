@@ -4,8 +4,7 @@ import AppLayout from "../../components/AppLayout";
 import TopNavbar from "../../components/TopNavbar";
 import {getBackendApiUrl} from "../../utils/url";
 import {secureGet} from "../../utils/axios";
-import {useCookies} from "react-cookie";
-import {GlobalStateProvider, useGlobalState} from "../../components/GlobalStateProvider";
+import {useGlobalState} from "../../components/GlobalStateProvider";
 
 interface CourseProps {
     name: string;
@@ -40,19 +39,19 @@ function Dashboard() {
         semester: "Fall 2022",
         authLevel: "Student"
     }]
-    const { state } = useGlobalState();
+    const {globalState, setGlobalState} = useGlobalState();
 
     const getUsers = useCallback(async () => {
         const url = getBackendApiUrl("/test/users");
-        const token = state.token;
+        const token = globalState.token;
         console.log(token);
         const result = await secureGet(url, {headers: {Authorization: "Bearer " + token}});
         console.log(result);
-    }, [state]);
+    }, []);
 
     useEffect(() => {
         getUsers();
-    }, [getUsers])
+    }, [])
 
     return (
         <div>

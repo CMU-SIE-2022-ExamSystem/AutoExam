@@ -1,22 +1,24 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
-import {useSearchParams} from "react-router-dom";
+import React, {useCallback, useEffect, useState} from "react";
+import {useNavigate, useSearchParams} from "react-router-dom";
 import ErrorLayout from "../../components/ErrorLayout";
 import {AxiosError, AxiosResponse} from "axios";
 import {getBackendApiUrl, getFrontendUrl} from "../../utils/url";
-import {useGlobalState} from "../../components/GlobalStateProvider";
+import {GlobalStateInterface, useGlobalState} from "../../components/GlobalStateProvider";
 
 const axios = require('axios').default;
 
-function AuthCallback() {
-    let [authCode, setAuthCode] = useState("N/A");
+const AuthCallback = () => {
+    let [authCode, setAuthCode] = useState<string>("N/A");
     let [searchParams] = useSearchParams();
-    const {setState} = useGlobalState();
+    const {globalState, setGlobalState} = useGlobalState();
+    const navigate = useNavigate();
 
     const CallBack = useCallback(async () => {
         const stateValue = localStorage.getItem('authStateValue')
         const stateQuery = searchParams.get('state')
+        const ignoreState = searchParams.get('ignore_state');
 
-        if (stateValue !== stateQuery) {
+        if (stateValue !== stateQuery && ignoreState !== "true") {
             return (<ErrorLayout><div>Bad State Value</div></ErrorLayout>)
         }
 
@@ -32,14 +34,17 @@ function AuthCallback() {
                 const data = result.data.data;
                 const myName = data.firstName + " " + data.lastName;
 
-                setState({name: myName, token: data.token});
+                console.log(myName);
+                console.log(data.token);
+                const newState: GlobalStateInterface = {name: myName, token: data.token};
+                setGlobalState(newState);
 
-                //window.location.assign(getFrontendUrl('/dashboard'));
+                navigate("/dashboard");
             })
             .catch((error: AxiosError) => {
                 //Error
             })
-    }, [searchParams, setState])
+    }, [])
 
     useEffect(() => {
         CallBack();

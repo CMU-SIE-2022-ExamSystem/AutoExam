@@ -5,17 +5,18 @@ import {Container, Image, Form, Button} from "react-bootstrap";
 import {nanoid} from "nanoid";
 import autolab_logo from '../../images/autolab_logo.png';
 import {getBackendApiUrl, getFrontendUrl} from "../../utils/url";
+import {NavigateFunction, useNavigate} from "react-router-dom";
 
 const axios = require('axios').default;
 
-const RedirectPage = ({pageLink}: { pageLink: string }) => {
+const RedirectPage = ({pageLink, navigate}: { pageLink: string; navigate: NavigateFunction }) => {
     const handleSubmit = (e: SyntheticEvent) => {
         e.preventDefault();
         const $authCode = document.getElementById("AutolabAuthCode") as HTMLInputElement;
         const $stateCode = localStorage.getItem('authStateValue');
         console.log($authCode.value);
         const url = "/oauth-callback?code=" + $authCode.value + "&state=" + $stateCode;
-        window.location.replace(getFrontendUrl(url));
+        navigate(url, {replace: true});
     }
 
     return (
@@ -54,8 +55,9 @@ const RedirectPage = ({pageLink}: { pageLink: string }) => {
 function AuthRedirect() {
 
     const [page, setPage] = useState(<div><h1>Redirecting...</h1></div>);
+    const navigate = useNavigate();
 
-    const renderPage = async () => {
+    const renderPage = async (navigate: NavigateFunction) => {
         // Autolab link URL
         let autolabLink: string = process.env.REACT_APP_AUTOLAB_LOCATION + "/oauth/authorize";
 
@@ -87,7 +89,7 @@ function AuthRedirect() {
         // RedirectURI: if local, display the page
         if (process.env.REACT_APP_REDIRECT_URI === 'urn:ietf:wg:oauth:2.0:oob') {
             autolabLink += '&redirect_uri=' + encodeURIComponent(process.env.REACT_APP_REDIRECT_URI);
-            setPage(<RedirectPage pageLink={autolabLink}/>);
+            setPage(<RedirectPage pageLink={autolabLink} navigate={navigate}/>);
         } else {
             // Otherwise, set up redirectURI and redirect to Autolab.
             let redirectUri = getFrontendUrl('/oauth-callback');
@@ -99,7 +101,8 @@ function AuthRedirect() {
     }
 
     useEffect(() => {
-        renderPage();
+        renderPage(navigate)
+            .catch(error => console.log("Bad Rendering"));
     }, [])
 
     return <>{page}</>
