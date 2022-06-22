@@ -51,3 +51,12 @@ func Course_assessments_trans(str string) []models.Assessments {
 	}
 	return response
 }
+
+func Assessments_submissions_trans(str string) []models.Submissions {
+	var response []models.Submissions
+	err := json.Unmarshal([]byte(str), &response)
+	if err != nil {
+		color.Yellow("json transfer error>>> " + err.Error())
+	}
+	return response
+}
