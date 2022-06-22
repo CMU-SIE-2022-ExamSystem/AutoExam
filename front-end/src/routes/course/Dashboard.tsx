@@ -5,6 +5,8 @@ import TopNavbar from "../../components/TopNavbar";
 import {getBackendApiUrl} from "../../utils/url";
 import {secureGet} from "../../utils/axios";
 import {useGlobalState} from "../../components/GlobalStateProvider";
+import { } from 'react-router-dom';
+import { LinkContainer } from 'react-router-bootstrap';
 
 interface CourseProps {
     name: string;
@@ -15,19 +17,21 @@ interface CourseProps {
 const Course = (props: CourseProps) => {
     const { name, semester, authLevel } = props
     return (
-        <Card className="text-start h-100">
-            <Card.Body className="d-flex flex-column">
-                <Card.Title className="fs-4 fw-bold">{name}</Card.Title>
-                <Card.Text>{semester}</Card.Text>
-                <footer className="text-muted mt-auto">{authLevel}</footer>
-            </Card.Body>
-        </Card>
+        <LinkContainer to={`/${name}`} style={{ cursor: "pointer" }}>
+            <Card className="text-start h-100">
+                <Card.Body className="d-flex flex-column">
+                    <Card.Title className="fs-4 fw-bold">{name}</Card.Title>
+                    <Card.Text>{semester}</Card.Text>
+                    <footer className="text-muted mt-auto">{authLevel}</footer>
+                </Card.Body>
+            </Card>
+        </LinkContainer>
     )
 }
 
 function Dashboard() {
     const listOfCourses = [{
-        name: "Distributed Systems",
+        name: "Introduction to Computer Systems",
         semester: "Fall 2022",
         authLevel: "Student"
     }, {
@@ -35,7 +39,7 @@ function Dashboard() {
         semester: "Fall 2022",
         authLevel: "Student"
     }, {
-        name: "Introduction to Computer Systems",
+        name: "Distributed Systems",
         semester: "Fall 2022",
         authLevel: "Student"
     }]

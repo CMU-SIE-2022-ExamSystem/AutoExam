@@ -18,7 +18,7 @@ const TopNavbar = ({brand} : Props) => {
                     <Navbar.Toggle />
                     <Navbar.Collapse id="top-navbar-nav">
                         <Nav className="me-auto">
-                            <Nav.Link href="#">Dashboard</Nav.Link>
+                            <Nav.Link href="/dashboard">Dashboard</Nav.Link>
                             <Nav.Link href="#">Help</Nav.Link>
                         </Nav>
                         <Nav>

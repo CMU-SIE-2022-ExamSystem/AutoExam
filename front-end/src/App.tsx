@@ -17,10 +17,9 @@ const App = () => {
                 <Routes>
                     <Route path='/' element={<Index />}/>
                     <Route path="dashboard" element={<Dashboard/>}/>
-                    <Route path="assessments" element={<Assessments/>}/>
-                    <Route path="assessments/:exam_id" element={<ExamInstructions/>}/>
-                    <Route path="assessments/:exam_id/questions" element={<ExamQuestions/>}/>
-                    <Route path="questions" element={<ExamQuestions/>}/>
+                    <Route path=":course_name" element={<Assessments/>}/>
+                    <Route path=":course_name/:exam_id" element={<ExamInstructions/>}/>
+                    <Route path=":course_name/:exam_id/questions" element={<ExamQuestions/>}/>
                     <Route path="oauth" element={<AuthRedirect/>}/>
                     <Route path="oauth-callback" element={<AuthCallback/>}/>
                 </Routes>
