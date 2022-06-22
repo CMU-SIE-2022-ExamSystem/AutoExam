@@ -6,6 +6,7 @@ type Choice struct {
 }
 
 type Question struct {
+	Type        string   `json:"questionType" bson:"questionType"`
 	QuestionId  int      `json:"questionId" bson:"questionId"`
 	Description string   `json:"description" bson:"description"`
 	Choices     []Choice `json:"choices" bson:"choices"`
@@ -21,4 +22,14 @@ type Header struct {
 
 type Container struct {
 	Headers []Header `json:"headers"`
+}
+
+type Answer struct {
+	HeaderId  int      `json:"headerId"`
+	Solutions []string `json:"solutions"`
+	Point     []int    `json:"point"`
+}
+
+type AnsContainer struct {
+	Answers []Answer `json:"answers"`
 }

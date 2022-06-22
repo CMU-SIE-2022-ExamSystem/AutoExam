@@ -18,5 +18,5 @@ fi
 
 # # run server
 echo "run server"
-go run main.go
-# ./bin/air
+# go run main.go
+./bin/air

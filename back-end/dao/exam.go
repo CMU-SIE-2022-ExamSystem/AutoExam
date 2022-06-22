@@ -12,7 +12,7 @@ import (
 )
 
 func GetQuestions() []models.Header {
-	collection := global.Mongo.Database("exam").Collection("question_bank")
+	collection := global.Mongo.Database("auto_exam").Collection("question_bank")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

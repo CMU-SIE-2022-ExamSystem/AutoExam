@@ -1,0 +1,65 @@
+version: "3.3"
+services:
+  # comment for no-ssl
+  # caddy:
+  #   container_name: caddy
+  #   image: caddy:latest
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #     - "8080:8080"
+  #   volumes:
+  #     - $PWD/Caddyfile:/etc/caddy/Caddyfile
+  #     # - $PWD/site:/srv
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb:/data/db
+
+  mysql:
+    container_name: mysql-exam
+    image: mysql/mysql-server:latest
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_DATABASE
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_HOST
+      - MYSQL_PORT
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+    volumes:
+      - mysql-exam-db:/var/lib/mysql
+
+  backend:
+    container_name: backend
+    image: golang
+    # build: ./back-end
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql-exam
+      - mongodb
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - ./back-end:/backend
+    working_dir: /backend
+    command: ./run.sh
+
+    
+
+volumes:
+  mongodb:
+  mysql-exam-db:
+  caddy_data:
+  caddy_config:

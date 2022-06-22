@@ -1,0 +1,3 @@
+autoexam.andrew.cmu.edu:8080 {
+	reverse_proxy backend:8080
+}
