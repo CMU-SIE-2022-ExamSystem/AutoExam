@@ -1,4 +1,4 @@
-import React, {createContext, Dispatch, SetStateAction, useContext, useState} from "react";
+import React, {createContext, useState} from "react";
 
 export interface GlobalStateInterface {
     name: string | null;

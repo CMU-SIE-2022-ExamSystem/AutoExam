@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {useNavigate, useSearchParams} from "react-router-dom";
 import ErrorLayout from "../../components/ErrorLayout";
 import {AxiosError, AxiosResponse} from "axios";
-import {getBackendApiUrl, getFrontendUrl} from "../../utils/url";
+import {getBackendApiUrl} from "../../utils/url";
 import {GlobalStateInterface, useGlobalState} from "../../components/GlobalStateProvider";
 
 const axios = require('axios').default;
@@ -10,7 +10,7 @@ const axios = require('axios').default;
 const AuthCallback = () => {
     let [authCode, setAuthCode] = useState<string>("N/A");
     let [searchParams] = useSearchParams();
-    const {globalState, setGlobalState} = useGlobalState();
+    const {setGlobalState} = useGlobalState();
     const navigate = useNavigate();
 
     const CallBack = useCallback(async () => {
@@ -44,7 +44,7 @@ const AuthCallback = () => {
             .catch((error: AxiosError) => {
                 //Error
             })
-    }, [])
+    }, [navigate, searchParams, setGlobalState])
 
     useEffect(() => {
         CallBack();

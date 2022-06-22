@@ -1,5 +1,6 @@
 import React from 'react';
 import {Container, Nav, Navbar, NavDropdown} from 'react-bootstrap';
+import {useGlobalState} from "./GlobalStateProvider";
 
 type Props = {
     brand? : string | null,
@@ -7,7 +8,8 @@ type Props = {
 
 const TopNavbar = ({brand} : Props) => {
     const brandName: string = brand || "ExamServer"
-    const username: string = "John Smith"
+    const {globalState} = useGlobalState();
+    const username: string = globalState.name || "Guest";
     return (
         <>
             <Navbar collapseOnSelect expand="md" bg="dark" variant="dark" className="text-start">

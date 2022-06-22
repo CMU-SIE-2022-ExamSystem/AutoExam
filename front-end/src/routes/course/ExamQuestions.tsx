@@ -4,10 +4,6 @@ import { useParams } from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
 
-const Question = () => {
-
-}
-
 const QuestionList = () => {
 
 }

@@ -3,9 +3,7 @@ import { Row, Col, Card } from 'react-bootstrap';
 import AppLayout from "../../components/AppLayout";
 import TopNavbar from "../../components/TopNavbar";
 import {getBackendApiUrl} from "../../utils/url";
-import {secureGet} from "../../utils/axios";
 import {useGlobalState} from "../../components/GlobalStateProvider";
-import { } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 
 interface CourseProps {
@@ -13,6 +11,8 @@ interface CourseProps {
     semester: string;
     authLevel: string;
 }
+
+const axios = require('axios').default;
 
 const Course = (props: CourseProps) => {
     const { name, semester, authLevel } = props
@@ -43,19 +43,19 @@ function Dashboard() {
         semester: "Fall 2022",
         authLevel: "Student"
     }]
-    const {globalState, setGlobalState} = useGlobalState();
+    const {globalState} = useGlobalState();
 
     const getUsers = useCallback(async () => {
         const url = getBackendApiUrl("/test/users");
         const token = globalState.token;
         console.log(token);
-        const result = await secureGet(url, {headers: {Authorization: "Bearer " + token}});
+        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         console.log(result);
-    }, []);
+    }, [globalState]);
 
     useEffect(() => {
         getUsers();
-    }, [])
+    }, [globalState, getUsers])
 
     return (
         <div>

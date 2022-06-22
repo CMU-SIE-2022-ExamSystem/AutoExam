@@ -31,7 +31,7 @@ const RedirectPage = ({pageLink, navigate}: { pageLink: string; navigate: Naviga
                             <p>After the authorization, there will be an authorization code. Paste the code here to
                                 finish binding.</p>
                         </Container>
-                        <a target="_blank" href={pageLink}>
+                        <a target="_blank" href={pageLink} rel="noreferrer">
                             <Image src={autolab_logo} alt="Autolab Logo">
                             </Image>
                         </a>
@@ -73,7 +73,11 @@ function AuthRedirect() {
         // Otherwise I need authentication. Keep going through OAuth2 process.
 
         // Client ID
-        const clientId = process.env.REACT_APP_CLIENT_ID || authInfo.data.cliendId;
+        let clientId: string = authInfo.data.data.clientId;
+
+        if (process.env.REACT_APP_CLIENT_ID) {
+            clientId = process.env.REACT_APP_CLIENT_ID as string;
+        }
         autolabLink += `?response_type=code&client_id=${clientId}`;
 
         // Scope
@@ -103,7 +107,7 @@ function AuthRedirect() {
     useEffect(() => {
         renderPage(navigate)
             .catch(error => console.log("Bad Rendering"));
-    }, [])
+    }, [navigate])
 
     return <>{page}</>
 }
