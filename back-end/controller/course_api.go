@@ -47,7 +47,7 @@ func Assessments_Handler(c *gin.Context) {
 
 	course_name := c.Param("course_name")
 
-	body := autolab.AutolabUserHandler(c, token, "/courses/"+course_name+"/assessments")
+	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments")
 	// fmt.Println(string(body))
 
 	autolab_resp := utils.Course_assessments_trans(string(body))
@@ -77,10 +77,27 @@ func Submissions_Handler(c *gin.Context) {
 	course_name := c.Param("course_name")
 	assessment_name := c.Param("assessment_name")
 
-	body := autolab.AutolabUserHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
+	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
 	// fmt.Println(string(body))
 
 	autolab_resp := utils.Assessments_submissions_trans(string(body))
+
+	response.SuccessResponse(c, autolab_resp)
+}
+
+func Usersubmit_Handler(c *gin.Context) {
+	user_email := jwt.GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+	token := user.Access_token
+
+	course_name := c.Param("course_name")
+	assessment_name := c.Param("assessment_name")
+
+	body := autolab.AutolabSubmitHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submit", "./autolab/answer.tar")
+	// fmt.Println(string(body))
+
+	autolab_resp := utils.User_submit_trans(string(body))
 
 	response.SuccessResponse(c, autolab_resp)
 }

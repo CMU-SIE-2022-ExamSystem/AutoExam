@@ -14,7 +14,7 @@ func autolab_Api_Url(endpoint string) string {
 	return autolab_api_url
 }
 
-func AutolabUserHandler(c *gin.Context, token string, endpoint string) []byte {
+func AutolabGetHandler(c *gin.Context, token string, endpoint string) []byte {
 	client := &http.Client{}
 	request, _ := http.NewRequest(http.MethodGet, autolab_Api_Url(endpoint), nil)
 	request.Header.Add("Authorization", "Bearer "+token)

@@ -60,3 +60,12 @@ func Assessments_submissions_trans(str string) []models.Submissions {
 	}
 	return response
 }
+
+func User_submit_trans(str string) models.Submit {
+	var response models.Submit
+	err := json.Unmarshal([]byte(str), &response)
+	if err != nil {
+		color.Yellow("json transfer error>>> " + err.Error())
+	}
+	return response
+}

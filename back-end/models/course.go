@@ -16,3 +16,8 @@ type Submissions struct {
 	Created_at string      `json:"created_at"`
 	Scores     interface{} `json:"scores"`
 }
+
+type Submit struct {
+	Version  int    `json:"version"`
+	Filename string `json:"filename"`
+}
