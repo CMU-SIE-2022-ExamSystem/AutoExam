@@ -25,14 +25,13 @@ import (
 // @Router /courses/{course_name}/assessments/{assessment_name}/exam [get]
 func Exam_Handler(c *gin.Context) {
 	response.SuccessResponse(c, dao.GetQuestions())
-	// response.SuccessResponse(c, "1")
 }
 
-// Usercourses_Handler godoc
+// Assessments_Handler godoc
 // @Summary get course assessments
 // @Schemes
 // @Description get course assessments list
-// @Tags user
+// @Tags courses
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=models.Assessments} "desc"
@@ -56,11 +55,11 @@ func Assessments_Handler(c *gin.Context) {
 	response.SuccessResponse(c, filtered_resp)
 }
 
-// Usercourses_Handler godoc
+// Submissions_Handler godoc
 // @Summary get assessment submissions
 // @Schemes
 // @Description get assessment submissions list
-// @Tags user
+// @Tags courses
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=models.Submissions} "desc"
@@ -85,6 +84,18 @@ func Submissions_Handler(c *gin.Context) {
 	response.SuccessResponse(c, autolab_resp)
 }
 
+// Usersubmit_Handler godoc
+// @Summary submit answer
+// @Schemes
+// @Description submit answer to Tango
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response{data=models.Submit} "desc"
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/assessments/{assessment_name}/submit [get]
 func Usersubmit_Handler(c *gin.Context) {
 	user_email := jwt.GetEmail(c)
 	user := models.User{ID: user_email.ID}

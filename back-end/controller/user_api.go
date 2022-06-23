@@ -70,6 +70,15 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 	}
 }
 
+// Usercourses_Handler godoc
+// @Summary get user courses
+// @Schemes
+// @Description get user courses from autolab
+// @Tags user
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response{data=models.User_Courses} "desc"
+// @Router /user/courses [get]
 func Usercourses_Handler(c *gin.Context) {
 	user_email := jwt.GetEmail(c)
 	user := models.User{ID: user_email.ID}
