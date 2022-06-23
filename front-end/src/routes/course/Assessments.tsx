@@ -13,21 +13,23 @@ const AssessmentRow = ({name}: AssessmentProps) => {
             <th scope="row">{name}</th>
             <td></td>
             <td></td>
-            <td></td>
-            <td><Link to={name} className="btn btn-primary">Take Exam</Link></td>
+            <td><Link to={"exams/" + name} className="btn btn-primary">Take Exam</Link></td>
         </tr>
     )
 }
 
 const Table = () => {
     const listOfAssessments = [{
+        exam_id: 1,
         name: 'Exam 1'
     },{
+        exam_id: 2,
         name: 'Exam 2'
     },{
+        exam_id: 3,
         name: 'Final Exam'
     }];
-    const tableBody = listOfAssessments.map(assessment => <AssessmentRow {...assessment}/>)
+    const tableBody = listOfAssessments.map(assessment => <AssessmentRow key={assessment.exam_id} {...assessment}/>)
     return (
         <table className="table text-start">
             <thead>
@@ -35,7 +37,6 @@ const Table = () => {
                     <th scope="col">Assessment</th>
                     <th scope="col">Start At</th>
                     <th scope="col">Due At</th>
-                    <th scope="col">End At</th>
                     <th scope="col">Actions</th>
                 </tr>
             </thead>

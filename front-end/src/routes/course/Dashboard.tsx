@@ -17,7 +17,7 @@ const axios = require('axios').default;
 const Course = (props: CourseProps) => {
     const { name, semester, authLevel } = props
     return (
-        <LinkContainer to={`/${name}`} style={{ cursor: "pointer" }}>
+        <LinkContainer to={`/courses/${name}`} style={{ cursor: "pointer" }}>
             <Card className="text-start h-100">
                 <Card.Body className="d-flex flex-column">
                     <Card.Title className="fs-4 fw-bold">{name}</Card.Title>

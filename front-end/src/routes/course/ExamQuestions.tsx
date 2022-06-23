@@ -3,6 +3,7 @@ import { Button, Card } from 'react-bootstrap';
 import { useParams } from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
+import Question from "../../components/Question";
 
 const QuestionList = () => {
 
@@ -20,13 +21,7 @@ function ExamQuestions() {
                     <h2 className="text-start my-4"><strong>Instructions</strong></h2>
                     <p className="text-start">Some detailed instructions.</p>
                     <br/>
-                    <Card className="text-start h-100">
-                        <Card.Header>Question Title</Card.Header>
-                        <Card.Body className="d-flex flex-column">
-                            <Card.Title className="fs-4 fw-bold">Subquestion No.</Card.Title>
-                            <Card.Text>Detailed questions.</Card.Text>
-                        </Card.Body>
-                    </Card>
+                    <Question></Question>
                     <br/>
                     {/* {questionList} */}
                     <div><Button variant="primary" className="my-4">Submit</Button></div>

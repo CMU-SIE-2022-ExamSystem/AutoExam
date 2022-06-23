@@ -24,12 +24,13 @@ const App = () => {
                             <Dashboard/>
                         </RequireAuth>
                     }/>
-                    <Route path="course" element={<Navigate to="dashboard" replace/>}>
-                        <Route path="course/:course_name" element={<RequireAuth><Assessments/></RequireAuth>}/>
-                        <Route path="course/:course_name/:exam_id" element={<RequireAuth><ExamInstructions/></RequireAuth>}/>
-                        <Route path="course/:course_name/:exam_id/questions" element={<RequireAuth><ExamQuestions/></RequireAuth>}/>
+                    <Route path="courses/:course_name">
+                        <Route index element={<RequireAuth><Assessments/></RequireAuth>}/>
+                        <Route path="exams/:exam_id">
+                            <Route index element={<RequireAuth><ExamInstructions/></RequireAuth>}/>
+                            <Route path="questions" element={<RequireAuth><ExamQuestions/></RequireAuth>}/>
+                        </Route>
                     </Route>
-
                 </Routes>
             </GlobalStateProvider>
         </div>

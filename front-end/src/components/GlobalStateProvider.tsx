@@ -15,7 +15,8 @@ export interface GlobalStateContextType {
 const GlobalStateContext = createContext<GlobalStateContextType>(null!);
 
 export const GlobalStateProvider = ({children} : {children: React.ReactNode}) => {
-    let [globalState, setGlobalState] = useState<GlobalStateInterface>(initialState);
+    let state = JSON.parse(sessionStorage.getItem('globalState') || JSON.stringify(initialState));
+    let [globalState, setGlobalState] = useState<GlobalStateInterface>(state);
     let value = {globalState, setGlobalState};
     return <GlobalStateContext.Provider value={value}>{children}</GlobalStateContext.Provider>;
 }

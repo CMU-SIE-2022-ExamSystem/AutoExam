@@ -38,6 +38,7 @@ const AuthCallback = () => {
                 console.log(data.token);
                 const newState: GlobalStateInterface = {name: myName, token: data.token};
                 setGlobalState(newState);
+                sessionStorage.setItem('globalState', JSON.stringify(newState));
 
                 navigate("/dashboard");
             })
