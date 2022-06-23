@@ -94,7 +94,7 @@ func Usersubmit_Handler(c *gin.Context) {
 	course_name := c.Param("course_name")
 	assessment_name := c.Param("assessment_name")
 
-	body := autolab.AutolabSubmitHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submit", "./autolab/answer.tar")
+	body := autolab.AutolabSubmitHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submit", "./tmp/answer.tar")
 	// fmt.Println(string(body))
 
 	autolab_resp := utils.User_submit_trans(string(body))
