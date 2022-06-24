@@ -61,4 +61,13 @@ func Check_authlevel(c *gin.Context) {
 	} else {
 		response.SuccessResponse(c, "You do not have permission to access here.")
 	}
+	// test_map := make(map[string]string)
+	// test_map["18613"] = "instructor"
+	// test_map["18741"] = "instructor"
+	// test_map["18749"] = "student"
+	// test_map["19673"] = "course_assistant"
+	// test_map["18989"] = "course_assistant"
+	// test_map["39699"] = "student"
+	// test_map["17637"] = "student"
+	// fmt.Println(utils.Map_DBcheck(test_map))
 }

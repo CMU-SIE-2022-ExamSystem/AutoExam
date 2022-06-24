@@ -91,7 +91,8 @@ func CookieTest(c *gin.Context) {
 func FolderTest(c *gin.Context) {
 	user_id := c.Param("user_id")
 	course := c.Param("course")
+	assessment := c.Param("assessment")
 
-	path := utils.Find_folder(c, user_id, course)
+	path := utils.Find_folder(c, user_id, course, assessment)
 	fmt.Println(path)
 }
