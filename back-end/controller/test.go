@@ -8,6 +8,7 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -85,5 +86,12 @@ func CookieTest(c *gin.Context) {
 	fmt.Println("============================")
 	fmt.Printf("Cookie value: %s \n", cookie)
 	fmt.Println("============================")
+}
 
+func FolderTest(c *gin.Context) {
+	user_id := c.Param("user_id")
+	course := c.Param("course")
+
+	path := utils.Find_folder(c, user_id, course)
+	fmt.Println(path)
 }

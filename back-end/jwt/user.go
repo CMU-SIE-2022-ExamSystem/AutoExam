@@ -1,9 +1,12 @@
 package jwt
 
 import (
+	"strings"
+
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
@@ -35,5 +38,27 @@ func UserRefreshHandler(c *gin.Context) {
 		color.Yellow(user.Access_token)
 		color.Yellow(user.Refresh_token)
 		global.DB.Save(&user)
+	}
+}
+
+func Check_authlevel(c *gin.Context) {
+	course_name := c.Param("course_name")
+	user_email := GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+	token := user.Access_token
+
+	body := autolab.AutolabGetHandler(c, token, "/courses")
+
+	if strings.Contains(string(body), course_name) {
+		autolab_resp := utils.User_courses_trans(string(body))
+		autolab_map := utils.Map_user_authlevel(autolab_resp)
+		if autolab_map[course_name] == "student" {
+			response.SuccessResponse(c, "You do not have permission to access here.")
+		} else {
+			response.SuccessResponse(c, "You have permission to access here:)")
+		}
+	} else {
+		response.SuccessResponse(c, "You do not have permission to access here.")
 	}
 }

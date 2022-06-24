@@ -17,5 +17,7 @@ func TestRouter(Router *gin.RouterGroup) {
 		TestRouter.GET("/login", controller.Login)
 		TestRouter.GET("/refresh", jwt.JWTAuth(), jwt.UserRefreshHandler)
 		TestRouter.GET("/cookie", controller.CookieTest)
+		TestRouter.GET("/:course_name/check", jwt.JWTAuth(), jwt.Check_authlevel)
+		TestRouter.GET("/f/:course/:user_id", controller.FolderTest)
 	}
 }

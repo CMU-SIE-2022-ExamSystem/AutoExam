@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func FindUserInfo(email string) (*models.User, bool) {
+func find_userinfo(email string) (*models.User, bool) {
 	var user models.User
 	rows := global.DB.Where(&models.User{Email: email}).Find(&user)
 	fmt.Println(&user)
@@ -34,7 +34,7 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 
 	userinfo_resp := utils.User_info_trans(string(body))
 
-	user, flag := FindUserInfo(userinfo_resp.Email)
+	user, flag := find_userinfo(userinfo_resp.Email)
 
 	if flag {
 		color.Yellow("User is already in our DB!")
