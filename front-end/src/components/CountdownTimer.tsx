@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Card, Button} from 'react-bootstrap';
+import {Card, Button, Collapse} from 'react-bootstrap';
 
 const computeDiffTime = (targetTime: string) => {
     const currentTime = Date.now();
@@ -32,7 +32,7 @@ const CountdownTimer = ({targetTime, callback} : {targetTime: string, callback: 
     useEffect(() => {
         const timer = setTimeout(() => {
             const diffTime = computeDiffTime(targetTime);
-            if (diffTime != countdownTime) {
+            if (diffTime !== countdownTime) {
                 setTime(diffTime);
                 if (diffTime <= 0) callback();
             }
@@ -45,10 +45,14 @@ const CountdownTimer = ({targetTime, callback} : {targetTime: string, callback: 
 
     return (
         <>
-            <Card className="text-start h-100">
+            <Card className="text-start w-100">
                 <Card.Header>Remaining Time</Card.Header>
-                <Card.Body className="d-flex flex-column">
-                    <Card.Text className={displayState ? "" : "d-none"}>{formTime(countdownTime)}</Card.Text>
+                <Card.Body className="d-flex flex-column text-center">
+                    <Collapse in={displayState}>
+                        <Card.Title>
+                            {formTime(countdownTime)}
+                        </Card.Title>
+                    </Collapse>
                     <Button variant="primary" size="sm" onClick={toggleDisplayState}>{displayState ? "Hide" : "Show"}</Button>
                 </Card.Body>
             </Card>

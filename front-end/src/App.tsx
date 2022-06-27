@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import {Navigate, Route, Routes} from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
 import Dashboard from "./routes/course/Dashboard";
 import Assessments from "./routes/course/Assessments";
 import AuthRedirect from "./routes/auth/AuthRedirect";
