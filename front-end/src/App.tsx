@@ -28,7 +28,7 @@ const App = () => {
                         <Route index element={<RequireAuth><Assessments/></RequireAuth>}/>
                         <Route path="exams/:exam_id">
                             <Route index element={<RequireAuth><ExamInstructions/></RequireAuth>}/>
-                            <Route path="questions" element={<RequireAuth><ExamQuestions/></RequireAuth>}/>
+                            <Route path="questions" element={<ExamQuestions/>}/>
                         </Route>
                     </Route>
                 </Routes>

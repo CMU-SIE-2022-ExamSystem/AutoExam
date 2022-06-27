@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
 import Question from "../../components/Question";
+import CountdownTimer from "../../components/CountdownTimer";
 
 const QuestionList = () => {
 
@@ -12,6 +13,8 @@ const QuestionList = () => {
 function ExamQuestions() {
     let params = useParams();
     const questionList = QuestionList();
+
+    const targetTime = new Date(Date.now() + 1000 * 100).toString();
     return (
         <div>
             <TopNavbar brand={null}/>
@@ -24,6 +27,7 @@ function ExamQuestions() {
                     <Question></Question>
                     <br/>
                     {/* {questionList} */}
+                    <CountdownTimer targetTime={targetTime} callback={() => {}} />
                     <div><Button variant="primary" className="my-4">Submit</Button></div>
                 </>
             </AppLayout>
