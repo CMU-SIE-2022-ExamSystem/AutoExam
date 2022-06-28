@@ -1,10 +1,10 @@
 import React, {useCallback, useContext, useEffect} from 'react';
-import { Row, Col, Card } from 'react-bootstrap';
+import {Row, Col, Card} from 'react-bootstrap';
 import AppLayout from "../../components/AppLayout";
 import TopNavbar from "../../components/TopNavbar";
 import {getBackendApiUrl} from "../../utils/url";
 import {useGlobalState} from "../../components/GlobalStateProvider";
-import { LinkContainer } from 'react-router-bootstrap';
+import {LinkContainer} from 'react-router-bootstrap';
 
 interface CourseProps {
     name: string;
@@ -15,9 +15,9 @@ interface CourseProps {
 const axios = require('axios').default;
 
 const Course = (props: CourseProps) => {
-    const { name, semester, authLevel } = props
+    const {name, semester, authLevel} = props
     return (
-        <LinkContainer to={`/courses/${name}`} style={{ cursor: "pointer" }}>
+        <LinkContainer to={`/courses/${name}`} style={{cursor: "pointer"}}>
             <Card className="text-start h-100">
                 <Card.Body className="d-flex flex-column">
                     <Card.Title className="fs-4 fw-bold">{name}</Card.Title>
@@ -58,21 +58,19 @@ function Dashboard() {
     }, [globalState, getUsers])
 
     return (
-        <div>
+        <AppLayout>
             <TopNavbar brand={null}/>
-            <AppLayout>
-                <>
-                    <h1 className="mb-4">My Courses</h1>
-                    <Row xs={1} md={2} lg={3} className="g-4">
-                        {listOfCourses.map(course => (
-                            <Col key={course.name}>
-                                <Course {...course}/>
-                            </Col>
-                        ))}
-                    </Row>
-                </>
-            </AppLayout>
-        </div>
+            <main>
+                <h1 className="mb-4">My Courses</h1>
+                <Row xs={1} md={2} lg={3} className="g-4">
+                    {listOfCourses.map(course => (
+                        <Col key={course.name}>
+                            <Course {...course}/>
+                        </Col>
+                    ))}
+                </Row>
+            </main>
+        </AppLayout>
     );
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {} from 'react-bootstrap';
-import { Link } from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
 
@@ -22,10 +22,10 @@ const Table = () => {
     const listOfAssessments = [{
         exam_id: 1,
         name: 'Exam 1'
-    },{
+    }, {
         exam_id: 2,
         name: 'Exam 2'
-    },{
+    }, {
         exam_id: 3,
         name: 'Final Exam'
     }];
@@ -33,12 +33,12 @@ const Table = () => {
     return (
         <table className="table text-start">
             <thead>
-                <tr>
-                    <th scope="col">Assessment</th>
-                    <th scope="col">Start At</th>
-                    <th scope="col">Due At</th>
-                    <th scope="col">Actions</th>
-                </tr>
+            <tr>
+                <th scope="col">Assessment</th>
+                <th scope="col">Start At</th>
+                <th scope="col">Due At</th>
+                <th scope="col">Actions</th>
+            </tr>
             </thead>
             <tbody>
             {tableBody}
@@ -48,17 +48,16 @@ const Table = () => {
 }
 
 function Assessments() {
+    const params = useParams();
     const assessmentTable = Table();
     return (
-        <div>
-            <TopNavbar brand={null}/>
-            <AppLayout>
-                <>
-                    <h1>Assessment</h1>
-                    {assessmentTable}
-                </>
-            </AppLayout>
-        </div>
+        <AppLayout>
+            <TopNavbar brand={params.course_name}/>
+            <main>
+                <h1>Assessment</h1>
+                {assessmentTable}
+            </main>
+        </AppLayout>
     );
 }
 

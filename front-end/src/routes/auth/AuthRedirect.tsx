@@ -20,9 +20,8 @@ const RedirectPage = ({pageLink, navigate}: { pageLink: string; navigate: Naviga
     }
 
     return (
-        <>
-            <TopNavbar/>
             <AppLayout>
+                <TopNavbar/>
                 <div className="col col-md-8 mx-auto">
                     <h2>Bind with Autolab</h2>
                     <Container className="mt-3 mb-5">
@@ -48,7 +47,6 @@ const RedirectPage = ({pageLink, navigate}: { pageLink: string; navigate: Naviga
                     </Form>
                 </div>
             </AppLayout>
-        </>
     )
 }
 
