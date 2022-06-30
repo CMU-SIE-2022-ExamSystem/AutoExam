@@ -3,14 +3,12 @@ import { Form } from 'react-bootstrap';
 import QuestionLayout from "./QuestionLayout";
 import subQuestionDataType from "./subQuestionDataType";
 
-const SingleChoice = ({data} : {data: subQuestionDataType}) => {
+const SingleBlank = ({data} : {data: subQuestionDataType}) => {
     return (
-        <>
-            <QuestionLayout questionId={data.questionId} description={data.description}>
-                <Form.Control type="text" />
-            </QuestionLayout>
-        </>
+        <QuestionLayout questionId={data.questionId} description={data.description}>
+            <Form.Control type="text" />
+        </QuestionLayout>
     );
 }
 
-export default SingleChoice;
+export default SingleBlank;

@@ -4,16 +4,14 @@ import QuestionLayout from "./QuestionLayout";
 import subQuestionDataType from "./subQuestionDataType";
 
 const SingleChoice = ({data} : {data: subQuestionDataType}) => {
-    const radios = data.choices.map((data: any) => (
-        <Form.Check type='radio' id='default-radio' label={data.content} />
+    const radios = data.choices.map((choice: any) => (
+        <Form.Check type='radio' name={data.questionId} id={choice.choiceId} label={choice.content} />
     ));
 
     return (
-        <>
-            <QuestionLayout questionId={data.questionId} description={data.description}>
-                {radios}
-            </QuestionLayout>
-        </>
+        <QuestionLayout questionId={data.questionId} description={data.description}>
+            {radios}
+        </QuestionLayout>
     );
 }
 

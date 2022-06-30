@@ -5,7 +5,7 @@ import subQuestionDataType from "./subQuestionDataType";
 
 const MultipleBlank = ({data} : {data: subQuestionDataType}) => {
     let blanks = data.choices.map(() => (
-        <><Form.Control type="text" /><br/></>
+        <Form.Control type="text" className="mb-3" />
     ));
 
     return (

@@ -32,7 +32,7 @@ function ExamQuestions() {
         instructions: "",
     }
 
-    var questions = require("../../excluded/questions_new.json");
+    var questions = require("../../json/questions_new.json");
     const questionList = questions.data.map((data: any) => (
         <Question questionData={data}/>
     ));
@@ -46,7 +46,6 @@ function ExamQuestions() {
                 <Col xs={9} className="overflow-auto p-3">
                     <Instructions info={instructionsInfo} />
                     {questionList}
-                    <br/>
                 </Col>
                 <Col xs={3} className="p-3">
                     <CountdownTimer targetTime={targetTime} callback={() => {}} />
