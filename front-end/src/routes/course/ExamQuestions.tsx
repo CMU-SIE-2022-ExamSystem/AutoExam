@@ -1,7 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {Button, Col, Modal, Row} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
-import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
 import Question from "../../components/Question";
 import CountdownTimer from "../../components/CountdownTimer";
@@ -41,7 +40,7 @@ const AcknowledgeModal = ({show, toClose, onClose} :{ show: boolean, toClose: ()
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="primary">Confirm</Button>
+                <Button variant="primary" onClick={toClose}>Confirm</Button>
             </Modal.Footer>
         </Modal>
     );

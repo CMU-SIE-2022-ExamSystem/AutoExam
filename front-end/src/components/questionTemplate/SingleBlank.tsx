@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
 import QuestionLayout from "./QuestionLayout";
-import {choiceDataType, subQuestionDataType} from "./subQuestionDataType";
+import { subQuestionDataType } from "./subQuestionDataType";
 
 const SingleBlank = ({data} : {data: subQuestionDataType}) => {
     let placeholder: string = "";
