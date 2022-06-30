@@ -5,7 +5,7 @@ import { subQuestionDataType } from "./subQuestionDataType";
 
 const MultipleChoice = ({data} : {data: subQuestionDataType}) => {
     const checkboxes = data.choices.map((data: any) => (
-        <Form.Check type='checkbox' id='default-checkbox' label={data.content} />
+        <Form.Check type='checkbox' id='default-checkbox' label={data.content} className="mb-2"/>
     ));
 
     return (

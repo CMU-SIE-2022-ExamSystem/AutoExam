@@ -1,5 +1,5 @@
 import React from 'react';
-import {} from 'react-bootstrap';
+import {Row} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
@@ -52,7 +52,9 @@ function Assessments() {
     const assessmentTable = Table();
     return (
         <AppLayout>
-            <TopNavbar brand={params.course_name}/>
+            <Row>
+                <TopNavbar brand={params.course_name}/>
+            </Row>
             <main>
                 <h1>Assessment</h1>
                 {assessmentTable}

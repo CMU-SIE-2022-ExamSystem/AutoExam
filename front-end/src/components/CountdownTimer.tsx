@@ -25,14 +25,14 @@ const formTime = (remainingTime: number) => {
     return `${zeroPaddingHours}:${zeroPaddingMinutes}:${zeroPaddingSeconds}`;
 }
 
-const CountdownTimer = ({targetTime, callback} : {targetTime: string, callback: Function}) => {
+const CountdownTimer = ({targetTime, active, callback} : {targetTime: string, active: boolean, callback: Function}) => {
     const [countdownTime, setTime] = useState(computeDiffTime(targetTime));
     const [displayState, setDisplayState] = useState(true);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             const diffTime = computeDiffTime(targetTime);
-            if (diffTime !== countdownTime) {
+            if (active && diffTime !== countdownTime) {
                 setTime(diffTime);
                 if (diffTime <= 0) callback();
             }

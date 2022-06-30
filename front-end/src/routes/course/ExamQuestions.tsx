@@ -11,7 +11,7 @@ const getQuestionList = () => {
     return [];
 }
 
-const TimeoutModal = ({show, onClose} :{ show: boolean, onClose: () => void }) => {
+const TimeoutModal = ({show, toClose, onClose} :{ show: boolean, toClose: () => void, onClose: () => void }) => {
     return (
         <Modal show={show} onHide={onClose}>
             <Modal.Header>
@@ -23,13 +23,13 @@ const TimeoutModal = ({show, onClose} :{ show: boolean, onClose: () => void }) =
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="primary">Confirm</Button>
+                <Button variant="primary" onClick={toClose}>Confirm</Button>
             </Modal.Footer>
         </Modal>
     );
 }
 
-const AcknowledgeModal = ({show, onClose} :{ show: boolean, onClose: () => void }) => {
+const AcknowledgeModal = ({show, toClose, onClose} :{ show: boolean, toClose: () => void, onClose: () => void }) => {
     return (
         <Modal show={show} onHide={onClose}>
             <Modal.Header>
@@ -93,6 +93,8 @@ const ExamQuestions = () => {
     const [ackShow, setAckShow] = useState(false);
     const [confirmShow, setConfirmShow] = useState(false);
 
+    const [inTest, setInTest] = useState(true);
+
     const [targetTime] = useState(new Date(Date.now() + 1000 * 100).toString());
 
     let instructionsInfo : instructionType = {
@@ -107,26 +109,29 @@ const ExamQuestions = () => {
     const submitExam = () => {
         setConfirmShow(false);
         setAckShow(true);
+        setInTest(false);
     }
 
     return (
         <AppLayout>
-            <Row>
-                <TopNavbar brand={null}/>
-            </Row>
-            <Row className="flex-grow-1 justify-content-center">
-                <Col xs={9} className="overflow-auto p-3">
+            <Row className="flex-grow-1">
+                <Col xs={9} className="p-3 overflow-auto vh-100 bottom-0">
                     <Instructions info={instructionsInfo} />
-                    { questions }
+                    <Row>
+                        <Col xs={{ span: 10, offset: 1 }}>
+                            { questions }
+                        </Col>
+                    </Row>
                     <br/>
                 </Col>
                 <Col xs={3} className="p-3">
-                    <CountdownTimer targetTime={targetTime} callback={() => {}} />
+                    <CountdownTimer targetTime={targetTime} active={inTest} callback={() => setTimeoutShow(true)} />
+                    <div><Button variant="primary" className="my-4 w-25" onClick={() => setConfirmShow(true)}>Submit</Button></div>
                 </Col>
             </Row>
-            <div><Button variant="primary" className="my-4 w-25" onClick={() => setConfirmShow(true)}>Submit</Button></div>
-            <TimeoutModal onClose={() => setTimeoutShow(false)} show={timeoutShow} />
-            <AcknowledgeModal onClose={() => setAckShow(false)} show={ackShow} />
+
+            <TimeoutModal onClose={() => {}} show={timeoutShow} toClose={() => setTimeoutShow(false)} />
+            <AcknowledgeModal onClose={() => {}} show={ackShow} toClose={() => setAckShow(false)} />
             <ConfirmModal show={confirmShow} onSubmit={submitExam} onClose={() => setConfirmShow(false)} />
         </AppLayout>
     );

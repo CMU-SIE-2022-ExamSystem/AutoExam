@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alert, Button} from 'react-bootstrap';
+import {Alert, Button, Row} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
@@ -8,7 +8,9 @@ function ExamInstructions() {
     let params = useParams();
     return (
         <AppLayout>
-            <TopNavbar brand={params.course_name}/>
+            <Row>
+                <TopNavbar brand={params.course_name}/>
+            </Row>
             <main>
                 <div>
                     <h1 className="my-3">{params.exam_id}</h1>
