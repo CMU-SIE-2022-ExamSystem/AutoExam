@@ -2,11 +2,14 @@ import React from 'react';
 import TopNavbar from "../components/TopNavbar";
 import AppLayout from "../components/AppLayout";
 import {Link} from "react-router-dom";
+import {Row} from "react-bootstrap";
 
 function Index() {
     return (
         <AppLayout>
-            <TopNavbar />
+            <Row>
+                <TopNavbar />
+            </Row>
             <main>
                 <h1>Exam Server</h1>
                 <h4 className="mb-3">This website needs authorization from Autolab.</h4>

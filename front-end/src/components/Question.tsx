@@ -17,7 +17,7 @@ const Question = ({questionData} : {questionData: any}) => {
         <>
             <br/>
             <Card className="text-start">
-                <Card.Header>{questionData.headerId}</Card.Header>
+                <Card.Header>{questionData.headerId + "." + questionData.questionTag}</Card.Header>
                 <Card.Body className="d-flex flex-column">
                     {/* <Card.Title className="fs-4 fw-bold">{questionData.questionTag}</Card.Title> */}
                     <Card.Text><div dangerouslySetInnerHTML={{__html: questionData.description}}/></Card.Text>

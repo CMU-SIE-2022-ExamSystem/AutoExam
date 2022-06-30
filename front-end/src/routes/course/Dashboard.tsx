@@ -63,13 +63,17 @@ function Dashboard() {
                 <TopNavbar brand={null}/>
             </Row>
             <main>
-                <h1 className="my-4">My Courses</h1>
-                <Row xs={1} sm={2} lg={3} className="g-4">
-                    {listOfCourses.map(course => (
-                        <Col key={course.name}>
-                            <Course {...course}/>
-                        </Col>
-                    ))}
+                <h1 className="mt-4">My Courses</h1>
+                <Row>
+                    <Col xs={{span: "10", offset: "1"}}>
+                        <Row xs={1} lg={2} xl={3} className="g-4">
+                            {listOfCourses.map(course => (
+                                <Col key={course.name}>
+                                    <Course {...course}/>
+                                </Col>
+                            ))}
+                        </Row>
+                    </Col>
                 </Row>
             </main>
         </AppLayout>

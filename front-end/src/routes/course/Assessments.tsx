@@ -1,5 +1,5 @@
 import React from 'react';
-import {Row} from 'react-bootstrap';
+import {Row, Col} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
@@ -55,9 +55,13 @@ function Assessments() {
             <Row>
                 <TopNavbar brand={params.course_name}/>
             </Row>
-            <main>
-                <h1>Assessment</h1>
-                {assessmentTable}
+            <main className="mt-4">
+                <Row>
+                    <Col xs={{span: "10", offset: "1"}}>
+                        <h1>Assessment</h1>
+                        {assessmentTable}
+                    </Col>
+                </Row>
             </main>
         </AppLayout>
     );
