@@ -117,7 +117,7 @@ const ExamQuestions = () => {
             <Row className="flex-grow-1 justify-content-center">
                 <Col xs={9} className="overflow-auto p-3">
                     <Instructions info={instructionsInfo} />
-
+                    <Question questionData={{}} />
                     <br/>
                 </Col>
                 <Col xs={3} className="p-3">

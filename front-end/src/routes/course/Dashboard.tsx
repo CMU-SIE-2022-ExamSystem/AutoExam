@@ -61,7 +61,7 @@ function Dashboard() {
         <AppLayout>
             <TopNavbar brand={null}/>
             <main>
-                <h1 className="mb-4">My Courses</h1>
+                <h1 className="my-4">My Courses</h1>
                 <Row xs={1} md={2} lg={3} className="g-4">
                     {listOfCourses.map(course => (
                         <Col key={course.name}>
