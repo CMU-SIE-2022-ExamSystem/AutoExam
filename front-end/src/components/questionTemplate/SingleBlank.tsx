@@ -9,11 +9,9 @@ const SingleBlank = ({data} : {data: subQuestionDataType}) => {
         placeholder = data.choices[0].content;
     }
     return (
-        <>
-            <QuestionLayout questionId={data.questionId.toString()} description={data.description}>
-                <Form.Control type="text" placeholder={placeholder} className="w-50 mb-2"/>
-            </QuestionLayout>
-        </>
+        <QuestionLayout questionId={data.questionId.toString()} description={data.description}>
+            <Form.Control type="text" placeholder={placeholder} className="w-50 mb-2"/>
+        </QuestionLayout>
     );
 }
 

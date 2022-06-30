@@ -5,7 +5,7 @@ import { subQuestionDataType } from "./subQuestionDataType";
 
 const SingleChoice = ({data} : {data: subQuestionDataType}) => {
     const radios = data.choices.map((choice: any) => (
-        <Form.Check type='radio' name={data.questionId} id={choice.choiceId} label={choice.content} />
+        <Form.Check type='radio' name={data.questionId.toString()} id={choice.choiceId} label={choice.content} />
     ));
 
     return (

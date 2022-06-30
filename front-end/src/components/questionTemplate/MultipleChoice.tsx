@@ -9,11 +9,9 @@ const MultipleChoice = ({data} : {data: subQuestionDataType}) => {
     ));
 
     return (
-        <>
-            <QuestionLayout questionId={data.questionId.toString()} description={data.description}>
-                {checkboxes}
-            </QuestionLayout>
-        </>
+        <QuestionLayout questionId={data.questionId.toString()} description={data.description}>
+            {checkboxes}
+        </QuestionLayout>
     );
 }
 
