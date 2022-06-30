@@ -3,7 +3,7 @@ import { Form } from 'react-bootstrap';
 import QuestionLayout from "./QuestionLayout";
 import {choiceDataType, subQuestionDataType} from "./subQuestionDataType";
 
-const SingleChoice = ({data} : {data: subQuestionDataType}) => {
+const SingleBlank = ({data} : {data: subQuestionDataType}) => {
     let placeholder: string = "";
     if (data.choices.length > 0) {
         placeholder = data.choices[0].content;
@@ -17,4 +17,4 @@ const SingleChoice = ({data} : {data: subQuestionDataType}) => {
     );
 }
 
-export default SingleChoice;
+export default SingleBlank;
