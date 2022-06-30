@@ -1,5 +1,5 @@
 export default interface subQuestionDataType {
-    index: string,
+    questionId: string,
     description: string,
     choices: string[],
 };

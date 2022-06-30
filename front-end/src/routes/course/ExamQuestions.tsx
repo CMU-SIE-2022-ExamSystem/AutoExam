@@ -6,10 +6,6 @@ import AppLayout from "../../components/AppLayout";
 import Question from "../../components/Question";
 import CountdownTimer from "../../components/CountdownTimer";
 
-const QuestionList = () => {
-
-}
-
 interface instructionType {
     title: string;
     instructions: string;
@@ -28,7 +24,6 @@ const Instructions = ({info}: {info: instructionType}) => {
 
 function ExamQuestions() {
     let params = useParams();
-    const questionList = QuestionList();
 
     const targetTime = new Date(Date.now() + 1000 * 100).toString();
 
@@ -36,6 +31,12 @@ function ExamQuestions() {
         title: params.exam_id!,
         instructions: "",
     }
+
+    var questions = require("../../excluded/questions_new.json");
+    const questionList = questions.data.map((data: any) => (
+        <Question questionData={data}/>
+    ));
+
     return (
         <AppLayout>
             <Row>
@@ -44,7 +45,7 @@ function ExamQuestions() {
             <Row className="flex-grow-1 justify-content-center">
                 <Col xs={9} className="overflow-auto p-3">
                     <Instructions info={instructionsInfo} />
-                    <Question questionData={{}} />
+                    {questionList}
                     <br/>
                 </Col>
                 <Col xs={3} className="p-3">
