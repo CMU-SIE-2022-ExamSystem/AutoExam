@@ -3,13 +3,13 @@ import { Form } from 'react-bootstrap';
 import QuestionLayout from "./QuestionLayout";
 import { subQuestionDataType } from "./subQuestionDataType";
 
-const MultipleBlank = ({data, index} : {data: subQuestionDataType, index: string}) => {
+const MultipleBlank = ({data} : {data: subQuestionDataType}) => {
     let blanks = data.choices.map((placeholder) => (
         <Form.Control type="text" placeholder={placeholder.content} />
     ));
 
     return (
-        <QuestionLayout questionId={index} description={data.description}>
+        <QuestionLayout questionId={data.questionId.toString()} description={data.description}>
             {blanks}
         </QuestionLayout>
     );
