@@ -9,7 +9,7 @@ const MultipleBlank = ({data, index} : {data: subQuestionDataType, index: string
     ));
 
     return (
-        <QuestionLayout index={index} description={data.description}>
+        <QuestionLayout questionId={index} description={data.description}>
             {blanks}
         </QuestionLayout>
     );
