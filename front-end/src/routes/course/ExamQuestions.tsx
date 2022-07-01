@@ -5,6 +5,7 @@ import AppLayout from "../../components/AppLayout";
 import Question from "../../components/Question";
 import CountdownTimer from "../../components/CountdownTimer";
 import questionDataType from "../../components/questionTemplate/questionDataType";
+import usePersistState from "../../utils/usePersistState";
 
 const getQuestionList = () => {
     return [];
@@ -94,7 +95,7 @@ const ExamQuestions = () => {
 
     const [inTest, setInTest] = useState(true);
 
-    const [targetTime] = useState(new Date(Date.now() + 1000 * 100).toString());
+    const [targetTime] = usePersistState(new Date(Date.now() + 1000 * 100).toString(), "targetTime");
 
     let instructionsInfo : instructionType = {
         title: params.exam_id!,
