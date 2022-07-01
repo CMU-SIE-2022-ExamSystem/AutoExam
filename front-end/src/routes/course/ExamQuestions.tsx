@@ -89,6 +89,24 @@ const ExamQuestions = () => {
     //useCallback(() => questionList = getQuestionList(), []);
 
     questionList = require('./questions_new.json').data;
+    var subQuestionArray = questionList.flatMap((question) =>
+        question.questions.map(subQuestion => ["Q" + question.headerId + "_sub" + subQuestion.questionId, subQuestion.questionType, subQuestion.choices]));
+    var idList: string[] = [];
+    for (var i = 0; i < subQuestionArray.length; i++) {
+        if (subQuestionArray[i][2].length === 1 && subQuestionArray[i][2][0] === "") { // single blank
+            idList.push(subQuestionArray[i][0].toString());
+            continue;
+        }
+        
+        for (var j = 0; j < subQuestionArray[i][2].length; j++) {
+            if (subQuestionArray[i][1] === "single-choice" || subQuestionArray[i][1] === "multiple-choice") {
+                idList.push(subQuestionArray[i][0].toString() + "_choice" + (subQuestionArray[i][2][j] as choiceDataType).choiceId);
+            } else { // multiple-blank
+                idList.push(subQuestionArray[i][0].toString() + "_sub" + (subQuestionArray[i][2][j] as choiceDataType).choiceId);
+            }
+        }
+    }
+    console.log(idList);
 
     const [timeoutShow, setTimeoutShow] = useState(false);
     const [ackShow, setAckShow] = useState(false);
