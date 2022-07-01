@@ -6,6 +6,7 @@ import Question from "../../components/Question";
 import CountdownTimer from "../../components/CountdownTimer";
 import questionDataType from "../../components/questionTemplate/questionDataType";
 import usePersistState from "../../utils/usePersistState";
+import { choiceDataType, subQuestionDataType } from '../../components/questionTemplate/subQuestionDataType';
 
 const getQuestionList = () => {
     return [];

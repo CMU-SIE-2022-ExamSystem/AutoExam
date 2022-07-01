@@ -3,9 +3,12 @@ import { Form } from 'react-bootstrap';
 import QuestionLayout from "./QuestionLayout";
 import { subQuestionDataType } from "./subQuestionDataType";
 
-const MultipleChoice = ({data} : {data: subQuestionDataType}) => {
+const MultipleChoice = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
     const checkboxes = data.choices.map((choice: any) => (
-        <Form.Check type='checkbox' id={choice.choiceId} label={choice.content} />
+        <Form.Check type='checkbox'
+            name={`Q${headerId}_sub${data.questionId}`}
+            id={`Q${headerId}_sub${data.questionId}_choice${choice.choiceId}`}
+            label={choice.content} />
     ));
 
     return (
