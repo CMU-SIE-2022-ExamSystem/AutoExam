@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Button, Col, Modal, Row} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
@@ -7,6 +7,7 @@ import CountdownTimer from "../../components/CountdownTimer";
 import questionDataType from "../../components/questionTemplate/questionDataType";
 import usePersistState from "../../utils/usePersistState";
 import { choiceDataType, subQuestionDataType } from '../../components/questionTemplate/subQuestionDataType';
+import {nanoid} from "nanoid";
 
 const getQuestionList = () => {
     return [];
@@ -89,16 +90,16 @@ const ExamQuestions = () => {
     //useCallback(() => questionList = getQuestionList(), []);
 
     questionList = require('./questions_new.json').data;
-    var subQuestionArray = questionList.flatMap((question) =>
+    let subQuestionArray = questionList.flatMap((question) =>
         question.questions.map(subQuestion => ["Q" + question.headerId + "_sub" + subQuestion.questionId, subQuestion.questionType, subQuestion.choices]));
-    var idList: string[] = [];
-    for (var i = 0; i < subQuestionArray.length; i++) {
+    let idList: string[] = [];
+    for (let i = 0; i < subQuestionArray.length; i++) {
         if (subQuestionArray[i][2].length === 1 && subQuestionArray[i][2][0] === "") { // single blank
             idList.push(subQuestionArray[i][0].toString());
             continue;
         }
         
-        for (var j = 0; j < subQuestionArray[i][2].length; j++) {
+        for (let j = 0; j < subQuestionArray[i][2].length; j++) {
             if (subQuestionArray[i][1] === "single-choice" || subQuestionArray[i][1] === "multiple-choice") {
                 idList.push(subQuestionArray[i][0].toString() + "_choice" + (subQuestionArray[i][2][j] as choiceDataType).choiceId);
             } else { // multiple-blank
@@ -114,7 +115,11 @@ const ExamQuestions = () => {
 
     const [inTest, setInTest] = useState(true);
 
-    const [targetTime] = usePersistState(new Date(Date.now() + 1000 * 100).toString(), "targetTime");
+    /*const {value: targetTime, removeValue: removeTargetTime} = usePersistState(new Date(Date.now() + 1000 * 100).toString(), "targetTime");
+    useEffect(() => {
+        return () => {removeTargetTime()}
+    }, [removeTargetTime])*/
+    const [targetTime] = useState(new Date(Date.now() + 1000 * 100).toString());
 
     let instructionsInfo : instructionType = {
         title: params.exam_id!,
@@ -122,7 +127,7 @@ const ExamQuestions = () => {
     }
 
     const questions = questionList.map((question) => {
-        return <Question questionData={question} />
+        return <Question key={`Q${question.headerId}`} questionData={question} />
     })
 
     const submitExam = () => {
@@ -145,7 +150,7 @@ const ExamQuestions = () => {
                 </Col>
                 <Col xs={3} className="p-3">
                     <CountdownTimer targetTime={targetTime} active={inTest} callback={() => setTimeoutShow(true)} />
-                    <div><Button variant="primary" className="my-4 w-25" onClick={() => setConfirmShow(true)}>Submit</Button></div>
+                    <div><Button variant="primary" className="my-4 w-50" onClick={() => setConfirmShow(true)}>Submit</Button></div>
                 </Col>
             </Row>
 

@@ -7,6 +7,7 @@ const MultipleChoice = ({data, headerId} : {data: subQuestionDataType, headerId:
     const checkboxes = data.choices.map((choice: any) => (
         <Form.Check type='checkbox'
             name={`Q${headerId}_sub${data.questionId}`}
+            key={`Q${headerId}_sub${data.questionId}_choice${choice.choiceId}`}
             id={`Q${headerId}_sub${data.questionId}_choice${choice.choiceId}`}
             label={choice.content} />
     ));

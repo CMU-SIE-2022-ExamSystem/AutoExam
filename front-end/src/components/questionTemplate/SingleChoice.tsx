@@ -7,6 +7,7 @@ const SingleChoice = ({data, headerId} : {data: subQuestionDataType, headerId: s
     const radios = data.choices.map((choice: any) => (
         <Form.Check type='radio'
             name={`Q${headerId}_sub${data.questionId}`}
+            key={`Q${headerId}_sub${data.questionId}_choice${choice.choiceId}`}
             id={`Q${headerId}_sub${data.questionId}_choice${choice.choiceId}`}
             label={choice.content} />
     ));
