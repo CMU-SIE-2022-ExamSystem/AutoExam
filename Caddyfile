@@ -1,3 +1,11 @@
-autoexam.andrew.cmu.edu:8080 {
+autoexam-02.andrew.cmu.edu:443 {
+	root * /srv/
+	encode gzip
+	try_files {path} /index.html
+	file_server
+}
+
+autoexam-02.andrew.cmu.edu:8080 {
 	reverse_proxy backend:8080
 }
+

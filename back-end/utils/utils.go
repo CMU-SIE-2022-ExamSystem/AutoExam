@@ -3,7 +3,10 @@ package utils
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
+
+	cp "github.com/otiai10/copy"
 )
 
 func GetNowTime() int64 {
@@ -27,6 +30,19 @@ func CreateFolder(path string) {
 			panic(err)
 		}
 	}
+}
+
+func Copy_file(file, src, dest string) {
+	// copy certain file from src folder to dest folder
+
+	src = filepath.Join(src, file)
+	dest = filepath.Join(dest, file)
+	if _, err := os.Stat(src); os.IsNotExist(err) {
+		if err != nil {
+			panic(err)
+		}
+	}
+	cp.Copy(src, dest)
 }
 
 func FileCheck(path string) {

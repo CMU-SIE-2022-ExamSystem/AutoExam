@@ -104,7 +104,7 @@ func DownloadAssessments_Handler(c *gin.Context) {
 
 	course_name, assessment_name := course.GetCourseAssessment(c)
 
-	//TODO  user permission check
+	//TODO user permission check
 
 	fmt.Println(course_name, assessment_name)
 	tar := course.Build_Assessment(c, course_name, assessment_name)

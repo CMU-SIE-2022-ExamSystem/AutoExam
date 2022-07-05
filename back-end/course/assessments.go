@@ -74,18 +74,12 @@ func (autograder *Autograder) fill_defaults() {
 }
 
 var (
-	Template_path = "./source/template"
+	Template_path  = "./source/template"
+	Autograde_path = "./source/autograders"
 )
 
 func Build_Assessment(c *gin.Context, course, assessment string) (tar_path string) {
-	// build course folder
-	// coures_path := Build_Course(course)
-
-	// // create assessment folder
-	// ass_path := filepath.Join(coures_path, assessment)
-	// utils.CreateFolder(ass_path)
-
-	// pro_path := filepath.Join(ass_path, "template")
+	// TODO should read some configuration
 
 	exam_path := utils.Find_folder(c, "exam", course, assessment)
 
@@ -93,6 +87,7 @@ func Build_Assessment(c *gin.Context, course, assessment string) (tar_path strin
 	copy_template(exam_path)
 	replace_template(exam_path, assessment, assessment)
 	modify_yml(exam_path, assessment)
+	copy_autograders(exam_path, assessment)
 	make_tar(exam_path, assessment, assessment)
 
 	tar_path = filepath.Join(exam_path, assessment+".tar")
@@ -164,6 +159,15 @@ func run_exec(prog, arg1 string) {
 	}
 }
 
-func Download_Assessment() {
+func copy_autograders(path, assessment string) {
+	path = filepath.Join(path, assessment)
+	path = filepath.Join(path, "autograder")
+	path = filepath.Join(path, "autograders")
+
+	// TODO should copy autograders based on configurations
+	utils.Copy_file("multiple_blank.py", Autograde_path, path)
+	utils.Copy_file("multiple_choice.py", Autograde_path, path)
+	utils.Copy_file("single_blank.py", Autograde_path, path)
+	utils.Copy_file("single_choice.py", Autograde_path, path)
 
 }
