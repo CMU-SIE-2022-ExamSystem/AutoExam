@@ -13,8 +13,10 @@ cd $1
 mv temp.rb $1.rb
 mv temp.yml $1.yml
 
+val=`echo ${1:0:1} | tr  '[a-z]' '[A-Z]'`${1:1}
+
 # replace .rb content
-sed -i'' -e "s/Temp/$1/g" $1.rb
+sed -i'' -e "s/Temp/$val/g" $1.rb
 sed -i'' -e "s/temp/$1/g" $1.rb
 
 # make autograde tar

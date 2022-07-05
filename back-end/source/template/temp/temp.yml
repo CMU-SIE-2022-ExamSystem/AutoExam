@@ -7,7 +7,7 @@ general:
   handin_directory: handin
   max_grace_days: 0
   handout: ''
-  writeup: writeup/index.html
+  writeup: writeup/exam.html
   max_submissions: 1
   disable_handins: false
   max_size: 2

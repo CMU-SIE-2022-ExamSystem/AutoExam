@@ -1,9 +1,8 @@
 package controller
 
 import (
-	"fmt"
-
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
@@ -13,10 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func FindUserInfo(email string) (*models.User, bool) {
+func find_userinfo(email string) (*models.User, bool) {
 	var user models.User
 	rows := global.DB.Where(&models.User{Email: email}).Find(&user)
-	fmt.Println(&user)
+	// fmt.Println(&user)
 	if rows.RowsAffected < 1 {
 		return &user, false
 	}
@@ -29,12 +28,12 @@ func set_cookie(c *gin.Context, cookie string) {
 }
 
 func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
-	body := autolab.AutolabUserHandler(c, autolab_resp.Access_token, "/user")
+	body := autolab.AutolabGetHandler(c, autolab_resp.Access_token, "/user")
 	// fmt.Println(string(body))
 
 	userinfo_resp := utils.User_info_trans(string(body))
 
-	user, flag := FindUserInfo(userinfo_resp.Email)
+	user, flag := find_userinfo(userinfo_resp.Email)
 
 	if flag {
 		color.Yellow("User is already in our DB!")
@@ -73,12 +72,11 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 // Usercourses_Handler godoc
 // @Summary get user courses
 // @Schemes
-// @Description get user courses info
+// @Description get user courses from autolab
 // @Tags user
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=models.User_Courses} "desc"
-// @Security ApiKeyAuth
 // @Router /user/courses [get]
 func Usercourses_Handler(c *gin.Context) {
 	user_email := jwt.GetEmail(c)
@@ -86,10 +84,14 @@ func Usercourses_Handler(c *gin.Context) {
 	global.DB.Find(&user)
 	token := user.Access_token
 
-	body := autolab.AutolabUserHandler(c, token, "/courses")
+	body := autolab.AutolabGetHandler(c, token, "/courses")
 	// fmt.Println(string(body))
 
 	autolab_resp := utils.User_courses_trans(string(body))
+
+	autolab_map := utils.Map_user_authlevel(autolab_resp)
+	autolab_map_DB := utils.Map_DBcheck(autolab_map)
+	dao.UpdateOrAddUser(c, user.ID, autolab_map_DB)
 
 	response.SuccessResponse(c, autolab_resp)
 }

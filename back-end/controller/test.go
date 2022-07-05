@@ -3,11 +3,16 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
+	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
@@ -85,5 +90,48 @@ func CookieTest(c *gin.Context) {
 	fmt.Println("============================")
 	fmt.Printf("Cookie value: %s \n", cookie)
 	fmt.Println("============================")
+}
 
+func FolderTest(c *gin.Context) {
+	user_id := c.Param("user_id")
+	course := c.Param("course")
+	assessment := c.Param("assessment")
+
+	path := utils.Find_folder(c, user_id, course, assessment)
+	fmt.Println(path)
+}
+
+//todo: This is for all user auth-level in a course
+func Course_all_Test(c *gin.Context) {
+	user_email := jwt.GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+	token := user.Access_token
+
+	course_name := c.Param("course_name")
+
+	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/course_user_data")
+	// fmt.Println(string(body))
+
+	if strings.Contains(string(body), "error") {
+		err_response := utils.Course_user_err_trans(string(body))
+		response.ErrUnauthResponse(c, err_response.Error)
+	} else {
+		autolab_resp := utils.Course_user_trans(string(body))
+		response.SuccessResponse(c, autolab_resp)
+	}
+}
+
+//todo: This is for student to take exam
+func Take_exam_Test(c *gin.Context) {
+	user_email := jwt.GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+
+	course_name := c.Param("course_name")
+	assessment_name := c.Param("assessment_name")
+
+	color.Yellow(string(course_name))
+	color.Yellow(string(assessment_name))
+	color.Yellow(strconv.Itoa(int((user.ID))))
 }

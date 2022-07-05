@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
+	"github.com/gin-gonic/gin"
 	cp "github.com/otiai10/copy"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
@@ -76,32 +77,34 @@ var (
 	Template_path = "./source/template"
 )
 
-func Build_Assessment(course, assessment string) (tar_path string) {
+func Build_Assessment(c *gin.Context, course, assessment string) (tar_path string) {
 	// build course folder
-	coures_path := Build_Course(course)
+	// coures_path := Build_Course(course)
 
-	// create assessment folder
-	ass_path := filepath.Join(coures_path, assessment)
-	utils.CreateFolder(ass_path)
+	// // create assessment folder
+	// ass_path := filepath.Join(coures_path, assessment)
+	// utils.CreateFolder(ass_path)
 
-	pro_path := filepath.Join(ass_path, "template")
+	// pro_path := filepath.Join(ass_path, "template")
+
+	exam_path := utils.Find_folder(c, "exam", course, assessment)
+
 	// copy template assessment project and modify information
-	copy_template(pro_path)
-	replace_template(pro_path, assessment, assessment)
-	modify_yml(pro_path, assessment)
-	make_tar(pro_path, assessment, assessment)
+	copy_template(exam_path)
+	replace_template(exam_path, assessment, assessment)
+	modify_yml(exam_path, assessment)
+	make_tar(exam_path, assessment, assessment)
 
-	tar_path = filepath.Join(pro_path, assessment+".tar")
+	tar_path = filepath.Join(exam_path, assessment+".tar")
 	utils.FileCheck(tar_path)
+
 	return
 }
 
 func copy_template(path string) {
 	// delete current folder
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		fmt.Println("===================")
 		os.RemoveAll(path)
-		fmt.Println("===================")
 	}
 
 	// copy a new folder

@@ -9,7 +9,7 @@ import (
 
 func AutolabErrorHander(c *gin.Context, resp *http.Response, err error) {
 	if err != nil {
-		response.ErrUnauthResponse(c, "There may be something wrong with Autolab's web server, please try again later.")
+		response.ErrorInternalResponse(c, response.Error{Type: "Autolab", Message: "There may be something wrong with Autolab's web server, please try again later."})
 	}
 
 	status := resp.StatusCode
