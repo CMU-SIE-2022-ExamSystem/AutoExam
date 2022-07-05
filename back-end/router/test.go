@@ -19,8 +19,9 @@ func TestRouter(Router *gin.RouterGroup) {
 		TestRouter.GET("/cookie", controller.CookieTest)
 		TestRouter.GET("/:course_name/check", jwt.JWTAuth(), jwt.Check_authlevel_API)
 		TestRouter.GET("/:course_name/checkDB", jwt.JWTAuth(), jwt.Check_authlevel_DB)
-		TestRouter.GET("/:course_name/:assessment_name/take", jwt.JWTAuth(), controller.Take_exam_Test)
+		TestRouter.POST("/:course_name/assessments/:assessment_name/submit", jwt.JWTAuth(), controller.Take_exam_Test)
 		TestRouter.GET("/f/:course/:assessment/:user_id/", controller.FolderTest)
 		TestRouter.POST("/:course_name/:assessment_name/config", controller.Examconfig_Handler)
+		TestRouter.POST("/quesion_update", controller.Question_Handler)
 	}
 }
