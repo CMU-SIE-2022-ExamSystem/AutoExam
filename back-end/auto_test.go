@@ -17,9 +17,9 @@ const (
 
 func TestInfo(t *testing.T) {
 	server := initialize.SetupServer()
-	req, _ := http.NewRequest("GET", url+"info", nil) // 建立一個請求
-	w := httptest.NewRecorder()                       // 建立一個ResponseRecorder其實作http.ResponseWriter，用來記錄response狀態
-	server.ServeHTTP(w, req)                          // gin.Engine.ServerHttp實作http.Handler介面，用來處理HTTP請求及回應。
+	req, _ := http.NewRequest("GET", url+"info", nil)
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
 
 	expectedStatus := http.StatusOK
 	// expectedContent := "hello world"

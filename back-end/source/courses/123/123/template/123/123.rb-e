@@ -1,0 +1,11 @@
+require "AssessmentBase.rb"
+
+module 123
+  include AssessmentBase
+
+  def assessmentInitialize(course)
+    super("temp",course)
+    @problems = []
+  end
+
+end

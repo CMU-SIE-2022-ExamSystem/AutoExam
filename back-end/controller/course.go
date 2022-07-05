@@ -1,7 +1,11 @@
 package controller
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
@@ -83,4 +87,27 @@ func Submissions_Handler(c *gin.Context) {
 	autolab_resp := utils.Assessments_submissions_trans(string(body))
 
 	response.SuccessResponse(c, autolab_resp)
+}
+
+// DownloadAssessments_Handler godoc
+// @Summary download an assessment tarball
+// @Schemes
+// @Description download an assessment tarball, only can be used for instructor or TA
+// @Tags exam
+// @Accept json
+// @Produce mpfd
+// @Param		course_name			path	string	false	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Router /courses/{course_name}/assessments/{assessment_name}/download [get]
+func DownloadAssessments_Handler(c *gin.Context) {
+	// dao.GetAccessToken(jwt.GetEmail(c).ID)
+
+	course_name, assessment_name := course.GetCourseAssessment(c)
+
+	// user permission check
+
+	fmt.Println(course_name, assessment_name)
+	tar := course.Build_Assessment(course_name, assessment_name)
+	// course.Download_Assessment()
+	c.FileAttachment(tar, tar[strings.LastIndex(tar, "/")+1:])
 }
