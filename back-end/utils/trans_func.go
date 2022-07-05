@@ -69,3 +69,21 @@ func User_submit_trans(str string) models.Submit {
 	}
 	return response
 }
+
+func Course_user_trans(str string) []models.Course_user_data {
+	var response []models.Course_user_data
+	err := json.Unmarshal([]byte(str), &response)
+	if err != nil {
+		color.Yellow("json transfer error>>> " + err.Error())
+	}
+	return response
+}
+
+func Course_user_err_trans(str string) models.Course_user_err {
+	var response models.Course_user_err
+	err := json.Unmarshal([]byte(str), &response)
+	if err != nil {
+		color.Yellow("json transfer error>>> " + err.Error())
+	}
+	return response
+}

@@ -81,7 +81,7 @@ func AutolabSubmitHandler(c *gin.Context, token string, endpoint string, path st
 
 	var resp *http.Response
 	if internal_err != nil {
-		response.ErrorInternalResponse(c, response.Error{Type: "FileSystem", Message: "Target file does not exist or it is empty."})
+		response.ErrFileResponse(c)
 	} else {
 		var err error
 		resp, err = client.Do(request)

@@ -21,3 +21,22 @@ type Submit struct {
 	Version  int    `json:"version"`
 	Filename string `json:"filename"`
 }
+
+type Course_user_data struct {
+	First_name   string `json:"first_name"`
+	Last_name    string `json:"last_name"`
+	Email        string `json:"email"`
+	School       string `json:"school"`
+	Major        string `json:"major"`
+	Year         string `json:"year"`
+	Lecture      string `json:"lecture"`
+	Section      string `json:"section"`
+	Grade_policy string `json:"grade_policy"`
+	Nickname     string `json:"nickname"`
+	Dropped      bool   `json:"dropped"`
+	Auth_level   string `json:"auth_level"`
+}
+
+type Course_user_err struct {
+	Error string `json:"error"`
+}

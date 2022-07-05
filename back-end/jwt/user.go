@@ -1,9 +1,11 @@
 package jwt
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
@@ -41,7 +43,8 @@ func UserRefreshHandler(c *gin.Context) {
 	}
 }
 
-func Check_authlevel(c *gin.Context) {
+//todo: these two check functions are testing user auth_level
+func Check_authlevel_API(c *gin.Context) {
 	course_name := c.Param("course_name")
 	user_email := GetEmail(c)
 	user := models.User{ID: user_email.ID}
@@ -53,21 +56,23 @@ func Check_authlevel(c *gin.Context) {
 	if strings.Contains(string(body), course_name) {
 		autolab_resp := utils.User_courses_trans(string(body))
 		autolab_map := utils.Map_user_authlevel(autolab_resp)
+		fmt.Println(autolab_map)
 		if autolab_map[course_name] == "student" {
-			response.SuccessResponse(c, "You do not have permission to access here.")
-		} else {
-			response.SuccessResponse(c, "You have permission to access here:)")
+			response.SuccessResponse(c, "student")
+		} else if autolab_map[course_name] == "course_assistant" {
+			response.SuccessResponse(c, "course_assistant")
+		} else if autolab_map[course_name] == "instructor" {
+			response.SuccessResponse(c, "instructor")
 		}
-	} else {
-		response.SuccessResponse(c, "You do not have permission to access here.")
 	}
-	// test_map := make(map[string]string)
-	// test_map["18613"] = "instructor"
-	// test_map["18741"] = "instructor"
-	// test_map["18749"] = "student"
-	// test_map["19673"] = "course_assistant"
-	// test_map["18989"] = "course_assistant"
-	// test_map["39699"] = "student"
-	// test_map["17637"] = "student"
-	// fmt.Println(utils.Map_DBcheck(test_map))
+}
+
+func Check_authlevel_DB(c *gin.Context) {
+	course_name := c.Param("course_name")
+	user_email := GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+
+	auth_level := dao.Check_authlevel(user.ID, course_name)
+	response.SuccessResponse(c, auth_level)
 }

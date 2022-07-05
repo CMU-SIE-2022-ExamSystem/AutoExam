@@ -1,9 +1,8 @@
 package controller
 
 import (
-	"fmt"
-
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
@@ -16,7 +15,7 @@ import (
 func find_userinfo(email string) (*models.User, bool) {
 	var user models.User
 	rows := global.DB.Where(&models.User{Email: email}).Find(&user)
-	fmt.Println(&user)
+	// fmt.Println(&user)
 	if rows.RowsAffected < 1 {
 		return &user, false
 	}
@@ -89,6 +88,10 @@ func Usercourses_Handler(c *gin.Context) {
 	// fmt.Println(string(body))
 
 	autolab_resp := utils.User_courses_trans(string(body))
+
+	autolab_map := utils.Map_user_authlevel(autolab_resp)
+	autolab_map_DB := utils.Map_DBcheck(autolab_map)
+	dao.UpdateOrAddUser(c, user.ID, autolab_map_DB)
 
 	response.SuccessResponse(c, autolab_resp)
 }

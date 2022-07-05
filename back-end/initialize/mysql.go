@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/fatih/color"
@@ -28,4 +29,5 @@ func InitMysqlDB() {
 	global.DB = db
 
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&dao.UserCourseRelationship{})
 }

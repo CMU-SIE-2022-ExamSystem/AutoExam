@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/fatih/color"
@@ -18,8 +19,8 @@ func Map_user_authlevel(user_courses []models.User_Courses) map[string]string {
 	return user_courses_map
 }
 
-func Map_DBcheck(user_courses_map map[string]string) map[string][]string {
-	db_map := make(map[string][]string, 3)
+func Map_DBcheck(user_courses_map map[string]string) map[string]dao.Strings {
+	db_map := make(map[string]dao.Strings, 3)
 	for k, v := range user_courses_map {
 		db_map[v] = append(db_map[v], k)
 	}
@@ -37,21 +38,21 @@ func Find_folder(c *gin.Context, user_id string, course string, assessment strin
 			} else if errors.Is(err, os.ErrNotExist) {
 				err = os.Mkdir(relative_path+course+"/"+assessment+"/"+user_id+"/", 0777)
 				if err != nil {
-					response.ErrorInternalResponse(c, response.Error{Type: "FileSystem", Message: "Target file does not exist or it is empty."})
+					response.ErrFileResponse(c)
 				}
 				color.Yellow("create folder for user!")
 			}
 		} else if errors.Is(err, os.ErrNotExist) {
 			err = os.MkdirAll(relative_path+course+"/"+assessment+"/"+user_id+"/", 0777)
 			if err != nil {
-				response.ErrorInternalResponse(c, response.Error{Type: "FileSystem", Message: "Target file does not exist or it is empty."})
+				response.ErrFileResponse(c)
 			}
 			color.Yellow("create folder for assessment!")
 		}
 	} else if errors.Is(err, os.ErrNotExist) {
 		err = os.MkdirAll(relative_path+course+"/"+assessment+"/"+user_id+"/", 0777)
 		if err != nil {
-			response.ErrorInternalResponse(c, response.Error{Type: "FileSystem", Message: "Target file does not exist or it is empty."})
+			response.ErrFileResponse(c)
 		}
 		color.Yellow("create folder for course!")
 	}
