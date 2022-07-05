@@ -122,6 +122,18 @@ func Course_all_Test(c *gin.Context) {
 	}
 }
 
+// AuthInfo godoc
+// @Summary test
+// @Schemes
+// @Description test
+// @Tags test
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response{data=models.Submit} "desc"
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Security ApiKeyAuth
+// @Router /test/{course_name}/assessments/{assessment_name}/submit [post]
 //todo: This is for student to take exam
 func Take_exam_Test(c *gin.Context) {
 	user_email := jwt.GetEmail(c)
