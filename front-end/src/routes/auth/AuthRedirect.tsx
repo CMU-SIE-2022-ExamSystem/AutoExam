@@ -1,7 +1,7 @@
 import React, {SyntheticEvent, useEffect, useState} from 'react';
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
-import {Container, Image, Form, Button} from "react-bootstrap";
+import {Container, Image, Form, Button, Row} from "react-bootstrap";
 import {nanoid} from "nanoid";
 import autolab_logo from '../../images/autolab_logo.png';
 import {getBackendApiUrl, getFrontendUrl} from "../../utils/url";
@@ -21,7 +21,9 @@ const RedirectPage = ({pageLink, navigate}: { pageLink: string; navigate: Naviga
 
     return (
             <AppLayout>
-                <TopNavbar/>
+                <Row className="mb-3">
+                    <TopNavbar/>
+                </Row>
                 <div className="col col-md-8 mx-auto">
                     <h2>Bind with Autolab</h2>
                     <Container className="mt-3 mb-5">

@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Row, Col, Card} from 'react-bootstrap';
 import AppLayout from "../../components/AppLayout";
 import TopNavbar from "../../components/TopNavbar";
@@ -8,21 +8,24 @@ import {LinkContainer} from 'react-router-bootstrap';
 
 interface CourseProps {
     name: string;
+    display_name: string;
     semester: string;
-    authLevel: string;
+    auth_level: string;
 }
 
 const axios = require('axios').default;
 
 const Course = (props: CourseProps) => {
-    const {name, semester, authLevel} = props
+    const {name, semester, display_name, auth_level} = props
+
+    const capitalize = (s: string) : string => s.length > 0 ? s[0].toUpperCase() + s.slice(1) : "";
     return (
         <LinkContainer to={`/courses/${name}`} style={{cursor: "pointer"}}>
             <Card className="text-start h-100">
                 <Card.Body className="d-flex flex-column">
-                    <Card.Title className="fs-4 fw-bold">{name}</Card.Title>
+                    <Card.Title className="fs-4 fw-bold">{display_name}</Card.Title>
                     <Card.Text>{semester}</Card.Text>
-                    <footer className="text-muted mt-auto">{authLevel}</footer>
+                    <footer className="text-muted mt-auto">{capitalize(auth_level)}</footer>
                 </Card.Body>
             </Card>
         </LinkContainer>
@@ -30,40 +33,28 @@ const Course = (props: CourseProps) => {
 }
 
 function Dashboard() {
-    const listOfCourses = [{
-        name: "Introduction to Computer Systems",
-        semester: "Fall 2022",
-        authLevel: "Student"
-    }, {
-        name: "Advanced Cloud Computing",
-        semester: "Fall 2022",
-        authLevel: "Student"
-    }, {
-        name: "Distributed Systems",
-        semester: "Fall 2022",
-        authLevel: "Student"
-    }]
+    const [listOfCourses, setListOfCourses] = useState<CourseProps[]>([]);
     const {globalState} = useGlobalState();
 
-    const getUsers = useCallback(async () => {
-        const url = getBackendApiUrl("/test/users");
+    const getCourses = useCallback(async () => {
+        const url = getBackendApiUrl("/user/courses");
         const token = globalState.token;
-        console.log(token);
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         console.log(result);
-    }, [globalState]);
+        setListOfCourses(result.data.data);
+    }, []);
 
     useEffect(() => {
-        getUsers();
-    }, [globalState, getUsers])
+        getCourses();
+    }, [getCourses])
 
     return (
         <AppLayout>
             <Row>
-                <TopNavbar brand={null}/>
+                <TopNavbar />
             </Row>
             <main>
-                <h1 className="mt-4">My Courses</h1>
+                <h1 className="my-4">My Courses</h1>
                 <Row>
                     <Col xs={{span: "10", offset: "1"}}>
                         <Row xs={1} lg={2} xl={3} className="g-4">
