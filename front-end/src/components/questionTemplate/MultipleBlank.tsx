@@ -4,24 +4,32 @@ import QuestionLayout from "./QuestionLayout";
 import { subQuestionDataType } from "./subQuestionDataType";
 import usePersistState from "../../utils/usePersistState";
 
-const MultipleBlank = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
-    const {value, setValue} = usePersistState(new Array<string>(data.choices.length).fill(""), `Q${headerId}_sub${data.questionId}`)
-    let blanks = data.choices.map((placeholder, index) => {
+const OneInMultipleBlank = ({placeholder, index, storageKey} : {placeholder: string, index: number, storageKey: string}) => {
+    const {value, setValue} = usePersistState("", storageKey);
+    return (
+        <Form.Control type="text" placeholder={placeholder}
+                      id={storageKey}
+                      className="w-50 mb-2"
+                      value={value}
+                      onChange={(event) => {
+                          const newValue = event.target.value;
+                          setValue(newValue);
+                      }}
+        />
+    )
+}
 
+const MultipleBlank = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
+    let blanks = data.choices.map((placeholder, index) => {
+        let storageKey = `Q${headerId}_sub${data.questionId}_sub${placeholder.choiceId}`;
         return (
-            <Form.Control type="text" placeholder={placeholder.content}
-                key={`Q${headerId}_sub${data.questionId}_sub${placeholder.choiceId}`}
-                id={`Q${headerId}_sub${data.questionId}_sub${placeholder.choiceId}`}
-                className="w-50 mb-2"
-                value={(value as Array<string>)[index]}
-                onChange={(event) => {
-                    //console.log([...value], index);
-                    const newValue = [...value];
-                    newValue[index] = event.target.value;
-                    //console.log(newValue);
-                    setValue(newValue);
-                }}
+            <OneInMultipleBlank
+                placeholder={placeholder.content}
+                index={index}
+                key={storageKey}
+                storageKey={storageKey}
             />
+
         )
     });
 

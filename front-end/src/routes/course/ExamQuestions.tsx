@@ -130,10 +130,23 @@ const ExamQuestions = () => {
         return <Question key={`Q${question.headerId}`} questionData={question} />
     })
 
-    const submitExam = () => {
+    const removeAllLocalStorage = () => {
+        idList.forEach((item)=> {
+            localStorage.removeItem(item);
+        })
+    }
+
+    const manualSubmitExam = () => {
         setConfirmShow(false);
         setAckShow(true);
         setInTest(false);
+        removeAllLocalStorage();
+    }
+
+    const timeoutSubmitExam = () => {
+        setTimeoutShow(true);
+        setInTest(false);
+        removeAllLocalStorage();
     }
 
     return (
@@ -149,14 +162,14 @@ const ExamQuestions = () => {
                     <br/>
                 </Col>
                 <Col xs={3} className="p-3">
-                    <CountdownTimer targetTime={targetTime} active={inTest} callback={() => setTimeoutShow(true)} />
+                    <CountdownTimer targetTime={targetTime} active={inTest} callback={timeoutSubmitExam} />
                     <div><Button variant="primary" className="my-4 w-50" onClick={() => setConfirmShow(true)}>Submit</Button></div>
                 </Col>
             </Row>
 
             <TimeoutModal onClose={() => {}} show={timeoutShow} toClose={() => setTimeoutShow(false)} />
             <AcknowledgeModal onClose={() => {}} show={ackShow} toClose={() => setAckShow(false)} />
-            <ConfirmModal show={confirmShow} onSubmit={submitExam} onClose={() => setConfirmShow(false)} />
+            <ConfirmModal show={confirmShow} onSubmit={manualSubmitExam} onClose={() => setConfirmShow(false)} />
         </AppLayout>
     );
 }
