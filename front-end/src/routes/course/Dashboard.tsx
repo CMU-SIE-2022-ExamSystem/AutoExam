@@ -42,7 +42,7 @@ function Dashboard() {
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         console.log(result);
         setListOfCourses(result.data.data);
-    }, []);
+    }, [globalState.token]);
 
     useEffect(() => {
         getCourses();
