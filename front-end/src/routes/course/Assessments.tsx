@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Row, Col} from 'react-bootstrap';
+import {Row, Col, Button} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
@@ -78,9 +78,12 @@ function Assessments() {
                 <TopNavbar brand={params.course_name}/>
             </Row>
             <main className="mt-4">
+                <Row className="text-end">
+                    <Link to={"questionBank"}><Button variant="primary">Question Bank</Button></Link>
+                </Row>
                 <Row>
                     <Col xs={{span: "10", offset: "1"}}>
-                        <h1>Assessment</h1>
+                        <h1>Assessments</h1>
                         {assessmentTable}
                     </Col>
                 </Row>
