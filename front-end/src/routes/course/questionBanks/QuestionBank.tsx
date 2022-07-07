@@ -1,15 +1,15 @@
 import React from 'react';
 import {Col, Row} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
-import TopNavbar from "../../components/TopNavbar";
-import AppLayout from "../../components/AppLayout";
+import TopNavbar from "../../../components/TopNavbar";
+import AppLayout from "../../../components/AppLayout";
 
 const QuestionBank = () => {
     let params = useParams();
     return (
         <AppLayout>
             <Row>
-                <TopNavbar brand={params.course_name}/>
+                <TopNavbar brand={params.course_name} brandLink={"/courses/"+params.course_name}/>
             </Row>
             <main>
                 <Row>

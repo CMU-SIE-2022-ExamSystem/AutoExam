@@ -7,10 +7,10 @@ import AuthRedirect from "./routes/auth/AuthRedirect";
 import AuthCallback from "./routes/auth/AuthCallback";
 import Index from "./routes/Index";
 import {GlobalStateProvider} from "./components/GlobalStateProvider";
-import ExamQuestions from "./routes/course/ExamQuestions";
-import ExamInstructions from "./routes/course/ExamInstructions";
+import ExamQuestions from "./routes/course/exams/ExamQuestions";
+import ExamInstructions from "./routes/course/exams/ExamInstructions";
 import RequireAuth from "./middlewares/RequireAuth";
-import QuestionBank from "./routes/course/QuestionBank";
+import QuestionBank from "./routes/course/questionBanks/QuestionBank";
 
 const App = () => {
     return (

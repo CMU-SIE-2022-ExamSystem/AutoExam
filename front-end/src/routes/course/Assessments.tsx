@@ -75,10 +75,10 @@ function Assessments() {
     return (
         <AppLayout>
             <Row>
-                <TopNavbar brand={params.course_name}/>
+                <TopNavbar brand={params.course_name} brandLink={"/courses/"+params.course_name}/>
             </Row>
-            <main className="mt-4">
-                <Row className="text-end">
+            <main>
+                <Row className="text-end pe-5">
                     <Link to={"questionBank"}><Button variant="primary">Question Bank</Button></Link>
                 </Row>
                 <Row>

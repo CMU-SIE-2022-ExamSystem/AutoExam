@@ -23,8 +23,9 @@ const TopNavbar = ({brand, brandLink} : Props) => {
                     <Navbar.Collapse id="top-navbar-nav">
                         <Nav className="me-auto">
                             {globalState.token &&
-                                <><Nav.Link href="/dashboard">Dashboard</Nav.Link>
-                                <Nav.Link href="#">Help</Nav.Link></>
+                                <>
+                                    <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+                                </>
                             }
                         </Nav>
                         <Nav>

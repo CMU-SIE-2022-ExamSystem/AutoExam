@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Button, Col, Modal, Row} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
-import AppLayout from "../../components/AppLayout";
-import Question from "../../components/Question";
-import CountdownTimer from "../../components/CountdownTimer";
-import questionDataType from "../../components/questionTemplate/questionDataType";
-import { choiceDataType } from '../../components/questionTemplate/subQuestionDataType';
+import AppLayout from "../../../components/AppLayout";
+import Question from "../../../components/Question";
+import CountdownTimer from "../../../components/CountdownTimer";
+import questionDataType from "../../../components/questionTemplate/questionDataType";
+import { choiceDataType } from '../../../components/questionTemplate/subQuestionDataType';
 
 const getQuestionList = () => {
     return [];

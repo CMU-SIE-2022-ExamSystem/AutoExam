@@ -1,8 +1,8 @@
 import React from 'react';
 import {Alert, Button, Col, Row} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
-import TopNavbar from "../../components/TopNavbar";
-import AppLayout from "../../components/AppLayout";
+import TopNavbar from "../../../components/TopNavbar";
+import AppLayout from "../../../components/AppLayout";
 
 function ExamInstructions() {
     let params = useParams();
