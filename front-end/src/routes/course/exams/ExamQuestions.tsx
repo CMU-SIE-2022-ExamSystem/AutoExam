@@ -6,6 +6,7 @@ import Question from "../../../components/Question";
 import CountdownTimer from "../../../components/CountdownTimer";
 import questionDataType from "../../../components/questionTemplate/questionDataType";
 import { choiceDataType } from '../../../components/questionTemplate/subQuestionDataType';
+import downloadFile from "../../../utils/downloadFile";
 
 const getQuestionList = () => {
     return [];
@@ -82,6 +83,11 @@ const Instructions = ({info}: {info: instructionType}) => {
     );
 }
 
+const prepareAnswer = (qList: questionDataType[]) : object => {
+    return {}
+}
+
+
 const ExamQuestions = () => {
     let params = useParams();
     let questionList: questionDataType[];
@@ -138,12 +144,16 @@ const ExamQuestions = () => {
         setConfirmShow(false);
         setAckShow(true);
         setInTest(false);
+        const studentAnswer = prepareAnswer(questionList);
+        downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
         removeAllLocalStorage();
     }
 
     const timeoutSubmitExam = () => {
         setTimeoutShow(true);
         setInTest(false);
+        const studentAnswer = prepareAnswer(questionList);
+        downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
         removeAllLocalStorage();
     }
 
