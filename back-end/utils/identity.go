@@ -11,6 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func Map_course_info(user_courses []models.User_Courses) map[string]models.User_Courses {
+	courses__info_map := make(map[string]models.User_Courses, len(user_courses))
+	for i := 0; i < len(user_courses); i++ {
+		courses__info_map[user_courses[i].Name] = user_courses[i]
+	}
+	return courses__info_map
+}
+
 func Map_user_authlevel(user_courses []models.User_Courses) map[string]string {
 	user_courses_map := make(map[string]string, len(user_courses))
 	for i := 0; i < len(user_courses); i++ {
@@ -27,9 +35,8 @@ func Map_DBcheck(user_courses_map map[string]string) map[string]dao.Strings {
 	return db_map
 }
 
-//todo: user_id type should be uint and the uint to string: strconv.Itoa(int(user_id)
+//user_id type should be uint and the uint to string: strconv.Itoa(int(user_id)
 func Find_folder(c *gin.Context, user_id string, course string, assessment string) string {
-	// user_id = strconv.Itoa(int(user_id))
 	relative_path := "./tmp/"
 	if _, err := os.Stat(relative_path + course + "/"); err == nil {
 		if _, err := os.Stat(relative_path + course + "/" + assessment + "/"); err == nil {

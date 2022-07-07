@@ -2,17 +2,18 @@ package controller
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
@@ -139,11 +140,18 @@ func Take_exam_Test(c *gin.Context) {
 	user_email := jwt.GetEmail(c)
 	user := models.User{ID: user_email.ID}
 	global.DB.Find(&user)
+	student_id := strconv.Itoa(int(user.ID))
 
 	course_name := c.Param("course_name")
 	assessment_name := c.Param("assessment_name")
 
-	color.Yellow(string(course_name))
-	color.Yellow(string(assessment_name))
-	color.Yellow(strconv.Itoa(int((user.ID))))
+	data, _ := ioutil.ReadAll(c.Request.Body)
+	path := utils.Find_folder(c, student_id, course_name, assessment_name)
+
+	msg, err := dao.GradeGen(course_name, assessment_name, student_id, path, data)
+	if err != nil {
+		response.ErrDBResponse(c, msg)
+	} else {
+		response.SuccessResponse(c, "Submit Success")
+	}
 }

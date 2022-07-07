@@ -27,6 +27,7 @@ type Error struct {
 var (
 	Authentication = "Authentication"
 	FileSystem     = "FileSystem"
+	Database       = "Database"
 )
 
 func NormalResponse(c *gin.Context, response Response) {
@@ -65,6 +66,14 @@ func ErrorInternalResponse(c *gin.Context, err Error) {
 	})
 }
 
+func ErrorInternaWithType(c *gin.Context, err Error, t int) {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"type":  t,
+		"error": err,
+		"data":  struct{}{},
+	})
+}
+
 func ErrUnauthResponse(c *gin.Context, message string) {
 	err := Error{Type: Authentication, Message: message}
 	ErrorResponseWithStatus(c, err, http.StatusUnauthorized)
@@ -73,4 +82,9 @@ func ErrUnauthResponse(c *gin.Context, message string) {
 func ErrFileResponse(c *gin.Context) {
 	err := Error{Type: FileSystem, Message: "Target file does not exist or it is empty."}
 	ErrorResponseWithStatus(c, err, http.StatusInternalServerError)
+}
+
+func ErrDBResponse(c *gin.Context, message string) {
+	err := Error{Type: Database, Message: message}
+	ErrorInternaWithType(c, err, -1)
 }
