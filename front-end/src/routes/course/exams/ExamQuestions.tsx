@@ -5,7 +5,7 @@ import AppLayout from "../../../components/AppLayout";
 import Question from "../../../components/Question";
 import CountdownTimer from "../../../components/CountdownTimer";
 import questionDataType from "../../../components/questionTemplate/questionDataType";
-import { choiceDataType } from '../../../components/questionTemplate/subQuestionDataType';
+import {choiceDataType} from '../../../components/questionTemplate/subQuestionDataType';
 import downloadFile from "../../../utils/downloadFile";
 
 const getQuestionList = () => {
@@ -84,7 +84,75 @@ const Instructions = ({info}: {info: instructionType}) => {
 }
 
 const prepareAnswer = (qList: questionDataType[]) : object => {
-    return {}
+    let result = {};
+
+    function getMultipleBlankAnswer(choices: choiceDataType[], subQuestionKey: string) {
+        let returnObject = {};
+        choices.forEach((choice) => {
+            let choiceId = subQuestionKey + '_sub' + choice.choiceId;
+            let element = document.getElementById(choiceId);
+            if (element !== null) {
+                let answer = (element as HTMLInputElement).value;
+                Object.defineProperty(returnObject, choiceId, {value: answer})
+            } else {
+                Object.defineProperty(returnObject, choiceId, {value: ""});
+            }
+        })
+        return returnObject;
+    }
+
+    function getSingleBlankAnswer(subQuestionKey: string) {
+        let returnObject = {};
+        let element = document.getElementById(subQuestionKey);
+        if (element !== null) {
+            let answer = (element as HTMLInputElement).value;
+            Object.defineProperty(returnObject, subQuestionKey, {value: answer})
+        } else {
+            Object.defineProperty(returnObject, subQuestionKey, {value: ""});
+        }
+        return returnObject;
+    }
+
+    function getSingleChoiceAnswer(choices: choiceDataType[], subQuestionKey: string) {
+        return {};
+    }
+
+    function getMultipleChoiceAnswer(choices: choiceDataType[], subQuestionKey: string) {
+        return {};
+    }
+
+    qList.forEach((question: questionDataType) => {
+        const questionKey = "Q" + question.headerId;
+        let subResult: object = {};
+        question.questions.forEach((subQuestion) => {
+            const subQuestionKey = questionKey + "_sub" + subQuestion.questionId;
+            let answerObject: object = {};
+
+            switch (subQuestion.questionType) {
+                case "multiple-blank":
+                    answerObject = getMultipleBlankAnswer(subQuestion.choices, subQuestionKey);
+                    break;
+                case "single-blank":
+                    answerObject = getSingleBlankAnswer(subQuestionKey);
+                    break;
+                case "single-choice":
+                    answerObject = getSingleChoiceAnswer(subQuestion.choices, subQuestionKey);
+                    break;
+                case "multiple-choice":
+                    answerObject = getMultipleChoiceAnswer(subQuestion.choices, subQuestionKey);
+                    break;
+            }
+
+            Object.defineProperty(subResult, subQuestionKey, {
+                value: answerObject
+            })
+        })
+
+        Object.defineProperty(result, questionKey, {
+            value: subResult
+        });
+    })
+    return result;
 }
 
 
@@ -145,7 +213,8 @@ const ExamQuestions = () => {
         setAckShow(true);
         setInTest(false);
         const studentAnswer = prepareAnswer(questionList);
-        downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
+        console.log(studentAnswer);
+        //downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
         removeAllLocalStorage();
     }
 
@@ -153,7 +222,8 @@ const ExamQuestions = () => {
         setTimeoutShow(true);
         setInTest(false);
         const studentAnswer = prepareAnswer(questionList);
-        downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
+        console.log(studentAnswer);
+        //downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
         removeAllLocalStorage();
     }
 
