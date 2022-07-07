@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, Col, Modal, Row} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
 import AppLayout from "../../../components/AppLayout";
@@ -83,47 +83,71 @@ const Instructions = ({info}: {info: instructionType}) => {
     );
 }
 
+interface LooseObject {
+    [key: string]: any
+}
+
 const prepareAnswer = (qList: questionDataType[]) : object => {
-    let result = {};
+    let result: LooseObject = {};
 
     function getMultipleBlankAnswer(choices: choiceDataType[], subQuestionKey: string) {
-        let returnObject = {};
+        let returnObject: LooseObject = {};
         choices.forEach((choice) => {
             let choiceId = subQuestionKey + '_sub' + choice.choiceId;
             let element = document.getElementById(choiceId);
             if (element !== null) {
-                let answer = (element as HTMLInputElement).value;
-                Object.defineProperty(returnObject, choiceId, {value: answer})
+                returnObject[choiceId] = (element as HTMLInputElement).value;
             } else {
-                Object.defineProperty(returnObject, choiceId, {value: ""});
+                returnObject[choiceId] = "";
             }
         })
         return returnObject;
     }
 
     function getSingleBlankAnswer(subQuestionKey: string) {
-        let returnObject = {};
+        let returnObject: LooseObject = {};
         let element = document.getElementById(subQuestionKey);
         if (element !== null) {
-            let answer = (element as HTMLInputElement).value;
-            Object.defineProperty(returnObject, subQuestionKey, {value: answer})
+            returnObject[subQuestionKey] = (element as HTMLInputElement).value;
         } else {
-            Object.defineProperty(returnObject, subQuestionKey, {value: ""});
+            returnObject[subQuestionKey] = "";
         }
         return returnObject;
     }
 
     function getSingleChoiceAnswer(choices: choiceDataType[], subQuestionKey: string) {
-        return {};
+        let returnObject: LooseObject = {};
+        let answerList : string[] = [];
+        choices.forEach((choice) => {
+            let choiceId = subQuestionKey + '_choice' + choice.choiceId;
+            let element = document.getElementById(choiceId);
+            if (element !== null) {
+                let answer = (element as HTMLInputElement).checked;
+                if (answer) answerList.push(choice.choiceId);
+            }
+        })
+        returnObject[subQuestionKey] = answerList.join("");
+        return returnObject;
     }
 
     function getMultipleChoiceAnswer(choices: choiceDataType[], subQuestionKey: string) {
-        return {};
+        let returnObject: LooseObject = {};
+        let answerList : string[] = [];
+        choices.forEach((choice) => {
+            let choiceId = subQuestionKey + '_choice' + choice.choiceId;
+            let element = document.getElementById(choiceId);
+            if (element !== null) {
+                let answer = (element as HTMLInputElement).checked;
+                if (answer) answerList.push(choice.choiceId);
+            }
+        })
+        returnObject[subQuestionKey] = answerList.join("");
+        return returnObject;
     }
 
     qList.forEach((question: questionDataType) => {
         const questionKey = "Q" + question.headerId;
-        let subResult: object = {};
+        let subResult: LooseObject = {};
         question.questions.forEach((subQuestion) => {
             const subQuestionKey = questionKey + "_sub" + subQuestion.questionId;
             let answerObject: object = {};
@@ -143,14 +167,13 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
                     break;
             }
 
-            Object.defineProperty(subResult, subQuestionKey, {
-                value: answerObject
-            })
+            // Object.defineProperty(subResult, subQuestionKey, {
+            //     value: answerObject
+            // })
+            subResult[subQuestionKey] = answerObject;
         })
 
-        Object.defineProperty(result, questionKey, {
-            value: subResult
-        });
+        result[questionKey] = subResult;
     })
     return result;
 }
@@ -214,7 +237,8 @@ const ExamQuestions = () => {
         setInTest(false);
         const studentAnswer = prepareAnswer(questionList);
         console.log(studentAnswer);
-        //downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
+        console.log(JSON.stringify(studentAnswer));
+        //downloadFile(params.exam_id! + ".json", JSON.stringify(studentAnswer));
         removeAllLocalStorage();
     }
 
