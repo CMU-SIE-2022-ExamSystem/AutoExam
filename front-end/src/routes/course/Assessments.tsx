@@ -53,34 +53,45 @@ const Table = (listOfAssessments: assessmentProps[]) => {
     )
 }
 
+interface ICourseInfo {
+    name: string;
+    display_name: string;
+    auth_level: string;
+}
+
 function Assessments() {
     const params = useParams();
     const {globalState} = useGlobalState();
     const [examList, setExamList] = useState<assessmentProps[]>([]);
+    const [courseInfo, setCourseInfo] = useState<ICourseInfo>();
 
-    const getExams = useCallback(async () => {
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/assessments");
+    const getCourseInfo = useCallback(async () => {
+        const infoUrl = getBackendApiUrl("/courses/" + params.course_name + "/info");
+        const assessmentUrl = getBackendApiUrl("/courses/" + params.course_name + "/assessments");
         const token = globalState.token;
-        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        console.log(result);
-        setExamList(result.data.data);
+        const infoResult = await axios.get(infoUrl, {headers: {Authorization: "Bearer " + token}});
+        setCourseInfo(infoResult.data.data);
+        const assessmentResult = await axios.get(assessmentUrl, {headers: {Authorization: "Bearer " + token}});
+        setExamList(assessmentResult.data.data);
     }, [globalState.token, params.course_name]);
 
     useEffect(() => {
-        getExams().catch();
-    }, [getExams])
+        getCourseInfo().catch();
+    }, [getCourseInfo])
 
 
     const assessmentTable = Table(examList);
     return (
         <AppLayout>
             <Row>
-                <TopNavbar brand={params.course_name} brandLink={"/courses/"+params.course_name}/>
+                <TopNavbar brand={courseInfo?.display_name || params.course_name} brandLink={"/courses/"+params.course_name}/>
             </Row>
             <main>
-                <Row className="text-end pe-5">
-                    <Link to={"questionBank"}><Button variant="primary">Question Bank</Button></Link>
-                </Row>
+                {courseInfo?.auth_level === "instructor" &&
+                    <Row className="text-end pe-5">
+                        <Link to={"questionBank"}><Button variant="primary">Question Bank</Button></Link>
+                    </Row>
+                }
                 <Row>
                     <Col xs={{span: "10", offset: "1"}}>
                         <h1>Assessments</h1>

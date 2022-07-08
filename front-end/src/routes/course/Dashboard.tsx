@@ -55,7 +55,7 @@ function Dashboard() {
             </Row>
             <main>
                 <h1>My Courses</h1>
-                <Row class="mt-4">
+                <Row className="mt-4">
                     <Col xs={{span: "10", offset: "1"}}>
                         <Row xs={1} lg={2} xl={3} className="g-4">
                             {listOfCourses.map(course => (
