@@ -15,7 +15,11 @@ const usePersistState = <T>(defaultValue : T, storageKey : string) => {
         window.localStorage.removeItem(storageKey);
     }
 
-    return {value, setValue, removeValue};
+    const getValue = () => {
+        return JSON.parse(window.localStorage.getItem(storageKey) as string);
+    }
+
+    return {value, setValue, removeValue, getValue};
 }
 
 export default usePersistState;

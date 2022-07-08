@@ -189,20 +189,17 @@ const ExamQuestions = () => {
         question.questions.map(subQuestion => ["Q" + question.headerId + "_sub" + subQuestion.questionId, subQuestion.questionType, subQuestion.choices]));
     let idList: string[] = [];
     for (let i = 0; i < subQuestionArray.length; i++) {
-        if (subQuestionArray[i][2].length === 1 && subQuestionArray[i][2][0] === "") { // single blank
+        if (subQuestionArray[i][1] === "single-blank" || subQuestionArray[i][1] === "single-choice" || subQuestionArray[i][1] === "multiple-choice") {
             idList.push(subQuestionArray[i][0].toString());
             continue;
         }
         
+        // multiple-blank
         for (let j = 0; j < subQuestionArray[i][2].length; j++) {
-            if (subQuestionArray[i][1] === "single-choice" || subQuestionArray[i][1] === "multiple-choice") {
-                idList.push(subQuestionArray[i][0].toString() + "_choice" + (subQuestionArray[i][2][j] as choiceDataType).choiceId);
-            } else { // multiple-blank
-                idList.push(subQuestionArray[i][0].toString() + "_sub" + (subQuestionArray[i][2][j] as choiceDataType).choiceId);
-            }
+            idList.push(subQuestionArray[i][0].toString() + "_sub" + (subQuestionArray[i][2][j] as choiceDataType).choiceId);
         }
     }
-    console.log(idList);
+    // console.log(idList);
 
     const [timeoutShow, setTimeoutShow] = useState(false);
     const [ackShow, setAckShow] = useState(false);

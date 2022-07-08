@@ -3,16 +3,15 @@ import QuestionLayout from "./QuestionLayout";
 import { choiceDataType, subQuestionDataType } from "./subQuestionDataType";
 import usePersistState from "../../utils/usePersistState";
 
-const OneInSingleChoice = ({choice, name, storageKey} : {choice: choiceDataType, name: string, storageKey: string}) => {
+const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
     const {value, setValue} = usePersistState("", storageKey);
     return (
         <Form.Check type='radio'
-            name={name}
+            name={storageKey}
             key={storageKey}
             id={storageKey}
             label={choice.content}
-            value = {value}
-            defaultChecked={false}
+            defaultChecked={value.includes(choice.choiceId)}
             onChange={(event) => {
                 const newValue = choice.choiceId;
                 event.target.checked ? setValue(newValue) : setValue("");
@@ -22,11 +21,10 @@ const OneInSingleChoice = ({choice, name, storageKey} : {choice: choiceDataType,
 
 const SingleChoice = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
     const radios = data.choices.map((choice) => {
-        let storageKey = `Q${headerId}_sub${data.questionId}_choice${choice.choiceId}`;
+        let storageKey = `Q${headerId}_sub${data.questionId}`;
         return (
             <OneInSingleChoice
                 choice={choice}
-                name={`Q${headerId}_sub${data.questionId}`}
                 key={storageKey}
                 storageKey={storageKey} />
         )
