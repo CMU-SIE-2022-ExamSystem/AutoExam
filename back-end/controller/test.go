@@ -102,6 +102,15 @@ func FolderTest(c *gin.Context) {
 	fmt.Println(path)
 }
 
+func DBgraderTest(c *gin.Context) {
+	question_type := c.Param("question_type")
+
+	// path := "./tmp/autograders"
+
+	// dao.SearchAndStore_grader(c, question_type, path)
+	dao.Delete_grader(question_type)
+}
+
 //todo: This is for all user auth-level in a course
 func Course_all_Test(c *gin.Context) {
 	user_email := jwt.GetEmail(c)

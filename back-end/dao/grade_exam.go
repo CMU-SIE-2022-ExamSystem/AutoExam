@@ -27,12 +27,12 @@ func GradeGen(course, assessment, student_id, path string, answer []byte) (strin
 		return errMessage, err
 	}
 	//save student's answer.json
-	studentHelper(client, course, assessment, student_id, path, answer)
+	studentHelper(path, answer)
 	err = nil
 	return errMessage, err
 }
 
-func studentHelper(client *mongo.Client, str1, str2, str3, path string, answer []byte) {
+func studentHelper(path string, answer []byte) {
 	ioutil.WriteFile(path+"answer.json", answer, 0644)
 }
 
