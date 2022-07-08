@@ -6,13 +6,12 @@ import usePersistState from "../../utils/usePersistState";
 
 const OneInMultipleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
     const {value, setValue, getValue} = usePersistState('', storageKey);
+    const id = storageKey + "_choice" + choice.choiceId;
     return (
         <Form.Check type='checkbox'
             name={storageKey}
-            key={storageKey}
-            id={storageKey}
+            id={id}
             label={choice.content}
-            value={value}
             defaultChecked={value.includes(choice.choiceId)}
             onChange={(event) => {
                 let newValue = "";
@@ -31,11 +30,12 @@ const OneInMultipleChoice = ({choice, storageKey} : {choice: choiceDataType, sto
 
 const MultipleChoice = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
     const checkboxes = data.choices.map((choice: any) => {
+        let key = `Q${headerId}_sub${data.questionId}_choice${choice.choiceId}`;
         let storageKey = `Q${headerId}_sub${data.questionId}`;
         return (
             <OneInMultipleChoice
                 choice={choice}
-                key={storageKey}
+                key={key}
                 storageKey={storageKey} />
         )
     });

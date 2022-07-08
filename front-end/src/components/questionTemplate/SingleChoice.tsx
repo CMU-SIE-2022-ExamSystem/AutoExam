@@ -5,15 +5,16 @@ import usePersistState from "../../utils/usePersistState";
 
 const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
     const {value, setValue} = usePersistState("", storageKey);
+    const id = storageKey + "_choice" + choice.choiceId;
     return (
         <Form.Check type='radio'
             name={storageKey}
-            key={storageKey}
-            id={storageKey}
+            id={id}
             label={choice.content}
             defaultChecked={value.includes(choice.choiceId)}
             onChange={(event) => {
                 const newValue = choice.choiceId;
+                console.log(newValue);
                 event.target.checked ? setValue(newValue) : setValue("");
             }} />
     )
@@ -21,11 +22,12 @@ const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, stora
 
 const SingleChoice = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
     const radios = data.choices.map((choice) => {
+        let key = `Q${headerId}_sub${data.questionId}_choice${choice.choiceId}`;
         let storageKey = `Q${headerId}_sub${data.questionId}`;
         return (
             <OneInSingleChoice
                 choice={choice}
-                key={storageKey}
+                key={key}
                 storageKey={storageKey} />
         )
     });
