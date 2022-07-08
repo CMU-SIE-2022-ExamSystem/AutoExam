@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -28,7 +27,7 @@ func GetQuestions() []models.Header {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(question)
+		// fmt.Println(question)
 		questions = append(questions, question)
 	}
 	if err := cur.Err(); err != nil {

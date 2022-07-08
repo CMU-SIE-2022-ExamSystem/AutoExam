@@ -10,6 +10,7 @@ func CourseRouter(Router *gin.RouterGroup) {
 	CourseRouter := Router.Group("courses")
 	{
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/exam", controller.Exam_Handler)
+		CourseRouter.GET("/:course_name/info", jwt.JWTAuth(), controller.Usercoursesinfo_Handler)
 		CourseRouter.GET("/:course_name/assessments", jwt.JWTAuth(), controller.Assessments_Handler)
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/submissions", jwt.JWTAuth(), controller.Submissions_Handler)
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/download", jwt.JWTAuth(), controller.DownloadAssessments_Handler)

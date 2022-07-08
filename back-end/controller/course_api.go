@@ -32,6 +32,39 @@ func Exam_Handler(c *gin.Context) {
 	response.SuccessResponse(c, dao.GetQuestions())
 }
 
+// Usercourses_Handler godoc
+// @Summary get user course information
+// @Schemes
+// @Description get user courses information from autolab
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response{data=models.Course_Info_Front} "desc"
+// @Router /courses/{course_name}/info [get]
+func Usercoursesinfo_Handler(c *gin.Context) {
+	user_email := jwt.GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+	token := user.Access_token
+
+	course_name := c.Param("course_name")
+
+	body := autolab.AutolabGetHandler(c, token, "/courses")
+	// fmt.Println(string(body))
+
+	if strings.Contains(string(body), course_name) {
+		autolab_resp := utils.User_courses_trans(string(body))
+
+		autolab_map := utils.Map_course_info(autolab_resp)
+		course_info := autolab_map[course_name]
+
+		resp_body := models.Course_Info_Front{Name: course_info.Name, Display_name: course_info.Display_name, Auth_level: course_info.Auth_level}
+		response.SuccessResponse(c, resp_body)
+	} else {
+		response.ErrorInternalResponse(c, response.Error{Type: "Auth-level", Message: "User is not registered for this course."})
+	}
+}
+
 // Assessments_Handler godoc
 // @Summary get course assessments
 // @Schemes

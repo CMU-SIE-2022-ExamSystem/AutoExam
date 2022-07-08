@@ -55,7 +55,7 @@ func find_userinfo(id uint) (*UserCourseRelationship, bool) {
 
 func insertUserCourse(c *gin.Context, userCourse UserCourseRelationship) {
 	if err := global.DB.Create(&userCourse).Error; err != nil {
-		response.ErrorInternalResponse(c, response.Error{Type: "Database", Message: "Can not insert user course relationship."})
+		response.ErrDBResponse(c, "Can not insert user course relationship.")
 	}
 }
 
@@ -85,7 +85,7 @@ func updateUserCourse(c *gin.Context, userCourseInstance UserCourseRelationship,
 func updateHelper(c *gin.Context, user_id uint, newCourses Strings, tag string) {
 
 	if err := global.DB.Model(new(UserCourseRelationship)).Where("id=?", user_id).Update(tag, newCourses).Error; err != nil {
-		response.ErrorInternalResponse(c, response.Error{Type: "Database", Message: "Can not insert user course relationship."})
+		response.ErrDBResponse(c, "Can not insert user course relationship.")
 	}
 }
 

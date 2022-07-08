@@ -20,9 +20,11 @@ func TestRouter(Router *gin.RouterGroup) {
 		TestRouter.GET("/:course_name/check", jwt.JWTAuth(), jwt.Check_authlevel_API)
 		TestRouter.GET("/:course_name/checkDB", jwt.JWTAuth(), jwt.Check_authlevel_DB)
 		TestRouter.POST("/:course_name/assessments/:assessment_name/submit", jwt.JWTAuth(), controller.Take_exam_Test)
-		TestRouter.GET("/f/:course/:assessment/:user_id/", controller.FolderTest)
+		// TestRouter.GET("/f/:course/:assessment/:user_id/", controller.FolderTest)
 		TestRouter.POST("/:course_name/:assessment_name/config", controller.Examconfig_Handler)
 		TestRouter.POST("/quesion_update", controller.Question_Handler)
 		TestRouter.GET("/exam", jwt.JWTAuth(), controller.Test_exam)
+		TestRouter.GET("db/:question_type", controller.DBgraderTest)
+		TestRouter.DELETE("db/:question_type", controller.DBgraderTest)
 	}
 }

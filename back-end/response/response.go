@@ -28,6 +28,7 @@ var (
 	Authentication = "Authentication"
 	FileSystem     = "FileSystem"
 	Course         = "Course"
+	Database       = "Database"
 )
 
 func NormalResponse(c *gin.Context, response Response) {
@@ -68,6 +69,14 @@ func ErrorInternalResponse(c *gin.Context, err Error) {
 	panic(err)
 }
 
+func ErrorInternaWithType(c *gin.Context, err Error, t int) {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"type":  t,
+		"error": err,
+		"data":  struct{}{},
+	})
+}
+
 func ErrUnauthResponse(c *gin.Context, message string) {
 	err := Error{Type: Authentication, Message: message}
 	ErrorResponseWithStatus(c, err, http.StatusUnauthorized)
@@ -91,4 +100,9 @@ func ErrAssessmentNotValidResponse(c *gin.Context, course, assessment string) {
 func ErrAssessmentNameNotValidResponse(c *gin.Context, message string) {
 	err := Error{Type: Course, Message: message}
 	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+}
+
+func ErrDBResponse(c *gin.Context, message string) {
+	err := Error{Type: Database, Message: message}
+	ErrorInternaWithType(c, err, -1)
 }
