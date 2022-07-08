@@ -27,6 +27,7 @@ type Error struct {
 var (
 	Authentication = "Authentication"
 	FileSystem     = "FileSystem"
+	Course         = "Course"
 )
 
 func NormalResponse(c *gin.Context, response Response) {
@@ -55,6 +56,7 @@ func ErrorResponseWithStatus(c *gin.Context, err Error, status int) {
 		"error": err,
 		"data":  struct{}{},
 	})
+	panic(err)
 }
 
 func ErrorInternalResponse(c *gin.Context, err Error) {
@@ -63,6 +65,7 @@ func ErrorInternalResponse(c *gin.Context, err Error) {
 		"error": err,
 		"data":  struct{}{},
 	})
+	panic(err)
 }
 
 func ErrUnauthResponse(c *gin.Context, message string) {
@@ -73,4 +76,19 @@ func ErrUnauthResponse(c *gin.Context, message string) {
 func ErrFileResponse(c *gin.Context) {
 	err := Error{Type: FileSystem, Message: "Target file does not exist or it is empty."}
 	ErrorResponseWithStatus(c, err, http.StatusInternalServerError)
+}
+
+func ErrCourseNotValidResponse(c *gin.Context, course string) {
+	err := Error{Type: Course, Message: "This user is not registered in such course '" + course + "'"}
+	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+}
+
+func ErrAssessmentNotValidResponse(c *gin.Context, course, assessment string) {
+	err := Error{Type: Course, Message: "There is no this assessment '" + assessment + "' in such course '" + course + "'"}
+	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+}
+
+func ErrAssessmentNameNotValidResponse(c *gin.Context, message string) {
+	err := Error{Type: Course, Message: message}
+	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
 }

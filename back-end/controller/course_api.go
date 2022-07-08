@@ -57,6 +57,8 @@ func Assessments_Handler(c *gin.Context) {
 	autolab_resp := utils.Course_assessments_trans(string(body))
 	filtered_resp := utils.ExamNameFilter(autolab_resp)
 
+	// TODO should also show the current assessments in database
+
 	response.SuccessResponse(c, filtered_resp)
 }
 
@@ -96,20 +98,41 @@ func Submissions_Handler(c *gin.Context) {
 // @Tags exam
 // @Accept json
 // @Produce mpfd
+// @Produce json
 // @Param		course_name			path	string	false	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
+// @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name}/download [get]
+// @Success 404 {object} response.Response{} "Not found course"
 func DownloadAssessments_Handler(c *gin.Context) {
 	// dao.GetAccessToken(jwt.GetEmail(c).ID)
+	user_email := jwt.GetEmail(c)
+	fmt.Println(user_email)
+	course_name, assessment_name := course.GetCourseAssessment(c, false)
 
-	course_name, assessment_name := course.GetCourseAssessment(c)
+	jwt.Check_authlevel_Instructor(c)
 
-	//TODO user permission check
-
-	fmt.Println(course_name, assessment_name)
 	tar := course.Build_Assessment(c, course_name, assessment_name)
-	// course.Download_Assessment()
 	c.FileAttachment(tar, tar[strings.LastIndex(tar, "/")+1:])
+}
+
+// AssessmentConfig_Handler godoc
+// @Summary submit the exam configuration
+// @Schemes
+// @Description submit the exam configuration
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Param data body course.Assessment_body true "body data"
+// @Success 200 {object} response.Response{data=course.Assessment_body} "desc"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/assessments/{assessment_name}/config [post]
+func AssessmentConfig_Handler(c *gin.Context) {
+	body := course.Assessment_body{}
+	c.BindJSON(&body)
+	fmt.Println(body)
 }
 
 // Usersubmit_Handler godoc

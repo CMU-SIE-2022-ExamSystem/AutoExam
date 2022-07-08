@@ -76,3 +76,51 @@ func Check_authlevel_DB(c *gin.Context) {
 	auth_level := dao.Check_authlevel(user.ID, course_name)
 	response.SuccessResponse(c, auth_level)
 }
+
+func Get_authlevel_DB(c *gin.Context) (auth_level string) {
+	course_name := c.Param("course_name")
+	user_email := GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+
+	auth_level = dao.Check_authlevel(user.ID, course_name)
+	if auth_level == "" {
+		response.ErrorInternalResponse(c, response.Error{Type: "Database", Message: "There is no this user in database, please try again."})
+	}
+	return
+}
+
+func Check_authlevel_Student(c *gin.Context) {
+	auth := Get_authlevel_DB(c)
+
+	if auth != "student" {
+		response.ErrUnauthResponse(c, "The user is not a student in this course")
+	}
+
+}
+
+func Check_authlevel_Instructor(c *gin.Context) {
+	auth := Get_authlevel_DB(c)
+
+	if auth != "instructor" {
+		response.ErrUnauthResponse(c, "The user is not an instructor in this course")
+		c.Abort()
+	}
+}
+
+func Check_authlevel_Assistant(c *gin.Context) {
+	auth := Get_authlevel_DB(c)
+
+	if auth != "course_assistant" {
+		response.ErrUnauthResponse(c, "The user is not an assistant in this course")
+	}
+}
+
+func Check_authlevel_Assistant_and_Instructor(c *gin.Context) {
+	auth := Get_authlevel_DB(c)
+
+	if auth == "student" {
+		response.ErrUnauthResponse(c, "The user is not an assistant or an instructor in this course")
+	}
+
+}

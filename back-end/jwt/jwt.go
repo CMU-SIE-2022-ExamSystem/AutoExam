@@ -42,7 +42,6 @@ func GetEmail(c *gin.Context) (user models.User_Token) {
 	if !err {
 		response.ErrorInternalResponse(c, response.Error{Type: response.Authentication, Message: "there is no token in gin.Context"})
 	}
-
 	user = models.User_Token{ID: id.(uint), Email: email.(string)}
 	return
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/gin-gonic/gin"
@@ -15,12 +16,12 @@ import (
 )
 
 type Assessment_body struct {
-	Name             string `json:"name" mapstructure:"name"`
-	Start_at         string `json:"start_at"  mapstructure:"start_at"`
-	Due_at           string `json:"due_at"  mapstructure:"due_at"`
-	End_at           string `json:"end_at"  mapstructure:"end_at"`
-	Grading_deadline string `json:"grading_deadline"  mapstructure:"grading_deadline"`
-	Category_name    string `json:"category_name" mapstructure:"category_name"`
+	Name             string     `json:"name" mapstructure:"name" default:"name"`
+	Start_at         *time.Time `json:"startAt"  mapstructure:"start_at" default:"2023-06-15 14:13"`
+	Due_at           *time.Time `json:"dueAt"  mapstructure:"due_at" default:"2023-06-15 14:13"`
+	End_at           *time.Time `json:"endAt"  mapstructure:"end_at" default:"2023-06-15 14:13"`
+	Grading_deadline *time.Time `json:"gradingDeadline"  mapstructure:"grading_deadline" default:"2023-06-15 14:13"`
+	Category_name    string     `json:"categoryName" mapstructure:"category_name" default:"Exam"`
 }
 
 type Assessment struct {

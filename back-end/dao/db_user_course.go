@@ -109,9 +109,15 @@ func Check_authlevel(user_id uint, class_name string) string {
 			}
 		}
 
-		// not found the two lists
-		color.Yellow("this user is neither TA or instructor of this course")
-		return "student"
+		User_StudentCourses := userCourseInstance.ClassesAsStudent
+		for _, v := range User_StudentCourses {
+			if class_name == v {
+				color.Yellow("this user is a student")
+				return "student"
+			}
+		}
+		color.Yellow("this user is not one of the three roles of this course")
+		return ""
 	} else {
 		// this user not existed
 		color.Yellow("this user is not existing")
@@ -134,4 +140,12 @@ func UpdateOrAddUser(c *gin.Context, user_id uint, mapFromAutoLab map[string]Str
 		}
 		insertUserCourse(c, newUser)
 	}
+}
+
+func Get_all_courses(user_id uint) (courses Strings) {
+	userCourseInstanceAddress, _ := find_userinfo(user_id)
+	userCourseInstance := *userCourseInstanceAddress
+	courses = append(userCourseInstance.ClassesAsInstructor, userCourseInstance.ClassesAsTA...)
+	courses = append(courses, userCourseInstance.ClassesAsStudent...)
+	return
 }

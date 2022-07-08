@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
@@ -120,6 +121,21 @@ func Course_all_Test(c *gin.Context) {
 		autolab_resp := utils.Course_user_trans(string(body))
 		response.SuccessResponse(c, autolab_resp)
 	}
+}
+
+// AuthInfo godoc
+// @Summary test
+// @Schemes
+// @Description test
+// @Tags test
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Router /test/exam [get]
+func Test_exam(c *gin.Context) {
+	user := jwt.GetEmail(c)
+	courses := dao.Get_all_courses(user.ID)
+	response.SuccessResponse(c, courses)
 }
 
 // AuthInfo godoc
