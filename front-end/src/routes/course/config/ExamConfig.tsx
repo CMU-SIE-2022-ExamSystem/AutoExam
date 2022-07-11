@@ -20,13 +20,22 @@ function ExamConfig({isNew}: {isNew: boolean}) {
     return (
         <AppLayout>
             <Row>
-                <TopNavbar brand={params.course_name}/>
+                <TopNavbar brand={params.course_name} brandLink={"/courses/"+params.course_name}/>
             </Row>
             <main>
                 <Row>
                     <Col xs={{span: "3"}}>
-                        <div>
-                            Left
+                        <div className="d-flex flex-column flex-shrink-0 p-3">
+                            <div>Exam Config</div>
+                            <hr />
+                            <ul className="nav nav-pills flex-column mb-auto">
+                                <li className="nav-item">
+                                    Global Settings
+                                </li>
+                                <li className="nav-item">
+                                    Exam Questions
+                                </li>
+                            </ul>
                         </div>
                     </Col>
                     <Col xs={{span: "9"}}>
