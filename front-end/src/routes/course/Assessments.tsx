@@ -18,23 +18,43 @@ interface assessmentProps {
     grading_deadline?: string;
 }
 
+interface ICourseInfo {
+    name: string;
+    display_name: string;
+    auth_level: string;
+}
 
-const AssessmentRow = ({name, display_name, start_at, due_at}: assessmentProps) => {
+interface extAssessmentProps extends assessmentProps {
+    permission: boolean
+}
+
+const AssessmentRow = ({name, display_name, start_at, due_at, permission}: extAssessmentProps) => {
     let startTime = moment(start_at).format("MMMM Do YYYY, h:mm:ss a");
     let dueTime = moment(due_at).format("MMMM Do YYYY, h:mm:ss a");
+
+    let actionList = [];
+    if (permission) {
+        actionList.push(<Link to={"exams/" + name} className="btn btn-success me-2">Edit Exam</Link>)
+        actionList.push(<Link to={"exams/" + name} className="btn btn-primary">Proctor Exam</Link>)
+    } else {
+        actionList.push(<Link to={"exams/" + name} className="btn btn-primary">Take Exam</Link>);
+    }
+
     return (
         <tr>
             <th scope="row">{display_name}</th>
             <td>{startTime}</td>
             <td>{dueTime}</td>
-            <td><Link to={"exams/" + name} className="btn btn-primary">Take Exam</Link></td>
+            <td>{actionList}</td>
         </tr>
     )
 }
 
-const Table = (listOfAssessments: assessmentProps[]) => {
+const Table = (listOfAssessments: assessmentProps[], courseInfo?: ICourseInfo) => {
 
-    const tableBody = listOfAssessments.map(assessment => <AssessmentRow key={assessment.name} {...assessment}/>)
+    const permission = courseInfo?.auth_level === 'instructor';
+
+    const tableBody = listOfAssessments.map(assessment => <AssessmentRow key={assessment.name} permission={permission} {...assessment}/>)
 
     return (
         <table className="table text-start">
@@ -51,12 +71,6 @@ const Table = (listOfAssessments: assessmentProps[]) => {
             </tbody>
         </table>
     )
-}
-
-interface ICourseInfo {
-    name: string;
-    display_name: string;
-    auth_level: string;
 }
 
 function Assessments() {
@@ -80,7 +94,7 @@ function Assessments() {
     }, [getCourseInfo])
 
 
-    const assessmentTable = Table(examList);
+    const assessmentTable = Table(examList, courseInfo);
     return (
         <AppLayout>
             <Row>
@@ -88,9 +102,10 @@ function Assessments() {
             </Row>
             <main>
                 {courseInfo?.auth_level === "instructor" &&
-                    <Row className="text-end pe-5">
+                    <div className="text-end pe-5">
+                        <Link to={"examConfig/new/base"}><Button variant="info" className="me-3 text-white">New Exam</Button></Link>
                         <Link to={"questionBank"}><Button variant="primary">Question Bank</Button></Link>
-                    </Row>
+                    </div>
                 }
                 <Row>
                     <Col xs={{span: "10", offset: "1"}}>
