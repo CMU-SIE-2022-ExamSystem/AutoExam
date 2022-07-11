@@ -12,6 +12,8 @@ import ExamInstructions from "./routes/course/exams/ExamInstructions";
 import RequireAuth from "./middlewares/RequireAuth";
 import QuestionBank from "./routes/course/questionBanks/QuestionBank";
 import ExamConfig from "./routes/course/config/ExamConfig";
+import ExamConfigQuestions from "./routes/course/config/ExamConfigQuestions";
+import ExamConfigBase from "./routes/course/config/ExamConfigBase";
 
 const App = () => {
     return (
@@ -32,8 +34,14 @@ const App = () => {
                             <Route index element={<RequireAuth><QuestionBank /></RequireAuth>} />
                         </Route>
                         <Route path="examConfig">
-                            <Route path="new" element={<RequireAuth><ExamConfig isNew={true} /></RequireAuth>} />
-                            <Route path="edit/:exam_id" element={<RequireAuth><ExamConfig isNew={false} /></RequireAuth>} />
+                            <Route path="new" element={<RequireAuth><ExamConfig isNew={true} /></RequireAuth>}>
+                                <Route path="base" element={<ExamConfigBase />} />
+                                <Route path="questions" element={<ExamConfigQuestions />} />
+                            </Route>
+                            <Route path="edit/:exam_id" element={<RequireAuth><ExamConfig isNew={false} /></RequireAuth>}>
+                                <Route path="base" element={<ExamConfigBase />} />
+                                <Route path="questions" element={<ExamConfigQuestions />} />
+                            </Route>
                         </Route>
                         <Route path="exams/:exam_id">
                             <Route index element={<RequireAuth><ExamInstructions/></RequireAuth>}/>

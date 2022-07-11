@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {Button, Col, Row} from 'react-bootstrap';
-import {Link, useParams} from "react-router-dom";
+import {Link, Outlet, useParams} from "react-router-dom";
 import TopNavbar from "../../../components/TopNavbar";
 import AppLayout from "../../../components/AppLayout";
 
@@ -40,7 +40,7 @@ function ExamConfig({isNew}: {isNew: boolean}) {
                     </Col>
                     <Col xs={{span: "9"}}>
                         <div>
-                            Right
+                            <Outlet />
                         </div>
                     </Col>
                 </Row>
