@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Row, Col, Card} from 'react-bootstrap';
+import {Row, Col, Card, Modal, Button, Form} from 'react-bootstrap';
 import AppLayout from "../../components/AppLayout";
 import TopNavbar from "../../components/TopNavbar";
 import {getBackendApiUrl} from "../../utils/url";
@@ -45,7 +45,7 @@ function Dashboard() {
     }, [globalState.token]);
 
     useEffect(() => {
-        getCourses();
+        getCourses().catch();
     }, [getCourses])
 
     return (

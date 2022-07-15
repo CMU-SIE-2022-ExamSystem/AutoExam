@@ -4,7 +4,7 @@ import {Link, Outlet, useParams} from "react-router-dom";
 import TopNavbar from "../../../components/TopNavbar";
 import AppLayout from "../../../components/AppLayout";
 
-function ExamConfig({isNew}: {isNew: boolean}) {
+function ExamConfig() {
     let params = useParams();
 
     const getSavedConfig = async () =>  {
@@ -12,9 +12,7 @@ function ExamConfig({isNew}: {isNew: boolean}) {
     }
 
     useEffect(() => {
-        if (!isNew) {
-            getSavedConfig().catch();
-        }
+        getSavedConfig().catch();
     }, [getSavedConfig]);
 
     return (

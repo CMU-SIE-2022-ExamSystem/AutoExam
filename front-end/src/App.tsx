@@ -34,11 +34,7 @@ const App = () => {
                             <Route index element={<RequireAuth><QuestionBank /></RequireAuth>} />
                         </Route>
                         <Route path="examConfig">
-                            <Route path="new" element={<RequireAuth><ExamConfig isNew={true} /></RequireAuth>}>
-                                <Route path="base" element={<ExamConfigBase />} />
-                                <Route path="questions" element={<ExamConfigQuestions />} />
-                            </Route>
-                            <Route path="edit/:exam_id" element={<RequireAuth><ExamConfig isNew={false} /></RequireAuth>}>
+                            <Route path=":exam_id" element={<RequireAuth><ExamConfig /></RequireAuth>}>
                                 <Route path="base" element={<ExamConfigBase />} />
                                 <Route path="questions" element={<ExamConfigQuestions />} />
                             </Route>

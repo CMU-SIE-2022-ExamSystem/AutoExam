@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Row, Col, Button} from 'react-bootstrap';
+import {Row, Col, Button, Modal, Form} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
@@ -73,11 +73,51 @@ const Table = (listOfAssessments: assessmentProps[], courseInfo?: ICourseInfo) =
     )
 }
 
+
+const NewExamConfig = ({show, onSubmit, onClose, categoryList} :{ show: boolean, onSubmit: () => void, onClose: () => void, categoryList: string[] }) => {
+    const categoryRadio = categoryList.map((item) => {
+        return (
+            <Form.Check type='radio'
+                        name="newExamCategory"
+                        label={item}
+            />
+        )
+    });
+    return (
+        <Modal show={show}>
+            <Modal.Header>
+                <Modal.Title>New Exam</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+                <p>Please type the new exam name:</p>
+                <Form.Group className="border-top py-4">
+                    <Form.Control type="text"
+                                  placeholder=""
+                                  className="w-50 mb-2"
+                                  required
+                    />
+                </Form.Group>
+                <Form.Group className="border-top py-4">
+                    {categoryRadio}
+                </Form.Group>
+            </Modal.Body>
+
+            <Modal.Footer>
+                <Button variant="primary" onClick={onSubmit}>Submit</Button>
+                <Button variant="danger" onClick={onClose}>Back</Button>
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
+
 function Assessments() {
     const params = useParams();
     const {globalState} = useGlobalState();
     const [examList, setExamList] = useState<assessmentProps[]>([]);
     const [courseInfo, setCourseInfo] = useState<ICourseInfo>();
+    const [showModal, setShowModal] = useState<boolean>(false);
 
     const getCourseInfo = useCallback(async () => {
         const infoUrl = getBackendApiUrl("/courses/" + params.course_name + "/info");
@@ -114,6 +154,7 @@ function Assessments() {
                     </Col>
                 </Row>
             </main>
+            <NewExamConfig show={showModal} onClose={() => {}} onSubmit={() => {}} categoryList={[]}/>
         </AppLayout>
     );
 }
