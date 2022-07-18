@@ -18,7 +18,7 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.GET("/:course_name/course_user_data", jwt.JWTAuth(), controller.Course_all_Test)
 		CourseRouter.GET("/assessments/config/categories", jwt.JWTAuth(), controller.AssessmentCategories_Handler)
 
-		// exam CRUD
+		// assessment CRUD
 		CourseRouter.POST("/:course_name/assessments", jwt.JWTAuth(), controller.CreateAssessment_Handler)
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/", jwt.JWTAuth(), controller.ReadAssessment_Handler)
 		CourseRouter.PUT("/:course_name/assessments/:assessment_name/", jwt.JWTAuth(), controller.UpdateAssessment_Handler)

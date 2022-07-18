@@ -33,6 +33,13 @@ func getErrorMsg(fe validator.FieldError) string {
 	// assessment's tag
 	case "submission":
 		return "Should be only 1 when category_name is 'Exam'"
+	case "noTag":
+		return "This field is required in the " + fe.Param() + " settings"
+	case "notValidTag":
+		return "This field is not one of the valid tags in the " + fe.Param() + " settings"
+	case "maxscore":
+		s := strings.Split(fe.Param(), ",")
+		return "This field is required or should be greate than " + s[0] + " in the " + s[1] + " settings"
 	}
 	fmt.Println(fe.Namespace())
 	fmt.Println(fe.Field())

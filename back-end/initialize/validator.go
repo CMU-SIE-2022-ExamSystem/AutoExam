@@ -23,5 +23,6 @@ func InitValidator() {
 		})
 		// v.RegisterCustomTypeFunc(validate.ValidateTime, models.AutoTime{})
 		v.RegisterStructValidation(validate.AssessmentUpdateValidation, dao.AutoExam_Assessments_Update{})
+		// v.RegisterStructValidation(validate.SettingsValidation, dao.Settings{})
 	}
 }

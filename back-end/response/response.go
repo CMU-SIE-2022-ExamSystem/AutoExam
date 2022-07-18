@@ -118,9 +118,9 @@ func ErrAssessmentNotInAutolabResponse(c *gin.Context, course, assessment string
 	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
 }
 
-func ErrAssessmentNameNotValidResponse(c *gin.Context, message string) {
+func ErrAssessmentNameNotValidResponse(c *gin.Context, status int, message string) {
 	err := Error{Type: Course, Message: message}
-	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+	ErrorResponseWithStatus(c, err, status)
 }
 
 func ErrAssessmentInternaldResponse(c *gin.Context, message string) {

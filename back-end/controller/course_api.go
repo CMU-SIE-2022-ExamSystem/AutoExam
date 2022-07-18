@@ -162,7 +162,6 @@ func CreateAssessment_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
-// @Param data body dao.AutoExam_Assessments_Update true "body data"
 // @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name} [get]
@@ -172,7 +171,7 @@ func ReadAssessment_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	assessment, err := dao.ReadExam(course_name, assessment_name)
 	if err != nil {
-		response.ErrDBResponse(c, "There is an error when reading an assessment to mongodb")
+		response.ErrDBResponse(c, "There is an error when reading an assessment from mongodb")
 	}
 	response.SuccessResponse(c, assessment)
 }

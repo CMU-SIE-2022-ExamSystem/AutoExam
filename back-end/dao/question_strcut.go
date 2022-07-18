@@ -6,23 +6,27 @@ type Choice struct {
 	Content  string `json:"content" bson:"content"`
 }
 
+// sub question with answer
 type Question struct {
-	Type        string   `json:"questionType" bson:"questionType"`
-	QuestionId  int      `json:"questionId" bson:"questionId"`
+	Type        string   `json:"question_type" bson:"questionType"`
+	QuestionId  int      `json:"question_id" bson:"questionId"`
 	Description string   `json:"description" bson:"description"`
 	Choices     []Choice `json:"choices" bson:"choices"`
 	Answer      []string `json:"answer" bson:"answer"` //answer is changed into an array of strings
 }
 
-type Header struct {
-	HeaderId    int        `json:"headerId" bson:"headerId"`
-	Tag         string     `json:"questionTag" bson:"questionTag"`
+// question header with answer
+type Question_Header struct {
+	HeaderId    int        `json:"id" bson:"_id"`
+	Tag         string     `json:"question_tag" bson:"questionTag"`
+	Title       string     `json:"title" bson:"title"`
 	Description string     `json:"description" bson:"description"` //html string
 	Questions   []Question `json:"questions" bson:"questions"`
 }
 
+// container with answer
 type Container struct {
-	Data []Header `json:"data"`
+	Data []Question_Header `json:"data"`
 }
 
 //the version for reading, no answer
@@ -31,20 +35,27 @@ type Choice1 struct {
 	Content  string `json:"content" bson:"content"`
 }
 
-type Question1 struct {
+// sub question without answer
+type Question_Without_Answer struct {
 	Type        string    `json:"questionType" bson:"questionType"`
 	QuestionId  int       `json:"questionId" bson:"questionId"`
 	Description string    `json:"description" bson:"description"`
 	Choices     []Choice1 `json:"choices" bson:"choices"`
 }
 
-type Header1 struct {
-	HeaderId    int         `json:"headerId" bson:"headerId"`
-	Tag         string      `json:"questionTag" bson:"questionTag"`
-	Description string      `json:"description" bson:"description"` //html string
-	Questions   []Question1 `json:"questions" bson:"questions"`
+// question header without answer
+type Question_Header_Without_Answer struct {
+	HeaderId    int                       `json:"id" bson:"_id"`
+	Tag         string                    `json:"question_tag" bson:"questionTag"`
+	Title       string                    `json:"title" bson:"title"`
+	Description string                    `json:"description" bson:"description"` //html string
+	Questions   []Question_Without_Answer `json:"questions" bson:"questions"`
 }
 
-type Container1 struct {
-	Data []Header1 `json:"data"`
+type Container_Without_Answer struct {
+	Data []Question_Header_Without_Answer `json:"data"`
+}
+
+type Tags_Return struct {
+	Tags []string `yaml:"tags" json:"tags"`
 }

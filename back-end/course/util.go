@@ -1,6 +1,7 @@
 package course
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
@@ -91,13 +92,13 @@ func Validate_autolab_assessment(c *gin.Context, course, assessment string) bool
 
 func Validate_assessment_name(c *gin.Context, course, assessment string) {
 	if validate_assessment(c, course, assessment) {
-		response.ErrAssessmentNameNotValidResponse(c, "The name of assessment '"+assessment+"' is already in this course '"+course+"'")
+		response.ErrAssessmentNameNotValidResponse(c, http.StatusConflict, "The name of assessment '"+assessment+"' is already in this course '"+course+"'")
 	}
 
 	firstLetter := assessment[0:1]
 	_, err := strconv.Atoi(firstLetter)
 	if err == nil {
-		response.ErrAssessmentNameNotValidResponse(c, "The name of assessment '"+assessment+"' can't have leading numeral")
+		response.ErrAssessmentNameNotValidResponse(c, http.StatusBadRequest, "The name of assessment '"+assessment+"' can't have leading numeral")
 	}
 }
 

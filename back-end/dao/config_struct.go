@@ -20,7 +20,6 @@ type AutoExam_Assessments struct {
 	Course   string     `yaml:"course" json:"course" bson:"course"`
 	General  General    `yaml:"general" json:"general"`
 	Settings []Settings `yaml:"settings" json:"settings"`
-	Problems []Problems `yaml:"problems" json:"problems"`
 	Draft    bool       `json:"draft" bson:"draft"`
 }
 
@@ -32,7 +31,6 @@ type AutoExam_Assessments_Create struct {
 type AutoExam_Assessments_Update struct {
 	General  General    `yaml:"general" json:"general"`
 	Settings []Settings `yaml:"settings" json:"settings"`
-	Problems []Problems `yaml:"problems" json:"problems"`
 }
 
 type General struct {
@@ -46,9 +44,10 @@ type General struct {
 }
 
 type Settings struct {
-	Id     int    `yaml:"id" json:"id" bson:"id"`
-	Tag    string `yaml:"tag" json:"tag" bson:"tag"`
-	Number int    `yaml:"number" json:"number" bson:"number"`
+	Id        int    `yaml:"id" json:"id" bson:"id"`
+	Tag       string `yaml:"tag" json:"tag" bson:"tag" binding:"required"`
+	Max_score int    `yaml:"max_score" json:"max_score" bson:"max_score"`
+	Score     []int  `yaml:"score" json:"score" bson:"score"`
 }
 
 type Problems struct {
@@ -95,7 +94,6 @@ func (assessment *AutoExam_Assessments_Create) ToAutoExamAssessments(course stri
 		Course:   course,
 		General:  general,
 		Settings: []Settings{},
-		Problems: []Problems{},
 		Draft:    true,
 	}
 
@@ -112,7 +110,6 @@ func (assessment *AutoExam_Assessments_Update) ToAutoExamAssessments(course stri
 		Course:   course,
 		General:  assessment.General,
 		Settings: assessment.Settings,
-		Problems: assessment.Problems,
 		Draft:    true,
 	}
 
@@ -167,11 +164,6 @@ func (assessment *AutoExam_Assessments) ToAssessments() models.Assessments {
 		Draft:            assessment.Draft,
 	}
 	return ass
-}
-
-func (problems *Problems) ToDownloadGeneral() models.Problems {
-	p := models.Problems{}
-	return p
 }
 
 func Time_to_EST(t string) string {

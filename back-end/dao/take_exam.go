@@ -49,9 +49,9 @@ func getQuestions(collection *mongo.Collection, student *Student) []byte {
 	defer cancel()
 
 	//declare some arguments
-	var container Container1
-	var questions []Header1
-	var question Header1
+	var container Container_Without_Answer
+	var questions []Question_Header_Without_Answer
+	var question Question_Header_Without_Answer
 	var filter bson.D
 	settings := student.Settings
 

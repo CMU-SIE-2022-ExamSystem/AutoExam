@@ -11,13 +11,13 @@ import (
 )
 
 const (
-	Collection_Name string = "assessment_bank"
+	Ass_Collection_Name string = "assessment_bank"
 )
 
 func CreateExam(exam AutoExam_Assessments) (result *mongo.InsertOneResult, err error) {
 	client := global.Mongo
 	//get the collection instance
-	collection := client.Database("auto_exam").Collection(Collection_Name)
+	collection := client.Database("auto_exam").Collection(Ass_Collection_Name)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -34,7 +34,7 @@ func CreateExam(exam AutoExam_Assessments) (result *mongo.InsertOneResult, err e
 func GetAllExams(course string) []models.Assessments {
 	client := global.Mongo
 	//get the collection instance
-	collection := client.Database("auto_exam").Collection(Collection_Name)
+	collection := client.Database("auto_exam").Collection(Ass_Collection_Name)
 
 	filter := bson.D{{Key: "course", Value: course}}
 
@@ -73,7 +73,7 @@ func GetAllExams(course string) []models.Assessments {
 func ReadExam(course, assessment_name string) (AutoExam_Assessments, error) {
 	client := global.Mongo
 	//get the collection instance
-	collection := client.Database("auto_exam").Collection(Collection_Name)
+	collection := client.Database("auto_exam").Collection(Ass_Collection_Name)
 
 	filter := bson.D{{Key: "course", Value: course}, {Key: "id", Value: assessment_name}}
 	var assessment AutoExam_Assessments
@@ -84,7 +84,7 @@ func ReadExam(course, assessment_name string) (AutoExam_Assessments, error) {
 func UpdateExam(course, assessment_name string, exam AutoExam_Assessments) error {
 	client := global.Mongo
 	//get the collection instance
-	collection := client.Database("auto_exam").Collection(Collection_Name)
+	collection := client.Database("auto_exam").Collection(Ass_Collection_Name)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -102,7 +102,7 @@ func UpdateExam(course, assessment_name string, exam AutoExam_Assessments) error
 func DeleteExam(course, assessment_name string) error {
 	client := global.Mongo
 	//get the collection instance
-	collection := client.Database("auto_exam").Collection(Collection_Name)
+	collection := client.Database("auto_exam").Collection(Ass_Collection_Name)
 
 	filter := bson.D{{Key: "course", Value: course}, {Key: "id", Value: assessment_name}}
 	_, err := collection.DeleteOne(context.TODO(), filter)

@@ -84,7 +84,7 @@ func helper(student *Student, questCollection *mongo.Collection, path string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	//level1
-	var result Header
+	var result Question_Header
 	var filter bson.D
 	level1 := map[string]interface{}{}
 	for i, id := range student.Settings {
