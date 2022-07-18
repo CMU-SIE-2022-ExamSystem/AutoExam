@@ -4,7 +4,7 @@ import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
 import {getBackendApiUrl} from "../../utils/url";
-import {default as axios} from "axios";
+import axios, { AxiosError } from "axios";
 import {useGlobalState} from "../../components/GlobalStateProvider";
 import moment from 'moment';
 
@@ -34,15 +34,15 @@ const AssessmentRow = ({name, display_name, start_at, due_at, permission}: extAs
 
     let actionList = [];
     if (permission) {
-        actionList.push(<Link to={"exams/" + name} className="btn btn-success me-2">Edit Exam</Link>)
-        actionList.push(<Link to={"exams/" + name} className="btn btn-primary">Proctor Exam</Link>)
+        actionList.push(<Link to={"exams/" + name} key="_EditExam" className="btn btn-success m-1">Edit Exam</Link>)
+        actionList.push(<Link to={"exams/" + name} key="_ProctorExam" className="btn btn-primary m-1">Proctor Exam</Link>)
     } else {
-        actionList.push(<Link to={"exams/" + name} className="btn btn-primary">Take Exam</Link>);
+        actionList.push(<Link to={"exams/" + name} key="_TakeExam" className="btn btn-primary m-1">Take Exam</Link>);
     }
 
     return (
-        <tr>
-            <th scope="row">{display_name}</th>
+        <tr className="align-middle">
+            <th scope="row" className="text-center">{display_name}</th>
             <td>{startTime}</td>
             <td>{dueTime}</td>
             <td>{actionList}</td>
@@ -74,15 +74,32 @@ const Table = (listOfAssessments: assessmentProps[], courseInfo?: ICourseInfo) =
 }
 
 
-const NewExamConfig = ({show, onSubmit, onClose, categoryList} :{ show: boolean, onSubmit: () => void, onClose: () => void, categoryList: string[] }) => {
+const NewExamConfig = ({show, onSubmit, clearMessage, onClose, categoryList, errorMessage} :{ show: boolean, onSubmit: (categoryName: string, name: string) => void, clearMessage: () => void, onClose: () => void, categoryList: string[], errorMessage: string}) => {
     const categoryRadio = categoryList.map((item) => {
         return (
             <Form.Check type='radio'
                         name="newExamCategory"
+                        key={item}
                         label={item}
+                        inline
+                        id={"new-exam-category-" + item}
+                        value={item}
+                        required
             />
         )
     });
+    const validate = () => {
+        const examName = (document.getElementById('new-exam-name') as HTMLInputElement).value;
+
+        const categoryNodeList = (document.getElementsByName('newExamCategory'));
+        let checked: string = "";
+        categoryNodeList.forEach((item) => {
+            const inputItem = (item as HTMLInputElement);
+            if (inputItem.checked) checked = inputItem.value;
+        })
+
+        onSubmit(checked, examName);
+    }
     return (
         <Modal show={show}>
             <Modal.Header>
@@ -91,22 +108,30 @@ const NewExamConfig = ({show, onSubmit, onClose, categoryList} :{ show: boolean,
 
             <Modal.Body>
                 <p>Please type the new exam name:</p>
-                <Form.Group className="border-top py-4">
-                    <Form.Control type="text"
-                                  placeholder=""
-                                  className="w-50 mb-2"
-                                  required
-                    />
-                </Form.Group>
-                <Form.Group className="border-top py-4">
-                    {categoryRadio}
-                </Form.Group>
+                <Form onSubmit={(event) => {event.preventDefault(); validate();}}>
+                    <Form.Group className="pb-4">
+                        <Form.Control type="text"
+                                      className="mb-2"
+                                      required
+                                      id="new-exam-name"
+                                      pattern="[A-za-z][A-za-z0-9_]{0,15}"
+                                      onChange={clearMessage}
+                        />
+                        <small>Use only alphabets, numbers and underscore(_).</small>
+                        <div>
+                            <small className="text-danger">{errorMessage}</small>
+                        </div>
+                    </Form.Group>
+                    <Form.Group className="border-top py-4">
+                        <Form.Label className="me-3">Category</Form.Label>
+                        {categoryRadio}
+                    </Form.Group>
+                    <div className="text-end">
+                        <Button variant="primary" type="submit" className="me-2">Submit</Button>
+                        <Button variant="danger" onClick={onClose}>Back</Button>
+                    </div>
+                </Form>
             </Modal.Body>
-
-            <Modal.Footer>
-                <Button variant="primary" onClick={onSubmit}>Submit</Button>
-                <Button variant="danger" onClick={onClose}>Back</Button>
-            </Modal.Footer>
         </Modal>
     );
 }
@@ -118,6 +143,7 @@ function Assessments() {
     const [examList, setExamList] = useState<assessmentProps[]>([]);
     const [courseInfo, setCourseInfo] = useState<ICourseInfo>();
     const [showModal, setShowModal] = useState<boolean>(false);
+    const [badExamConfig, setBadExamConfig] = useState<string>("");
 
     const getCourseInfo = useCallback(async () => {
         const infoUrl = getBackendApiUrl("/courses/" + params.course_name + "/info");
@@ -131,8 +157,38 @@ function Assessments() {
 
     useEffect(() => {
         getCourseInfo().catch();
-    }, [getCourseInfo])
+    }, [getCourseInfo]);
 
+    const [categoryList, setCategoryList] = useState<string[]>([]);
+
+    const getCategoryList = useCallback(async () => {
+        const categoryListUrl = getBackendApiUrl("/courses/assessments/config/categories");
+        const token = globalState.token;
+        const categoryListResult = await axios.get(categoryListUrl, {headers: {Authorization: "Bearer " + token}});
+        setCategoryList(categoryListResult.data.data.categories);
+    }, [])
+
+    useEffect(() => {
+        getCategoryList().catch();
+    }, [getCategoryList]);
+
+    const createNewExam = async (categoryName: string, name: string) => {
+        const postUrl = getBackendApiUrl("/courses/" + params.course_name + "/assessments");
+        const token = globalState.token;
+        const data = {
+            category_name: categoryName,
+            name: name,
+        };
+        axios.post(postUrl, data, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                console.log("Jump to exam ", name);
+            })
+            .catch((error: any) => {
+                let response = error.response.data;
+                console.log(response);
+                setBadExamConfig(response.error.message);
+            });
+    }
 
     const assessmentTable = Table(examList, courseInfo);
     return (
@@ -143,7 +199,7 @@ function Assessments() {
             <main>
                 {courseInfo?.auth_level === "instructor" &&
                     <div className="text-end pe-5">
-                        <Link to={"examConfig/new/base"}><Button variant="info" className="me-3 text-white">New Exam</Button></Link>
+                        <Button variant="info" className="me-3 text-white" onClick={() => {setShowModal(true);}}>New Exam</Button>
                         <Link to={"questionBank"}><Button variant="primary">Question Bank</Button></Link>
                     </div>
                 }
@@ -154,7 +210,13 @@ function Assessments() {
                     </Col>
                 </Row>
             </main>
-            <NewExamConfig show={showModal} onClose={() => {}} onSubmit={() => {}} categoryList={[]}/>
+            <NewExamConfig show={showModal}
+                           onClose={() => {setShowModal(false);}}
+                           clearMessage={() => {setBadExamConfig("")}}
+                           onSubmit={(categoryName, name) => {createNewExam(categoryName, name).catch();}}
+                           categoryList={categoryList}
+                           errorMessage={badExamConfig}
+            />
         </AppLayout>
     );
 }
