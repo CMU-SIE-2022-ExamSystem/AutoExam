@@ -16,6 +16,7 @@ func SetupServer() *gin.Engine {
 	InitLogger()
 	InitMysqlDB()
 	InitMongoDB()
+	InitValidator()
 
 	return server
 }

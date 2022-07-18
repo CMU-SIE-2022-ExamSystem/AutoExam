@@ -23,6 +23,16 @@ type Autolab_Info_Front struct {
 	Client_id string `json:"clientId"`
 }
 
+type Autolab_Assessments struct {
+	Name             string `json:"name"`
+	Display_name     string `json:"display_name"`
+	Start_at         string `json:"start_at"`
+	Due_at           string `json:"due_at"`
+	End_at           string `json:"end_at"`
+	Category_name    string `json:"category_name"`
+	Grading_deadline string `json:"grading_deadline"`
+}
+
 type Assessments struct {
 	Name             string `json:"name"`
 	Display_name     string `json:"display_name"`
@@ -31,6 +41,9 @@ type Assessments struct {
 	End_at           string `json:"end_at"`
 	Category_name    string `json:"category_name"`
 	Grading_deadline string `json:"grading_deadline"`
+	Autolab          bool   `json:"autolab"`
+	AutoExam         bool   `json:"autoexam"`
+	Draft            bool   `json:"draft"`
 }
 
 type Submissions struct {
@@ -62,4 +75,19 @@ type Course_User_Data struct {
 
 type Course_User_err struct {
 	Error string `json:"error"`
+}
+
+func (autolab *Autolab_Assessments) ToAssessments() Assessments {
+	assessment := Assessments{
+		Name:             autolab.Name,
+		Display_name:     autolab.Name,
+		Start_at:         autolab.Start_at,
+		Due_at:           autolab.End_at,
+		End_at:           autolab.End_at,
+		Category_name:    autolab.Category_name,
+		Grading_deadline: autolab.Grading_deadline,
+		Autolab:          true,
+		AutoExam:         false,
+	}
+	return assessment
 }

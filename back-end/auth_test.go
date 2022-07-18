@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -69,6 +70,9 @@ func TestInfo(t *testing.T) {
 
 func TestCreateTokenInstructor(t *testing.T) {
 	token, err := CreateInstructorToken()
+	fmt.Println("==============")
+	fmt.Println(token)
+	fmt.Println("==============")
 	assert.Nil(t, err)
 
 	server := initialize.SetupServer()
@@ -114,6 +118,9 @@ func TestCreateTokenTA(t *testing.T) {
 
 func TestCreateTokenStudent(t *testing.T) {
 	token, err := CreateStudentToken()
+	// fmt.Println("==============")
+	// fmt.Println(token)
+	// fmt.Println("==============")
 	assert.Nil(t, err)
 
 	server := initialize.SetupServer()

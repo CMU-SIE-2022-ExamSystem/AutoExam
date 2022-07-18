@@ -21,21 +21,39 @@ func GetCourse(c *gin.Context) string {
 	return course
 }
 
-func GetCourseAssessment(c *gin.Context, validated bool) (string, string) {
+func GetCourseAssessment(c *gin.Context) (string, string) {
 	course := GetCourse(c)
 	assessment := c.Param("assessment_name")
-	status := validate_assessment(c, course, assessment)
-	if validated {
-		if !status {
-			response.ErrAssessmentNotValidResponse(c, course, assessment)
+
+	// assessment not in mongodb
+	if !Validate_autoexam_assessment(c, course, assessment) {
+		response.ErrAssessmentNotValidResponse(c, course, assessment)
+	}
+	return course, assessment
+}
+
+func GetFilteredAssessments(c *gin.Context) []models.Assessments {
+	course := GetCourse(c)
+	assessments := get_assessments(c, course)
+	var autolab_index []int
+	auth := jwt.Get_authlevel_DB(c)
+	for index, assessment := range assessments {
+		if assessment.Autolab && !assessment.AutoExam {
+			autolab_index = append(autolab_index, index)
+		} else if auth == "student" && (!assessment.Autolab || assessment.Draft) { // student cannot see draft assessment
+			autolab_index = append(autolab_index, index)
 		}
-	} else {
-		// TODO should validate name is not in current assessments list
-		// validate assessment no numeric start
-		validate_assessment_name(c, assessment)
 	}
 
-	return course, assessment
+	for i := range autolab_index {
+		index := autolab_index[len(autolab_index)-1-i]
+		assessments = removeIndex(assessments, index)
+	}
+	return assessments
+}
+
+func removeIndex(s []models.Assessments, index int) []models.Assessments {
+	return append(s[:index], s[index+1:]...)
 }
 
 func validate_course(c *gin.Context, course string) {
@@ -56,7 +74,26 @@ func validate_assessment(c *gin.Context, course, assessment string) bool {
 	return false
 }
 
-func validate_assessment_name(c *gin.Context, assessment string) {
+func Validate_autoexam_assessment(c *gin.Context, course, assessment string) bool {
+	assessments := dao.GetAllExams(course)
+	for _, temp := range assessments {
+		if assessment == temp.Name {
+			return true
+		}
+	}
+	return false
+}
+
+func Validate_autolab_assessment(c *gin.Context, course, assessment string) bool {
+	assessments := get_autolab_assessments(c, course)
+	return check_in_autolab_assessments(assessments, assessment) != -1
+}
+
+func Validate_assessment_name(c *gin.Context, course, assessment string) {
+	if validate_assessment(c, course, assessment) {
+		response.ErrAssessmentNameNotValidResponse(c, "The name of assessment '"+assessment+"' is already in this course '"+course+"'")
+	}
+
 	firstLetter := assessment[0:1]
 	_, err := strconv.Atoi(firstLetter)
 	if err == nil {
@@ -65,6 +102,39 @@ func validate_assessment_name(c *gin.Context, assessment string) {
 }
 
 func get_assessments(c *gin.Context, course string) []models.Assessments {
+	// get autolab's assessments
+	autolab_assessments := get_autolab_assessments(c, course)
+
+	// get mongodb's assessments
+	autoexam_assessments := dao.GetAllExams(course)
+
+	// modify assessments' start_at , end_at and due_at
+	length := len(autoexam_assessments)
+	for i := 0; i < length; i++ {
+		autoexam := autoexam_assessments[i]
+		if index := check_in_autolab_assessments(autolab_assessments, autoexam.Name); index != -1 {
+			autolab_assessments[index].Start_at = autoexam.Start_at
+			autolab_assessments[index].Due_at = autoexam.End_at
+			autolab_assessments[index].End_at = autoexam.End_at
+			autolab_assessments[index].AutoExam = true
+			autoexam_assessments[index].Draft = autoexam.Draft
+		} else {
+			autolab_assessments = append(autolab_assessments, autoexam)
+		}
+	}
+	return autolab_assessments
+}
+
+func check_in_autolab_assessments(autolab []models.Assessments, name string) int {
+	for i, assessment := range autolab {
+		if name == assessment.Name {
+			return i
+		}
+	}
+	return -1
+}
+
+func get_autolab_assessments(c *gin.Context, course string) []models.Assessments {
 	user_email := jwt.GetEmail(c)
 	user := models.User{ID: user_email.ID}
 	global.DB.Find(&user)
@@ -75,5 +145,9 @@ func get_assessments(c *gin.Context, course string) []models.Assessments {
 
 	autolab_resp := utils.Course_assessments_trans(string(body))
 	filtered_resp := utils.ExamNameFilter(autolab_resp)
-	return filtered_resp
+	var temp []models.Assessments
+	for _, resp := range filtered_resp {
+		temp = append(temp, resp.ToAssessments())
+	}
+	return temp
 }

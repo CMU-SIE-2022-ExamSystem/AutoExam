@@ -94,7 +94,7 @@ func Check_authlevel_Student(c *gin.Context) {
 	auth := Get_authlevel_DB(c)
 
 	if auth != "student" {
-		response.ErrUnauthResponse(c, "The user is not a student in this course")
+		response.ErrForbiddenResponse(c, "The user is not a student in this course")
 	}
 
 }
@@ -103,7 +103,7 @@ func Check_authlevel_Instructor(c *gin.Context) {
 	auth := Get_authlevel_DB(c)
 
 	if auth != "instructor" {
-		response.ErrUnauthResponse(c, "The user is not an instructor in this course")
+		response.ErrForbiddenResponse(c, "The user is not an instructor in this course")
 		c.Abort()
 	}
 }
@@ -112,7 +112,7 @@ func Check_authlevel_Assistant(c *gin.Context) {
 	auth := Get_authlevel_DB(c)
 
 	if auth != "course_assistant" {
-		response.ErrUnauthResponse(c, "The user is not an assistant in this course")
+		response.ErrForbiddenResponse(c, "The user is not an assistant in this course")
 	}
 }
 
@@ -120,7 +120,7 @@ func Check_authlevel_Assistant_and_Instructor(c *gin.Context) {
 	auth := Get_authlevel_DB(c)
 
 	if auth == "student" {
-		response.ErrUnauthResponse(c, "The user is not an assistant or an instructor in this course")
+		response.ErrForbiddenResponse(c, "The user is not an assistant or an instructor in this course")
 	}
 
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/validate"
 	"github.com/gin-gonic/gin"
 )
 
@@ -72,27 +73,13 @@ func Usercoursesinfo_Handler(c *gin.Context) {
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Response{data=models.Assessments} "desc"
+// @Success 200 {object} response.Response{data=[]models.Autolab_Assessments} "desc"
 // @Param		course_name			path	string	true	"Course Name"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments [get]
 func Assessments_Handler(c *gin.Context) {
-	user_email := jwt.GetEmail(c)
-	user := models.User{ID: user_email.ID}
-	global.DB.Find(&user)
-	token := user.Access_token
-
-	course_name := c.Param("course_name")
-
-	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments")
-	// fmt.Println(string(body))
-
-	autolab_resp := utils.Course_assessments_trans(string(body))
-	filtered_resp := utils.ExamNameFilter(autolab_resp)
-
-	// TODO should also show the current assessments in database
-
-	response.SuccessResponse(c, filtered_resp)
+	assessments := course.GetFilteredAssessments(c)
+	response.SuccessResponse(c, assessments)
 }
 
 // Submissions_Handler godoc
@@ -124,6 +111,180 @@ func Submissions_Handler(c *gin.Context) {
 	response.SuccessResponse(c, autolab_resp)
 }
 
+// AssessmentConfigCategories_Handler godoc
+// @Summary get the assessment's categories's possible list
+// @Schemes
+// @Description get the assessment's categories's possible list
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response{data=dao.Categories_Return} "desc"
+// @Security ApiKeyAuth
+// @Router /courses/assessments/config/categories [get]
+func AssessmentCategories_Handler(c *gin.Context) {
+	data := dao.Categories_Return{Categories: dao.Assessment_Catergories}
+	response.SuccessResponse(c, data)
+}
+
+// CreateAssessment_Handler godoc
+// @Summary create an new exam configuration
+// @Schemes
+// @Description create an new exam configuration
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param data body dao.AutoExam_Assessments_Create true "body data"
+// @Success 201 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/assessments/ [post]
+func CreateAssessment_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+
+	var body dao.AutoExam_Assessments_Create
+	validate.Validate(c, &body)
+	course_name := course.GetCourse(c)
+	course.Validate_assessment_name(c, course_name, body.Name)
+	assessment := body.ToAutoExamAssessments(course_name)
+	_, err := dao.CreateExam(assessment)
+	if err != nil {
+		response.ErrDBResponse(c, "There is an error when storing a new assessment to mongodb")
+	}
+	response.SuccessResponse(c, assessment)
+}
+
+// ReadAssessment_Handler godoc
+// @Summary read an exam configuration
+// @Schemes
+// @Description read an exam configuration
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Param data body dao.AutoExam_Assessments_Update true "body data"
+// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/assessments/{assessment_name} [get]
+func ReadAssessment_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+
+	course_name, assessment_name := course.GetCourseAssessment(c)
+	assessment, err := dao.ReadExam(course_name, assessment_name)
+	if err != nil {
+		response.ErrDBResponse(c, "There is an error when reading an assessment to mongodb")
+	}
+	response.SuccessResponse(c, assessment)
+}
+
+// UpdateAssessment_Handler godoc
+// @Summary update an exam configuration
+// @Schemes
+// @Description update an exam configuration
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Param data body dao.AutoExam_Assessments_Update true "body data"
+// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/assessments/{assessment_name} [put]
+func UpdateAssessment_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+
+	course_name, assessment_name := course.GetCourseAssessment(c)
+
+	var body dao.AutoExam_Assessments_Update
+	validate.Validate(c, &body)
+	assessment := body.ToAutoExamAssessments(course_name)
+
+	// check whether new data's name is same as the original assessment's name
+	if !(assessment.Id == assessment_name) {
+		if course.Validate_autoexam_assessment(c, course_name, assessment.Id) {
+			response.ErrAssessmentNotValidResponse(c, course_name, assessment.Id)
+		}
+	}
+
+	err := dao.UpdateExam(course_name, assessment_name, assessment)
+
+	if err != nil {
+		fmt.Println("==========")
+		fmt.Println(err)
+		fmt.Println("==========")
+		response.ErrDBResponse(c, "There is an error when updating an assessment to mongodb")
+	}
+
+	response.SuccessResponse(c, assessment)
+}
+
+// DeleteAssessment_Handler godoc
+// @Summary delete an exam configuration
+// @Schemes
+// @Description delete an exam configuration
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Success 204
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/assessments/{assessment_name} [delete]
+func DeleteAssessment_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+
+	course_name, assessment_name := course.GetCourseAssessment(c)
+	err := dao.DeleteExam(course_name, assessment_name)
+	if err != nil {
+		response.ErrDBResponse(c, "There is an error when deleting an assessment to mongodb")
+	}
+	response.NonContentResponse(c)
+}
+
+// DraftAssessment_Handler godoc
+// @Summary edit an assessment's draft status
+// @Schemes
+// @Description edit an assessment's draft status
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Param data body dao.Draft true "body data"
+// @Success 200 {object} response.Response{data=dao.Draft} "desc"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/assessments/{assessment_name}/draft [put]
+func DraftAssessment_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+
+	course_name, assessment_name := course.GetCourseAssessment(c)
+
+	var body dao.Draft
+	validate.Validate(c, &body)
+
+	if !body.Draft {
+		// assessment not in autolab
+		if !course.Validate_autolab_assessment(c, course_name, assessment_name) {
+			response.ErrAssessmentNotInAutolabResponse(c, course_name, assessment_name)
+		}
+	}
+
+	assessment, err := dao.ReadExam(course_name, assessment_name)
+	if err != nil {
+		response.ErrDBResponse(c, "There is an error when reading an assessment to mongodb")
+	}
+	assessment.Draft = body.Draft
+
+	err = dao.UpdateExam(course_name, assessment_name, assessment)
+	if err != nil {
+		fmt.Println("==========")
+		fmt.Println(err)
+		fmt.Println("==========")
+		response.ErrDBResponse(c, "There is an error when updating an assessment to mongodb")
+	}
+	response.SuccessResponse(c, assessment)
+}
+
 // DownloadAssessments_Handler godoc
 // @Summary download an assessment tarball
 // @Schemes
@@ -132,40 +293,23 @@ func Submissions_Handler(c *gin.Context) {
 // @Accept json
 // @Produce mpfd
 // @Produce json
-// @Param		course_name			path	string	false	"Course Name"
+// @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name}/download [get]
 // @Success 404 {object} response.Response{} "Not found course"
 func DownloadAssessments_Handler(c *gin.Context) {
-	// dao.GetAccessToken(jwt.GetEmail(c).ID)
-	user_email := jwt.GetEmail(c)
-	fmt.Println(user_email)
-	course_name, assessment_name := course.GetCourseAssessment(c, false)
-
 	jwt.Check_authlevel_Instructor(c)
 
-	tar := course.Build_Assessment(c, course_name, assessment_name)
-	c.FileAttachment(tar, tar[strings.LastIndex(tar, "/")+1:])
-}
+	course_name, assessment_name := course.GetCourseAssessment(c)
 
-// AssessmentConfig_Handler godoc
-// @Summary submit the exam configuration
-// @Schemes
-// @Description submit the exam configuration
-// @Tags exam
-// @Accept json
-// @Produce json
-// @Param		course_name			path	string	true	"Course Name"
-// @Param		assessment_name		path	string	true	"Assessment name"
-// @Param data body course.Assessment_body true "body data"
-// @Success 200 {object} response.Response{data=course.Assessment_body} "desc"
-// @Security ApiKeyAuth
-// @Router /courses/{course_name}/assessments/{assessment_name}/config [post]
-func AssessmentConfig_Handler(c *gin.Context) {
-	body := course.Assessment_body{}
-	c.BindJSON(&body)
-	fmt.Println(body)
+	_, err := dao.ReadExam(course_name, assessment_name)
+	if err != nil {
+		response.ErrDBResponse(c, "There is an error when reading an assessment to mongodb")
+	}
+
+	// tar := course.Build_Assessment(c, course_name, assessment)
+	// c.FileAttachment(tar, tar[strings.LastIndex(tar, "/")+1:])
 }
 
 // Usersubmit_Handler godoc

@@ -43,8 +43,8 @@ func User_courses_trans(str string) []models.User_Courses {
 	return response
 }
 
-func Course_assessments_trans(str string) []models.Assessments {
-	var response []models.Assessments
+func Course_assessments_trans(str string) []models.Autolab_Assessments {
+	var response []models.Autolab_Assessments
 	err := json.Unmarshal([]byte(str), &response)
 	if err != nil {
 		color.Yellow("json transfer error>>> " + err.Error())
