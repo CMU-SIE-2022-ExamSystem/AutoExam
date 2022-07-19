@@ -1,10 +1,10 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Row, Col, Button, Modal, Form} from 'react-bootstrap';
-import {Link, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
 import {getBackendApiUrl} from "../../utils/url";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import {useGlobalState} from "../../components/GlobalStateProvider";
 import moment from 'moment';
 
@@ -34,7 +34,7 @@ const AssessmentRow = ({name, display_name, start_at, due_at, permission}: extAs
 
     let actionList = [];
     if (permission) {
-        actionList.push(<Link to={"exams/" + name} key="_EditExam" className="btn btn-success m-1">Edit Exam</Link>)
+        actionList.push(<Link to={"examConfig/" + name + "/base"} key="_EditExam" className="btn btn-success m-1">Edit Exam</Link>)
         actionList.push(<Link to={"exams/" + name} key="_ProctorExam" className="btn btn-primary m-1">Proctor Exam</Link>)
     } else {
         actionList.push(<Link to={"exams/" + name} key="_TakeExam" className="btn btn-primary m-1">Take Exam</Link>);
@@ -144,6 +144,7 @@ function Assessments() {
     const [courseInfo, setCourseInfo] = useState<ICourseInfo>();
     const [showModal, setShowModal] = useState<boolean>(false);
     const [badExamConfig, setBadExamConfig] = useState<string>("");
+    const navigate = useNavigate();
 
     const getCourseInfo = useCallback(async () => {
         const infoUrl = getBackendApiUrl("/courses/" + params.course_name + "/info");
@@ -181,11 +182,12 @@ function Assessments() {
         };
         axios.post(postUrl, data, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
-                console.log("Jump to exam ", name);
+                const configPage = "/courses" + params.course_name + "/examConfig/" + name + "/base";
+                setShowModal(false);
+                navigate(configPage);
             })
             .catch((error: any) => {
                 let response = error.response.data;
-                console.log(response);
                 setBadExamConfig(response.error.message);
             });
     }
