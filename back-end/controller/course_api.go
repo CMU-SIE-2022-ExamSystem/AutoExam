@@ -146,9 +146,11 @@ func CreateAssessment_Handler(c *gin.Context) {
 	course_name := course.GetCourse(c)
 	course.Validate_assessment_name(c, course_name, body.Name)
 	assessment := body.ToAutoExamAssessments(course_name)
+
+	// check mongo error
 	_, err := dao.CreateExam(assessment)
 	if err != nil {
-		response.ErrDBResponse(c, "There is an error when storing a new assessment to mongodb")
+		response.ErrMongoDBCreateResponse(c, "assessment")
 	}
 	response.SuccessResponse(c, assessment)
 }
@@ -169,10 +171,7 @@ func ReadAssessment_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
 	course_name, assessment_name := course.GetCourseAssessment(c)
-	assessment, err := dao.ReadExam(course_name, assessment_name)
-	if err != nil {
-		response.ErrDBResponse(c, "There is an error when reading an assessment from mongodb")
-	}
+	assessment := read_assessment(c, course_name, assessment_name)
 	response.SuccessResponse(c, assessment)
 }
 
@@ -205,13 +204,13 @@ func UpdateAssessment_Handler(c *gin.Context) {
 		}
 	}
 
+	// check mongo error
 	err := dao.UpdateExam(course_name, assessment_name, assessment)
-
 	if err != nil {
 		fmt.Println("==========")
 		fmt.Println(err)
 		fmt.Println("==========")
-		response.ErrDBResponse(c, "There is an error when updating an assessment to mongodb")
+		response.ErrMongoDBUpdateResponse(c, "assessment")
 	}
 
 	response.SuccessResponse(c, assessment)
@@ -235,7 +234,7 @@ func DeleteAssessment_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	err := dao.DeleteExam(course_name, assessment_name)
 	if err != nil {
-		response.ErrDBResponse(c, "There is an error when deleting an assessment to mongodb")
+		response.ErrMongoDBDeleteResponse(c, "assessment")
 	}
 	response.NonContentResponse(c)
 }
@@ -268,18 +267,15 @@ func DraftAssessment_Handler(c *gin.Context) {
 		}
 	}
 
-	assessment, err := dao.ReadExam(course_name, assessment_name)
-	if err != nil {
-		response.ErrDBResponse(c, "There is an error when reading an assessment to mongodb")
-	}
+	assessment := read_assessment(c, course_name, assessment_name)
 	assessment.Draft = body.Draft
 
-	err = dao.UpdateExam(course_name, assessment_name, assessment)
+	err := dao.UpdateExam(course_name, assessment_name, assessment)
 	if err != nil {
 		fmt.Println("==========")
 		fmt.Println(err)
 		fmt.Println("==========")
-		response.ErrDBResponse(c, "There is an error when updating an assessment to mongodb")
+		response.ErrMongoDBUpdateResponse(c, "assessment")
 	}
 	response.SuccessResponse(c, assessment)
 }
@@ -300,13 +296,8 @@ func DraftAssessment_Handler(c *gin.Context) {
 func DownloadAssessments_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
-	course_name, assessment_name := course.GetCourseAssessment(c)
-
-	_, err := dao.ReadExam(course_name, assessment_name)
-	if err != nil {
-		response.ErrDBResponse(c, "There is an error when reading an assessment to mongodb")
-	}
-
+	// course_name, assessment_name := course.GetCourseAssessment(c)
+	// _ := read_assessment(c, course_name, assessment_name)
 	// tar := course.Build_Assessment(c, course_name, assessment)
 	// c.FileAttachment(tar, tar[strings.LastIndex(tar, "/")+1:])
 }
@@ -341,4 +332,15 @@ func Usersubmit_Handler(c *gin.Context) {
 	} else {
 		response.SuccessResponse(c, autolab_resp)
 	}
+}
+
+func read_assessment(c *gin.Context, course_name, assessment_name string) dao.AutoExam_Assessments {
+	// read certain assessment
+	assessment, err := dao.ReadExam(course_name, assessment_name)
+
+	// check mongo error
+	if err != nil {
+		response.ErrMongoDBReadResponse(c, "assessment")
+	}
+	return assessment
 }

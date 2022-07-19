@@ -40,6 +40,10 @@ func getErrorMsg(fe validator.FieldError) string {
 	case "maxscore":
 		s := strings.Split(fe.Param(), ",")
 		return "This field is required or should be greate than " + s[0] + " in the " + s[1] + " settings"
+	case "mongo":
+		return "There is an internal mongodb error when validate this field"
+	case "tag":
+		return "This name is already used in this course '" + fe.Param() + "'"
 	}
 	fmt.Println(fe.Namespace())
 	fmt.Println(fe.Field())

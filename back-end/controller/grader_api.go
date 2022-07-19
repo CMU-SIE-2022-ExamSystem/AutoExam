@@ -11,17 +11,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreateGrader_Handler godoc
-// @Summary create an new grader configuration
+// ReadAllGrader_Handler godoc
+// @Summary read all graders configuration
 // @Schemes
-// @Description create an new grader configuration
-// @Tags exam
+// @Description read all graders configuration
+// @Tags grader
 // @Accept json
 // @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Success 200 {object} response.Response{data=dao.Tags_Return} "desc"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/graders [get]
+func ReadAllGrader_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+	course_name := c.Param("course_name")
+	fmt.Println(course_name)
+}
+
+// CreateGrader_Handler godoc
+// @Summary create a new grader configuration
+// @Schemes
+// @Description create a new grader configuration
+// @Tags grader
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
 // @Param data body dao.AutoExam_Assessments_Create true "body data"
 // @Success 201 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
 // @Security ApiKeyAuth
-// @Router /graders/ [post]
+// @Router /courses/{course_name}/graders/ [post]
 // @Deprecated
 func CreateGrader_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
@@ -39,16 +57,17 @@ func CreateGrader_Handler(c *gin.Context) {
 }
 
 // ReadGrader_Handler godoc
-// @Summary read an grader configuration
+// @Summary read a grader configuration
 // @Schemes
-// @Description read an grader configuration
-// @Tags exam
+// @Description read a grader configuration
+// @Tags grader
 // @Accept json
 // @Produce json
+// @Param		course_name			path	string	true	"Course Name"
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
 // @Security ApiKeyAuth
-// @Router /graders/{grader_name} [get]
+// @Router /courses/{course_name}/graders/{grader_name} [get]
 // @Deprecated
 func ReadGrader_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
@@ -62,17 +81,18 @@ func ReadGrader_Handler(c *gin.Context) {
 }
 
 // UpdateGrader_Handler godoc
-// @Summary update an grader configuration
+// @Summary update a grader configuration
 // @Schemes
-// @Description update an grader configuration
-// @Tags exam
+// @Description update a grader configuration
+// @Tags grader
 // @Accept json
 // @Produce json
+// @Param		course_name			path	string	true	"Course Name"
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Param data body dao.AutoExam_Assessments_Update true "body data"
 // @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
 // @Security ApiKeyAuth
-// @Router /graders/{grader_name} [put]
+// @Router /courses/{course_name}/graders/{grader_name} [put]
 // @Deprecated
 func UpdateGrader_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
@@ -103,16 +123,17 @@ func UpdateGrader_Handler(c *gin.Context) {
 }
 
 // DeleteGrader_Handler godoc
-// @Summary delete an grader configuration
+// @Summary delete a grader configuration
 // @Schemes
-// @Description delete an grader configuration
-// @Tags exam
+// @Description delete a grader configuration
+// @Tags grader
 // @Accept json
 // @Produce json
+// @Param		course_name			path	string	true	"Course Name"
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Success 204
 // @Security ApiKeyAuth
-// @Router /graders/{grader_name}  [delete]
+// @Router /courses/{course_name}/graders/{grader_name}  [delete]
 // @Deprecated
 func DeleteGrader_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)

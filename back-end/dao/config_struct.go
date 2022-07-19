@@ -45,6 +45,7 @@ type General struct {
 
 type Settings struct {
 	Id        int    `yaml:"id" json:"id" bson:"id"`
+	Title     string `yaml:"title" json:"title" bson:"title" default:"title"`
 	Tag       string `yaml:"tag" json:"tag" bson:"tag" binding:"required"`
 	Max_score int    `yaml:"max_score" json:"max_score" bson:"max_score"`
 	Score     []int  `yaml:"score" json:"score" bson:"score"`

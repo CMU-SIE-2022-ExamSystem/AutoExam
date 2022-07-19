@@ -31,7 +31,7 @@ func CreateExam(exam AutoExam_Assessments) (result *mongo.InsertOneResult, err e
 	return
 }
 
-func GetAllExams(course string) []models.Assessments {
+func GetAllExams(course string) ([]models.Assessments, error) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Ass_Collection_Name)
@@ -39,25 +39,6 @@ func GetAllExams(course string) []models.Assessments {
 	filter := bson.D{{Key: "course", Value: course}}
 
 	cursor, err := collection.Find(context.TODO(), filter)
-	if err != nil {
-		panic(err)
-	}
-
-	// var results []bson.M
-	// if err = cursor.All(context.TODO(), &results); err != nil {
-	// 	panic(err)
-	// }
-
-	// for _, result := range results {
-	// 	fmt.Println("==============")
-	// 	fmt.Printf("%s\n", result)
-	// 	fmt.Println("==============")
-	// 	output, err := json.MarshalIndent(result, "", "    ")
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	fmt.Printf("%s\n", output)
-	// }
 
 	var assessments []models.Assessments
 
@@ -67,7 +48,7 @@ func GetAllExams(course string) []models.Assessments {
 		assessments = append(assessments, assessment.ToAssessments())
 	}
 
-	return assessments
+	return assessments, err
 }
 
 func ReadExam(course, assessment_name string) (AutoExam_Assessments, error) {

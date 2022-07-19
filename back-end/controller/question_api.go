@@ -19,63 +19,63 @@ func Question_Handler(c *gin.Context) {
 	color.Yellow(string(data))
 }
 
-// QuestionTag_Handler godoc
-// @Summary get the possible list of all question tags
+// ReadAllQuestion_Handler godoc
+// @Summary read all questions configuration
 // @Schemes
-// @Description get the possible list of all question tags
+// @Description read all questions configuration
 // @Tags question
 // @Accept json
 // @Produce json
+// @Param		course_name			path	string	true	"Course Name"
 // @Success 200 {object} response.Response{data=dao.Tags_Return} "desc"
 // @Security ApiKeyAuth
-// @Router /questions/tags [get]
-func QuestionTag_Handler(c *gin.Context) {
-	tags, err := dao.GetTags()
-	if err != nil {
-		response.ErrDBResponse(c, "There is an error when reading question tags from mongodb")
-	}
-	data := dao.Tags_Return{Tags: tags}
-	response.SuccessResponse(c, data)
+// @Router /courses/{course_name}/questions [get]
+func ReadAllQuestion_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+	course_name := c.Param("course_name")
+	fmt.Println(course_name)
 }
 
 // CreateQuestion_Handler godoc
-// @Summary create an new question configuration
+// @Summary create a new question configuration
 // @Schemes
-// @Description create an new question configuration
-// @Tags exam
+// @Description create a new question configuration
+// @Tags question
 // @Accept json
 // @Produce json
-// @Param data body dao.AutoExam_Assessments_Create true "body data"
-// @Success 201 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
+// @Param		course_name			path	string	true	"Course Name"
+// @Param data body dao.Question_Header_Create true "body data"
+// @Success 201 {object} response.Response{data=dao.Question_Header} "desc"
 // @Security ApiKeyAuth
-// @Router /questions/ [post]
+// @Router /courses/{course_name}/questions/ [post]
 // @Deprecated
 func CreateQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
-	var body dao.AutoExam_Assessments_Create
+	var body dao.Question_Header_Create
 	validate.Validate(c, &body)
-	course_name := course.GetCourse(c)
-	course.Validate_assessment_name(c, course_name, body.Name)
-	assessment := body.ToAutoExamAssessments(course_name)
-	_, err := dao.CreateExam(assessment)
-	if err != nil {
-		response.ErrDBResponse(c, "There is an error when storing a new assessment to mongodb")
-	}
-	response.SuccessResponse(c, assessment)
+	// course_name := course.GetCourse(c)
+	// course.Validate_assessment_name(c, course_name, body.Name)
+	// assessment := body.ToAutoExamAssessments(course_name)
+	// _, err := dao.CreateExam(assessment)
+	// if err != nil {
+	// 	response.ErrDBResponse(c, "There is an error when storing a new assessment to mongodb")
+	// }
+	// response.SuccessResponse(c, assessment)
 }
 
 // ReadQuestion_Handler godoc
-// @Summary read an question configuration
+// @Summary read a question configuration
 // @Schemes
-// @Description read an question configuration
-// @Tags exam
+// @Description read a question configuration
+// @Tags question
 // @Accept json
 // @Produce json
+// @Param		course_name			path	string	true	"Course Name"
 // @Param		question_id			path	string	true	"Questions Id"
 // @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
 // @Security ApiKeyAuth
-// @Router /questions/{question_id} [get]
+// @Router /courses/{course_name}/questions/{question_id} [get]
 // @Deprecated
 func ReadQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
@@ -89,17 +89,18 @@ func ReadQuestion_Handler(c *gin.Context) {
 }
 
 // UpdateQuestion_Handler godoc
-// @Summary update an question configuration
+// @Summary update a question configuration
 // @Schemes
-// @Description update an question configuration
-// @Tags exam
+// @Description update a question configuration
+// @Tags question
 // @Accept json
 // @Produce json
+// @Param		course_name			path	string	true	"Course Name"
 // @Param		question_id			path	string	true	"Questions Id"
 // @Param data body dao.AutoExam_Assessments_Update true "body data"
 // @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
 // @Security ApiKeyAuth
-// @Router /questions/{question_id} [put]
+// @Router /courses/{course_name}/questions/{question_id} [put]
 // @Deprecated
 func UpdateQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
@@ -130,16 +131,17 @@ func UpdateQuestion_Handler(c *gin.Context) {
 }
 
 // DeleteQuestion_Handler godoc
-// @Summary delete an question configuration
+// @Summary delete a question configuration
 // @Schemes
-// @Description delete an question configuration
-// @Tags exam
+// @Description delete a question configuration
+// @Tags question
 // @Accept json
 // @Produce json
+// @Param		course_name			path	string	true	"Course Name"
 // @Param		question_id			path	string	true	"Questions Id"
 // @Success 204
 // @Security ApiKeyAuth
-// @Router /questions/{question_id} [delete]
+// @Router /courses/{course_name}/questions/{question_id} [delete]
 // @Deprecated
 func DeleteQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)

@@ -26,5 +26,25 @@ func CourseRouter(Router *gin.RouterGroup) {
 
 		// modify assessment's draft
 		CourseRouter.PUT("/:course_name/assessments/:assessment_name/draft", jwt.JWTAuth(), controller.DraftAssessment_Handler)
+
+		// tags CRUD
+		CourseRouter.GET("/:course_name/tags", jwt.JWTAuth(), controller.ReadAllTag_Handler)
+		CourseRouter.POST("/:course_name/tags", jwt.JWTAuth(), controller.CreateTag_Handler)
+		CourseRouter.GET("/:course_name/tags/:tag_id/", jwt.JWTAuth(), controller.ReadTag_Handler)
+		CourseRouter.PUT("/:course_name/tags/:tag_id/", jwt.JWTAuth(), controller.UpdateTag_Handler)
+		CourseRouter.DELETE("/:course_name/tags/:tag_id/", jwt.JWTAuth(), controller.DeleteTag_Handler)
+
+		// questions CRUD
+		CourseRouter.GET("/:course_name/questions", jwt.JWTAuth(), controller.ReadAllQuestion_Handler)
+		CourseRouter.POST("/:course_name/questions", jwt.JWTAuth(), controller.CreateQuestion_Handler)
+		CourseRouter.GET("/:course_name/questions/:question_id/", jwt.JWTAuth(), controller.ReadQuestion_Handler)
+		CourseRouter.PUT("/:course_name/questions/:question_id/", jwt.JWTAuth(), controller.UpdateQuestion_Handler)
+		CourseRouter.DELETE("/:course_name/questions/:question_id/", jwt.JWTAuth(), controller.DeleteQuestion_Handler)
+
+		// graders CRUD
+		CourseRouter.POST("/:course_name/graders", jwt.JWTAuth(), controller.CreateGrader_Handler)
+		CourseRouter.GET("/:course_name/graders/:grader_name", jwt.JWTAuth(), controller.ReadGrader_Handler)
+		CourseRouter.PUT("/:course_name/graders/:grader_name", jwt.JWTAuth(), controller.UpdateGrader_Handler)
+		CourseRouter.DELETE("/:course_name/graders/:grader_name", jwt.JWTAuth(), controller.DeleteGrader_Handler)
 	}
 }

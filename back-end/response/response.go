@@ -86,6 +86,7 @@ func ErrorInternaWithType(c *gin.Context, err Error, t int) {
 		"error": err,
 		"data":  struct{}{},
 	})
+	panic(err)
 }
 
 func ErrUnauthResponse(c *gin.Context, message string) {
@@ -126,11 +127,6 @@ func ErrAssessmentNameNotValidResponse(c *gin.Context, status int, message strin
 func ErrAssessmentInternaldResponse(c *gin.Context, message string) {
 	err := Error{Type: Course, Message: message}
 	ErrorInternalResponse(c, err)
-}
-
-func ErrDBResponse(c *gin.Context, message string) {
-	err := Error{Type: Database, Message: message}
-	ErrorInternaWithType(c, err, -1)
 }
 
 func ErrValidateResponse(c *gin.Context, message interface{}) {

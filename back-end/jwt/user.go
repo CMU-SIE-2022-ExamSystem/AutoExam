@@ -12,6 +12,7 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/slices"
 )
 
 func UserRefreshHandler(c *gin.Context) {
@@ -78,14 +79,14 @@ func Check_authlevel_DB(c *gin.Context) {
 }
 
 func Get_authlevel_DB(c *gin.Context) (auth_level string) {
-	course_name := c.Param("course_name")
+	course_name := GetCourse(c)
 	user_email := GetEmail(c)
 	user := models.User{ID: user_email.ID}
 	global.DB.Find(&user)
 
 	auth_level = dao.Check_authlevel(user.ID, course_name)
 	if auth_level == "" {
-		response.ErrorInternalResponse(c, response.Error{Type: "Database", Message: "There is no this user in database, please try again."})
+		response.ErrorInternalResponse(c, response.Error{Type: "Database", Message: "There is no this user in database, please try again"})
 	}
 	return
 }
@@ -123,4 +124,19 @@ func Check_authlevel_Assistant_and_Instructor(c *gin.Context) {
 		response.ErrForbiddenResponse(c, "The user is not an assistant or an instructor in this course")
 	}
 
+}
+
+func GetCourse(c *gin.Context) string {
+	course := c.Param("course_name")
+	validate_course(c, course)
+
+	return course
+}
+
+func validate_course(c *gin.Context, course string) {
+	user := GetEmail(c)
+	courses := dao.Get_all_courses(user.ID)
+	if !slices.Contains(courses, course) {
+		response.ErrCourseNotValidResponse(c, course)
+	}
 }

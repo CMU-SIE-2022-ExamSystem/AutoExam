@@ -17,7 +17,14 @@ type Question struct {
 
 // question header with answer
 type Question_Header struct {
-	HeaderId    int        `json:"id" bson:"_id"`
+	// HeaderId    int        `json:"id" bson:"_id"`
+	Tag         string     `json:"question_tag" bson:"questionTag"`
+	Title       string     `json:"title" bson:"title"`
+	Description string     `json:"description" bson:"description"` //html string
+	Questions   []Question `json:"questions" bson:"questions"`
+}
+
+type Question_Header_Create struct {
 	Tag         string     `json:"question_tag" bson:"questionTag"`
 	Title       string     `json:"title" bson:"title"`
 	Description string     `json:"description" bson:"description"` //html string
@@ -45,7 +52,7 @@ type Question_Without_Answer struct {
 
 // question header without answer
 type Question_Header_Without_Answer struct {
-	HeaderId    int                       `json:"id" bson:"_id"`
+	// HeaderId    int                       `json:"id" bson:"_id"`
 	Tag         string                    `json:"question_tag" bson:"questionTag"`
 	Title       string                    `json:"title" bson:"title"`
 	Description string                    `json:"description" bson:"description"` //html string

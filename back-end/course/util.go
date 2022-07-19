@@ -76,7 +76,10 @@ func validate_assessment(c *gin.Context, course, assessment string) bool {
 }
 
 func Validate_autoexam_assessment(c *gin.Context, course, assessment string) bool {
-	assessments := dao.GetAllExams(course)
+	assessments, err := dao.GetAllExams(course)
+	if err != nil {
+		response.ErrDBResponse(c, "There is an error when reading all assessments from mongodb")
+	}
 	for _, temp := range assessments {
 		if assessment == temp.Name {
 			return true
@@ -107,7 +110,10 @@ func get_assessments(c *gin.Context, course string) []models.Assessments {
 	autolab_assessments := get_autolab_assessments(c, course)
 
 	// get mongodb's assessments
-	autoexam_assessments := dao.GetAllExams(course)
+	autoexam_assessments, err := dao.GetAllExams(course)
+	if err != nil {
+		response.ErrDBResponse(c, "There is an error when reading all assessments from mongodb")
+	}
 
 	// modify assessments' start_at , end_at and due_at
 	length := len(autoexam_assessments)
