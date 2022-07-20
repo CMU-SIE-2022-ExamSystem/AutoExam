@@ -167,7 +167,7 @@ function Assessments() {
         const token = globalState.token;
         const categoryListResult = await axios.get(categoryListUrl, {headers: {Authorization: "Bearer " + token}});
         setCategoryList(categoryListResult.data.data.categories);
-    }, [])
+    }, [globalState.token])
 
     useEffect(() => {
         getCategoryList().catch();
