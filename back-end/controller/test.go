@@ -1,11 +1,14 @@
 package controller
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os/exec"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
@@ -177,5 +180,26 @@ func Take_exam_Test(c *gin.Context) {
 		response.ErrDBResponse(c, msg)
 	} else {
 		response.SuccessResponse(c, "Submit Success")
+	}
+}
+
+func Autograder_Test(c *gin.Context) {
+	question_type := c.Param("question_type")
+
+	var stdout, stderr bytes.Buffer
+	cmd := exec.Command("python", "main.py", question_type)
+	cmd.Dir = "./autograder/exec/"
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		// color.Red(err.Error())
+		// color.Red(stdout.String())
+		// color.Red(stderr.String())
+		response.ErrorInternaWithData(c, err.Error(), stdout.String()+stderr.String())
+	} else {
+		// color.Yellow(stdout.String())
+		response.SuccessResponse(c, stdout.String())
 	}
 }

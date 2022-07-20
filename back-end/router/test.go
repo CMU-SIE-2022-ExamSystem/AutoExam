@@ -26,5 +26,6 @@ func TestRouter(Router *gin.RouterGroup) {
 		TestRouter.GET("/exam", jwt.JWTAuth(), controller.Test_exam)
 		TestRouter.GET("db/:question_type", controller.DBgraderTest)
 		TestRouter.DELETE("db/:question_type", controller.DBgraderTest)
+		TestRouter.GET("autograder/:question_type", controller.Autograder_Test)
 	}
 }
