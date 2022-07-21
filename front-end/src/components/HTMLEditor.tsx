@@ -1,10 +1,11 @@
 import React from 'react';
 import {Editor} from "@tinymce/tinymce-react";
+import {getFrontendUrl} from "../utils/url";
 
 const HTMLEditor = ({editorRef} : {editorRef: any}) => {
     return (
         <Editor
-            tinymceScriptSrc={process.env.REACT_APP_PUBLIC_URL + '/tinymce/tinymce.min.js'}
+            tinymceScriptSrc={getFrontendUrl('') + '/tinymce/tinymce.min.js'}
             onInit={(evt, editor) => editorRef.current = editor}
             init={{
                 height: 500,
