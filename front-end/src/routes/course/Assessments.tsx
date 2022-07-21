@@ -34,7 +34,7 @@ const AssessmentRow = ({name, display_name, start_at, due_at, permission}: extAs
 
     let actionList = [];
     if (permission) {
-        actionList.push(<Link to={"examConfig/" + name + "/base"} key="_EditExam" className="btn btn-success m-1">Edit Exam</Link>)
+        actionList.push(<Link to={"examConfig/" + name} key="_EditExam" className="btn btn-success m-1">Edit Exam</Link>)
         actionList.push(<Link to={"exams/" + name} key="_ProctorExam" className="btn btn-primary m-1">Proctor Exam</Link>)
     } else {
         actionList.push(<Link to={"exams/" + name} key="_TakeExam" className="btn btn-primary m-1">Take Exam</Link>);

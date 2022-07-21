@@ -1,9 +1,11 @@
 import React, {useEffect} from 'react';
-import {Button, Col, Nav, Row, Tab} from 'react-bootstrap';
-import {Link, Outlet, useParams} from "react-router-dom";
+import {Button, Col, Container, Nav, Row, Tab} from 'react-bootstrap';
+import {useParams} from "react-router-dom";
 import TopNavbar from "../../../components/TopNavbar";
 import AppLayout from "../../../components/AppLayout";
 import ExamConfigInstructions from "./ExamConfigInstructions";
+import ExamConfigGlobal from "./ExamConfigGlobal";
+import ExamConfigQuestions from "./ExamConfigQuestions";
 
 function ExamConfig() {
     let params = useParams();
@@ -49,15 +51,20 @@ function ExamConfig() {
                             <div>
                                 <Tab.Content>
                                     <Tab.Pane eventKey="global">
-                                        Global Settings
+                                        <ExamConfigGlobal />
                                     </Tab.Pane>
                                     <Tab.Pane eventKey="instructions">
                                         <ExamConfigInstructions />
                                     </Tab.Pane>
                                     <Tab.Pane eventKey="questions">
-                                        Questions
+                                        <ExamConfigQuestions />
                                     </Tab.Pane>
                                 </Tab.Content>
+                                <Container fluid className="text-end">
+                                    <Button variant="outline-danger">Back</Button>
+                                    <Button variant="outline-secondary">Save</Button>
+                                    <Button variant="primary">Confirm</Button>
+                                </Container>
                             </div>
                         </Col>
                     </Row>
