@@ -12,8 +12,6 @@ import ExamInstructions from "./routes/course/exams/ExamInstructions";
 import RequireAuth from "./middlewares/RequireAuth";
 import QuestionBank from "./routes/course/questionBanks/QuestionBank";
 import ExamConfig from "./routes/course/config/ExamConfig";
-import ExamConfigQuestions from "./routes/course/config/ExamConfigQuestions";
-import ExamConfigBase from "./routes/course/config/ExamConfigBase";
 
 const App = () => {
     return (

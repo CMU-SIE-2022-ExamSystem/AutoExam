@@ -22,7 +22,8 @@
     "react-scripts": "5.0.1",
     "typescript": "^4.7.2",
     "web-vitals": "^2.1.4",
-    "moment": "^2.29.4"
+    "moment": "^2.29.4",
+    "@tinymce/tinymce-react": "^4.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

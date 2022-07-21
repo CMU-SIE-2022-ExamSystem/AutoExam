@@ -182,7 +182,7 @@ function Assessments() {
         };
         axios.post(postUrl, data, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
-                const configPage = "/courses" + params.course_name + "/examConfig/" + name + "/base";
+                const configPage = "/courses" + params.course_name + "/examConfig/" + name;
                 setShowModal(false);
                 navigate(configPage);
             })
