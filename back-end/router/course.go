@@ -42,9 +42,12 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.DELETE("/:course_name/questions/:question_id/", jwt.JWTAuth(), controller.DeleteQuestion_Handler)
 
 		// graders CRUD
+		CourseRouter.GET("/:course_name/graders", jwt.JWTAuth(), controller.ReadAllGrader_Handler)
 		CourseRouter.POST("/:course_name/graders", jwt.JWTAuth(), controller.CreateGrader_Handler)
 		CourseRouter.GET("/:course_name/graders/:grader_name", jwt.JWTAuth(), controller.ReadGrader_Handler)
 		CourseRouter.PUT("/:course_name/graders/:grader_name", jwt.JWTAuth(), controller.UpdateGrader_Handler)
 		CourseRouter.DELETE("/:course_name/graders/:grader_name", jwt.JWTAuth(), controller.DeleteGrader_Handler)
+
+		CourseRouter.PUT("/:course_name/graders/:grader_name/valid", jwt.JWTAuth(), controller.ValidGrader_Handler)
 	}
 }

@@ -12,6 +12,6 @@ func TagsNameValidation(sl validator.StructLevel) {
 		sl.ReportError(tags.Name, "name", "Name", "mongo", "")
 	}
 	if !status {
-		sl.ReportError(tags.Name, "name", "Name", "tag", tags.Course)
+		sl.ReportError(tags.Name, "name", "Name", "name", tags.Course)
 	}
 }

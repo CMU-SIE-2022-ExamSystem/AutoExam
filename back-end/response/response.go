@@ -99,8 +99,13 @@ func ErrForbiddenResponse(c *gin.Context, message string) {
 	ErrorResponseWithStatus(c, err, http.StatusForbidden)
 }
 
-func ErrFileResponse(c *gin.Context) {
+func ErrFileNotValidResponse(c *gin.Context) {
 	err := Error{Type: FileSystem, Message: "Target file does not exist or it is empty."}
+	ErrorResponseWithStatus(c, err, http.StatusInternalServerError)
+}
+
+func ErrFileStoreResponse(c *gin.Context) {
+	err := Error{Type: FileSystem, Message: "There is an error happened when storing a file."}
 	ErrorResponseWithStatus(c, err, http.StatusInternalServerError)
 }
 

@@ -81,7 +81,7 @@ func AutolabSubmitHandler(c *gin.Context, token string, endpoint string, path st
 
 	var resp *http.Response
 	if internal_err != nil {
-		response.ErrFileResponse(c)
+		response.ErrFileNotValidResponse(c)
 	} else {
 		var err error
 		resp, err = client.Do(request)

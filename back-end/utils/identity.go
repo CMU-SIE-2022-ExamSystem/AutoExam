@@ -36,8 +36,8 @@ func Map_DBcheck(user_courses_map map[string]string) map[string]dao.Strings {
 }
 
 //user_id type should be uint and the uint to string: strconv.Itoa(int(user_id)
-func Find_folder(c *gin.Context, user_id string, course string, assessment string) string {
-	relative_path := "./tmp/"
+func Find_assessment_folder(c *gin.Context, user_id string, course string, assessment string) string {
+	relative_path := "./tmp/assessment/"
 	if _, err := os.Stat(relative_path + course + "/"); err == nil {
 		if _, err := os.Stat(relative_path + course + "/" + assessment + "/"); err == nil {
 			if _, err := os.Stat(relative_path + course + "/" + assessment + "/" + user_id + "/"); err == nil {
@@ -45,21 +45,21 @@ func Find_folder(c *gin.Context, user_id string, course string, assessment strin
 			} else if errors.Is(err, os.ErrNotExist) {
 				err = os.Mkdir(relative_path+course+"/"+assessment+"/"+user_id+"/", 0777)
 				if err != nil {
-					response.ErrFileResponse(c)
+					response.ErrFileNotValidResponse(c)
 				}
 				color.Yellow("create folder for user!")
 			}
 		} else if errors.Is(err, os.ErrNotExist) {
 			err = os.MkdirAll(relative_path+course+"/"+assessment+"/"+user_id+"/", 0777)
 			if err != nil {
-				response.ErrFileResponse(c)
+				response.ErrFileNotValidResponse(c)
 			}
 			color.Yellow("create folder for assessment!")
 		}
 	} else if errors.Is(err, os.ErrNotExist) {
 		err = os.MkdirAll(relative_path+course+"/"+assessment+"/"+user_id+"/", 0777)
 		if err != nil {
-			response.ErrFileResponse(c)
+			response.ErrFileNotValidResponse(c)
 		}
 		color.Yellow("create folder for course!")
 	}

@@ -16,6 +16,7 @@ type ErrorMsg struct {
 	Message string `json:"message"`
 }
 
+// customized error message with Tag
 func getErrorMsg(fe validator.FieldError) string {
 	switch fe.Tag() {
 	case "required":
@@ -42,8 +43,10 @@ func getErrorMsg(fe validator.FieldError) string {
 		return "This field is required or should be greate than " + s[0] + " in the " + s[1] + " settings"
 	case "mongo":
 		return "There is an internal mongodb error when validate this field"
-	case "tag":
+	case "name":
 		return "This name is already used in this course '" + fe.Param() + "'"
+	case "extension":
+		return "This file's extension should be '" + fe.Param() + "'"
 	}
 	fmt.Println(fe.Namespace())
 	fmt.Println(fe.Field())
@@ -59,7 +62,7 @@ func getErrorMsg(fe validator.FieldError) string {
 	return "Unknown error"
 }
 
-func transErrorMsg(c *gin.Context, err error) []ErrorMsg {
+func TransErrorMsg(c *gin.Context, err error) []ErrorMsg {
 	var ve validator.ValidationErrors
 	if errors.As(err, &ve) {
 		out := make([]ErrorMsg, len(ve))
@@ -76,9 +79,17 @@ func transErrorMsg(c *gin.Context, err error) []ErrorMsg {
 	return nil
 }
 
-func Validate(c *gin.Context, obj any) {
+func ValidateJson(c *gin.Context, obj any) {
 	if err := c.ShouldBindJSON(&obj); err != nil {
-		if msg := transErrorMsg(c, err); msg != nil {
+		if msg := TransErrorMsg(c, err); msg != nil {
+			response.ErrValidateResponse(c, msg)
+		}
+	}
+}
+
+func ValidateForm(c *gin.Context, obj any) {
+	if err := c.ShouldBind(obj); err != nil {
+		if msg := TransErrorMsg(c, err); msg != nil {
 			response.ErrValidateResponse(c, msg)
 		}
 	}

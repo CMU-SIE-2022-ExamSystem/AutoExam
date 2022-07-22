@@ -23,7 +23,7 @@ var (
 
 func Build_Assessment(c *gin.Context, course string, assessment models.Download_Assessments) (tar_path string) {
 	assessment_name := assessment.General.Name
-	exam_path := utils.Find_folder(c, "exam", course, assessment_name)
+	exam_path := utils.Find_assessment_folder(c, "exam", course, assessment_name)
 
 	// copy template assessment project and modify information
 	copy_template(c, exam_path)

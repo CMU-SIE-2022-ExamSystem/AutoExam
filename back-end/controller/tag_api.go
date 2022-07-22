@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"fmt"
-
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
@@ -56,7 +54,7 @@ func CreateTag_Handler(c *gin.Context) {
 
 	var body dao.AutoExam_Tags_Create
 	body.Course = course
-	validate.Validate(c, &body)
+	validate.ValidateJson(c, &body)
 
 	// autoexam_tags := body.ToAutoExamTagsCreate(course)
 	r, err := dao.CreateTag(body)
@@ -120,7 +118,7 @@ func UpdateTag_Handler(c *gin.Context) {
 	// do nothing to deal with the same name input because cannot use validate.Validate twice
 	var update dao.AutoExam_Tags_Create
 	update.Course = course
-	validate.Validate(c, &update)
+	validate.ValidateJson(c, &update)
 
 	// autoexam_tags := body.ToAutoExamTagsCreate(course)
 	err := dao.UpdateTag(tag_id, update)
@@ -153,18 +151,14 @@ func DeleteTag_Handler(c *gin.Context) {
 
 	_, tag_id := course.GetCourseTagID(c)
 	if status, err := dao.ValidateTagUsedById(tag_id); err != nil {
-		fmt.Println("=================")
-		fmt.Println(status)
-		fmt.Println(err)
-		fmt.Println("=================")
 		response.ErrMongoDBUpdateResponse(c, Tag_Model)
 	} else if !status {
 		response.ErrTagNotSafeResponse(c, dao.ReadTagName(tag_id))
 	}
 
-	// err := dao.DeleteTagById(tag_id)
-	// if err != nil {
-	// 	response.ErrDBResponse(c, "There is an error when deleting an assessment to mongodb")
-	// }
+	err := dao.DeleteTagById(tag_id)
+	if err != nil {
+		response.ErrMongoDBDeleteResponse(c, Tag_Model)
+	}
 	response.NonContentResponse(c)
 }

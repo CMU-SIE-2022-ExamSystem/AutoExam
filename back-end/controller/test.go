@@ -98,17 +98,8 @@ func FolderTest(c *gin.Context) {
 	course := c.Param("course")
 	assessment := c.Param("assessment")
 
-	path := utils.Find_folder(c, user_id, course, assessment)
+	path := utils.Find_assessment_folder(c, user_id, course, assessment)
 	fmt.Println(path)
-}
-
-func DBgraderTest(c *gin.Context) {
-	question_type := c.Param("question_type")
-
-	// path := "./tmp/autograders"
-
-	// dao.SearchAndStore_grader(c, question_type, path)
-	dao.Delete_grader(question_type)
 }
 
 //todo: This is for all user auth-level in a course
@@ -170,7 +161,7 @@ func Take_exam_Test(c *gin.Context) {
 	assessment_name := c.Param("assessment_name")
 
 	data, _ := ioutil.ReadAll(c.Request.Body)
-	path := utils.Find_folder(c, student_id, course_name, assessment_name)
+	path := utils.Find_assessment_folder(c, student_id, course_name, assessment_name)
 
 	msg, err := dao.GradeGen(course_name, assessment_name, student_id, path, data)
 	if err != nil {

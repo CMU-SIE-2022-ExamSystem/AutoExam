@@ -53,7 +53,7 @@ func CreateQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
 	var body dao.Question_Header_Create
-	validate.Validate(c, &body)
+	validate.ValidateJson(c, &body)
 	// course_name := course.GetCourse(c)
 	// course.Validate_assessment_name(c, course_name, body.Name)
 	// assessment := body.ToAutoExamAssessments(course_name)
@@ -108,7 +108,7 @@ func UpdateQuestion_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 
 	var body dao.AutoExam_Assessments_Update
-	validate.Validate(c, &body)
+	validate.ValidateJson(c, &body)
 	assessment := body.ToAutoExamAssessments(course_name)
 
 	// check whether new data's name is same as the original assessment's name
