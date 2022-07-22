@@ -89,6 +89,15 @@ func ErrorInternaWithType(c *gin.Context, err Error, t int) {
 	panic(err)
 }
 
+func ErrorInternaWithData(c *gin.Context, err any, data interface{}) {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"type":  0,
+		"error": err,
+		"data":  data,
+	})
+	panic(err)
+}
+
 func ErrUnauthResponse(c *gin.Context, message string) {
 	err := Error{Type: Authentication, Message: message}
 	ErrorResponseWithStatus(c, err, http.StatusUnauthorized)
