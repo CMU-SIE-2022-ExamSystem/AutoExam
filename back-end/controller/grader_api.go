@@ -13,10 +13,12 @@ const (
 	Grader_Model = "grader"
 )
 
+var Basic_Grader = []string{"multiple_blank", "multiple_choice", "single_blank", "single_choice"}
+
 // ReadAllGrader_Handler godoc
-// @Summary read all graders configuration
+// @Summary read all graders configuration except basic grader
 // @Schemes
-// @Description read all graders configuration
+// @Description read all graders configuration except basic grader
 // @Tags grader
 // @Accept json
 // @Produce json
@@ -33,6 +35,35 @@ func ReadAllGrader_Handler(c *gin.Context) {
 		response.ErrMySQLReadAllResponse(c, Grader_Model)
 	}
 	response.SuccessResponse(c, grader)
+}
+
+// ReadAllGrader_Handler godoc
+// @Summary read all graders configuration with basic grader
+// @Schemes
+// @Description read all graders configuration with basic grader
+// @Tags grader
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Success 200 {object} response.Response{data=[]string} "success"
+// @Failure 500 {object} response.DBesponse{error=response.MySQLReadAllError} "mysql error"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/graders/list [get]
+func ReadGraderList_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+	course_name := c.Param("course_name")
+	grader, err := dao.ReadAllGraders(course_name)
+	if err != nil {
+		response.ErrMySQLReadAllResponse(c, Grader_Model)
+	}
+
+	var list []string
+	for _, grade := range grader {
+		list = append(list, grade.Name)
+	}
+	list = append(list, Basic_Grader...)
+
+	response.SuccessResponse(c, list)
 }
 
 // CreateGrader_Handler godoc

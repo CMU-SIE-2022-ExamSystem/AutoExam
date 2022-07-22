@@ -48,6 +48,8 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.PUT("/:course_name/graders/:grader_name", jwt.JWTAuth(), controller.UpdateGrader_Handler)
 		CourseRouter.DELETE("/:course_name/graders/:grader_name", jwt.JWTAuth(), controller.DeleteGrader_Handler)
 
+		CourseRouter.GET("/:course_name/graders/list", jwt.JWTAuth(), controller.ReadGraderList_Handler)
 		CourseRouter.PUT("/:course_name/graders/:grader_name/valid", jwt.JWTAuth(), controller.ValidGrader_Handler)
+		CourseRouter.PUT("/:course_name/graders/:grader_name/force", jwt.JWTAuth(), controller.UpdateForceGrader_Handler)
 	}
 }
