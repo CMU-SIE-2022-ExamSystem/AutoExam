@@ -28,11 +28,9 @@ const App = () => {
                     }/>
                     <Route path="courses/:course_name">
                         <Route index element={<RequireAuth><Assessments/></RequireAuth>}/>
-                        <Route path="questionBank">
-                            <Route index element={<RequireAuth><QuestionBank /></RequireAuth>} />
-                        </Route>
+                        <Route path="questionBank/:tag" element={<RequireAuth><QuestionBank/></RequireAuth>}/>
                         <Route path="examConfig">
-                            <Route path=":exam_id" element={<RequireAuth><ExamConfig /></RequireAuth>} />
+                            <Route path=":exam_id" element={<RequireAuth><ExamConfig/></RequireAuth>} />
                         </Route>
                         <Route path="exams/:exam_id">
                             <Route index element={<RequireAuth><ExamInstructions/></RequireAuth>}/>
