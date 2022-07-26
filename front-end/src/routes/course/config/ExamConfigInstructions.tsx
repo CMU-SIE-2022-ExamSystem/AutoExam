@@ -12,8 +12,8 @@ const ExamConfigInstructions = () => {
     };
     return (
         <div>
+            <h1 className={"text-start"}>Instructions</h1>
             <HTMLEditor editorRef={editorRef}/>
-            <button onClick={log}>Log editor content</button>
         </div>
     )
 }
