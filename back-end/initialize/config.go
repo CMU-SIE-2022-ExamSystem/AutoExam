@@ -1,6 +1,10 @@
 package initialize
 
 import (
+	"io/ioutil"
+	"path/filepath"
+	"strings"
+
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/config"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/spf13/viper"
@@ -20,6 +24,9 @@ func InitConfig() {
 
 	// check autolab information
 	autolabInfoCheck()
+
+	// read basic grader from "source/autograders" folder
+	global.Settings.Basic_Grader = basicGraderCheck()
 }
 
 func autolabInfoCheck() {
@@ -37,4 +44,19 @@ func autolabInfoCheck() {
 	} else if auth.Scope == "" {
 		panic("scope is not found in .yaml file, please check")
 	}
+}
+
+func basicGraderCheck() []string {
+	files, err := ioutil.ReadDir("source/autograders/")
+	if err != nil {
+		panic("Basic Grader loading fail")
+	}
+	var basic_grader []string
+	for _, file := range files {
+		if !file.IsDir() && filepath.Ext(file.Name()) == ".py" {
+			name := strings.Split(file.Name(), ".")
+			basic_grader = append(basic_grader, name[0])
+		}
+	}
+	return basic_grader
 }

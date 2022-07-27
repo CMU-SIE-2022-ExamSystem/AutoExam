@@ -147,3 +147,29 @@ func ErrValidateResponse(c *gin.Context, message interface{}) {
 	err := ErrorJson{Type: Validation, Message: message}
 	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
 }
+
+type BadRequestResponse struct {
+	Status int         `json:"status" example:"400"`
+	Type   int         `json:"type" example:"0"`
+	Error  any         `json:"error"`
+	Data   interface{} `json:"data"`
+}
+
+type NotValidResponse struct {
+	Status int         `json:"status" example:"404"`
+	Type   int         `json:"type" example:"0"`
+	Error  any         `json:"error"`
+	Data   interface{} `json:"data"`
+}
+
+type ForbiddenResponse struct {
+	Status int         `json:"status" example:"403"`
+	Type   int         `json:"type" example:"0"`
+	Error  any         `json:"error"`
+	Data   interface{} `json:"data"`
+}
+
+type ForbiddenError struct {
+	Type    string `json:"type" example:"Authentication"`
+	Message string `json:"message" example:"The user is not 'auth_level' in this course"`
+}

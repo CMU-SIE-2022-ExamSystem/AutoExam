@@ -1,10 +1,9 @@
 package controller
 
 import (
-	"fmt"
-
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/validate"
@@ -26,6 +25,9 @@ var Basic_Grader = []string{"multiple_blank", "multiple_choice", "single_blank",
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Success 200 {object} response.Response{data=[]dao.Grader_API} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.CourseNotValidError} "not valid of course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLReadAllError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders [get]
@@ -40,32 +42,35 @@ func ReadAllGrader_Handler(c *gin.Context) {
 }
 
 // ReadAllGrader_Handler godoc
-// @Summary read all graders configuration with basic grader
+// @Summary read all validated graders configuration with basic grader
 // @Schemes
-// @Description read all graders configuration with basic grader
+// @Description read all validated graders configuration with basic grader
 // @Tags grader
 // @Accept json
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Success 200 {object} response.Response{data=[]string} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.CourseNotValidError} "not valid of course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLReadAllError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders/list [get]
 func ReadGraderList_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 	_, base_course := course.GetCourseBaseCourse(c)
-	grader, err := dao.ReadAllGraders(base_course)
+	grader, err := dao.ReadAllValidGraders(base_course)
 	if err != nil {
 		response.ErrMySQLReadAllResponse(c, Grader_Model)
 	}
 
-	// TODO add basic grader
-	// TODO should not show not uploaded or not valided
 	var list []string
 	for _, grade := range grader {
 		list = append(list, grade.Name)
 	}
-	list = append(Basic_Grader, list...)
+
+	// add basic grader
+	list = append(global.Settings.Basic_Grader, list...)
 
 	response.SuccessResponse(c, list)
 }
@@ -80,6 +85,9 @@ func ReadGraderList_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Param data body course.Grader_Creat true "body data"
 // @Success 201 {object} response.Response{data=dao.Grader_API} "created"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.CourseNotValidError} "not valid of course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLCreateError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders/ [post]
@@ -115,7 +123,9 @@ func CreateGrader_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Success 200 {object} response.Response{data=dao.Grader_API} "success"
-// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid of grader or course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLReadError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders/{grader_name} [get]
@@ -133,7 +143,7 @@ func ReadGrader_Handler(c *gin.Context) {
 // UpdateGrader_Handler godoc
 // @Summary update a grader configuration
 // @Schemes
-// @Description update a grader configuration
+// @Description update a grader configuration and cannot update any grader that is already used in some questions
 // @Tags grader
 // @Accept json
 // @Produce json
@@ -141,8 +151,9 @@ func ReadGrader_Handler(c *gin.Context) {
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Param data body course.Grader_Update true "body data"
 // @Success 200 {object} response.Response{data=dao.Grader_API} "success"
-// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid"
-// @Failure 400 {object} response.GraderResponse{error=response.UpdateNotSafeError} "not update safe"
+// @Failure 400 {object} response.BadRequestResponse{error=response.UpdateNotSafeError} "not update safe or no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid of grader or course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders/{grader_name} [put]
@@ -167,8 +178,6 @@ func UpdateGrader_Handler(c *gin.Context) {
 		Blanks:       body.Blanks,
 	}
 
-	fmt.Println(instance)
-
 	grader, err := dao.Update_blanks_grader(instance)
 	if err != nil {
 		response.ErrMySQLUpdateResponse(c, Grader_Model)
@@ -180,7 +189,7 @@ func UpdateGrader_Handler(c *gin.Context) {
 // UpdateGrader_Handler godoc
 // @Summary update a grader configuration forcely
 // @Schemes
-// @Description update a grader configuration forcely, this would not validate whether this grader is used or not
+// @Description update a grader configuration forcely, this would not validate whether this grader is used in some questions or not
 // @Tags grader
 // @Accept json
 // @Produce json
@@ -188,7 +197,9 @@ func UpdateGrader_Handler(c *gin.Context) {
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Param data body course.Grader_Update true "body data"
 // @Success 200 {object} response.Response{data=dao.Grader_API} "success"
-// @Failure 404 {object} response.GraderResponse{error=response.GraderNotValidError} "not valid"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid of grader or course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders/{grader_name}/force [put]
@@ -217,15 +228,16 @@ func UpdateForceGrader_Handler(c *gin.Context) {
 // DeleteGrader_Handler godoc
 // @Summary delete a grader configuration
 // @Schemes
-// @Description delete a grader configuration
+// @Description delete a grader configuration and cannot delete any grader that is already used in some questions
 // @Tags grader
 // @Accept json
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Success 204 "no content"
-// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid"
-// @Failure 400 {object} response.GraderResponse{error=response.DeleteNotSafeError} "not delete safe"
+// @Failure 400 {object} response.BadRequestResponse{error=response.DeleteNotSafeError} "not delete safe or no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid of grader or course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLDeleteError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders/{grader_name}  [delete]
@@ -259,18 +271,25 @@ func DeleteGrader_Handler(c *gin.Context) {
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Param data body course.Grader_Valid true "body data"
 // @Success 200 {object} response.Response{data=dao.Grader_API} "success"
-// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid"
+// @Failure 400 {object} response.BadRequestResponse{error=response.GraderNoUploadError} "no uploaded file or no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid of grader or course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders/{grader_name}/valid  [put]
 func ValidGrader_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
-	course_name, grader_name := course.GetCourseGrader(c)
+	base_course, grader_name := course.GetBaseCourseGrader(c)
 
 	var body course.Grader_Valid
 	validate.ValidateJson(c, &body)
-	grader, err := dao.UpdateGraderValid(grader_name, course_name, body.Valid)
+
+	if body.Valid && !dao.GetUploadStatus(grader_name, base_course) {
+		response.ErrGraderNoUploadResponse(c, grader_name)
+	}
+
+	grader, err := dao.UpdateGraderValid(grader_name, base_course, body.Valid)
 	if err != nil {
 		response.ErrMySQLUpdateResponse(c, Grader_Model)
 	}
@@ -280,7 +299,7 @@ func ValidGrader_Handler(c *gin.Context) {
 // UploadGrader_Handler godoc
 // @Summary upload a grader file with .py extension
 // @Schemes
-// @Description upload a grader file with .py extension
+// @Description upload a grader file with .py extension and cannot upload the file for any grader that is already used in some questions
 // @Tags grader
 // @Accept mpfd
 // @Produce json
@@ -288,8 +307,9 @@ func ValidGrader_Handler(c *gin.Context) {
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Param file formData file true "the python file"
 // @Success 200 {object} response.Response{data=dao.Grader_API} "success"
-// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid"
-// @Failure 400 {object} response.GraderResponse{error=response.UpdateNotSafeError} "not update safe"
+// @Failure 400 {object} response.BadRequestResponse{error=response.UpdateNotSafeError} "not update safe or no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid of grader or course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders/{grader_name}/upload [put]
@@ -314,7 +334,7 @@ func UploadGrader_Handler(c *gin.Context) {
 // UploadForceGrader_Handler godoc
 // @Summary upload a grader file with .py extension forcely
 // @Schemes
-// @Description upload a grader file with .py extension forcely, this would not validate whether this grader is used or not
+// @Description upload a grader file with .py extension forcely, this would not validate whether this grader is used in some questions or not
 // @Tags grader
 // @Accept mpfd
 // @Produce json
@@ -322,7 +342,9 @@ func UploadGrader_Handler(c *gin.Context) {
 // @Param		grader_name			path	string	true	"Grader Name"
 // @Param file formData file true "the python file"
 // @Success 200 {object} response.Response{data=dao.Grader_API} "success"
-// @Failure 404 {object} response.GraderResponse{error=response.GraderNotValidError} "not valid"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid of grader or course"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/graders/{grader_name}/upload/force [put]
@@ -337,6 +359,7 @@ func UploadForceGrader_Handler(c *gin.Context) {
 	upload_and_store_grader(c, base_course, grader_name, body)
 }
 
+// function for upload python file and store to file system
 func upload_and_store_grader(c *gin.Context, base_course, grader_name string, body course.Grader_Upload) {
 	instance := dao.PythonFile{
 		QuestionType: grader_name,

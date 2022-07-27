@@ -1,15 +1,16 @@
 package config
 
 type ServerConfig struct {
-	Name        string        `mapstructure:"name"`
-	Ip          string        `mapstructure:"ip"`
-	Port        int           `mapstructure:"port"`
-	Mysqlinfo   MysqlConfig   `mapstructure:"mysql"`
-	LogsAddress string        `mapstructure:"logsAddress"`
-	Logger      string        `mapstructure:"logger"`
-	Autolabinfo AutolabConfig `mapstructure:"autolab"`
-	JWTKey      JWTconfig     `mapstructure:"jwt"`
-	MongoDB     MongoDBConfig `mapstructure:"mongodb"`
+	Name         string        `mapstructure:"name"`
+	Ip           string        `mapstructure:"ip"`
+	Port         int           `mapstructure:"port"`
+	Mysqlinfo    MysqlConfig   `mapstructure:"mysql"`
+	LogsAddress  string        `mapstructure:"logsAddress"`
+	Logger       string        `mapstructure:"logger"`
+	Autolabinfo  AutolabConfig `mapstructure:"autolab"`
+	JWTKey       JWTconfig     `mapstructure:"jwt"`
+	MongoDB      MongoDBConfig `mapstructure:"mongodb"`
+	Basic_Grader []string
 }
 
 type AutolabConfig struct {

@@ -24,7 +24,8 @@ const (
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Success 200 {object} response.Response{data=[]dao.Questions} "success"
-// @Failure 403 {object} response.ForbiddenResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
 // @Failure 500 {object} response.DBesponse{error=response.MongoDBReadAllError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/questions [get]
@@ -49,7 +50,7 @@ func ReadAllQuestion_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Param data body dao.Questions_Create true "body data"
 // @Success 201 {object} response.Response{data=dao.Questions} "created"
-// @Failure 403 {object} response.ForbiddenResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 500 {object} response.DBesponse{error=response.MongoDBCreateError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/questions/ [post]
@@ -108,7 +109,7 @@ func ReadQuestion_Handler(c *gin.Context) {
 // @Param data body dao.AutoExam_Assessments_Update true "body data"
 // @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "success"
 // @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid"
-// @Failure 400 {object} response.GraderResponse{error=response.UpdateNotSafeError} "not update safe"
+// @Failure 400 {object} response.BadRequestResponse{error=response.UpdateNotSafeError} "not update safe"
 // @Failure 500 {object} response.DBesponse{error=response.MongoDBUpdateError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/questions/{question_id} [put]
@@ -150,7 +151,7 @@ func UpdateQuestion_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		question_id			path	string	true	"Questions Id"
 // @Success 204 "no content"
-// @Failure 400 {object} response.GraderResponse{error=response.DeleteNotSafeError} "not delete safe"
+// @Failure 400 {object} response.BadRequestResponse{error=response.DeleteNotSafeError} "not delete safe"
 // @Failure 500 {object} response.DBesponse{error=response.MongoDBDeleteError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/questions/{question_id} [delete]

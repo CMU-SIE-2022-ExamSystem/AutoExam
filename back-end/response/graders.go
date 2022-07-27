@@ -33,6 +33,11 @@ func ErrGraderUpdateNotSafeResponse(c *gin.Context, grader_name string) {
 	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
 }
 
+func ErrGraderNoUploadResponse(c *gin.Context, grader_name string) {
+	err := Error{Type: Grader, Message: ReplaceMessageGraderName(&GraderNoUploadError{}, grader_name)}
+	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+}
+
 func ReplaceMessageGraderName(str interface{}, grader_name string) string {
 	field, _ := reflect.TypeOf(str).Elem().FieldByName("Message")
 	return strings.ReplaceAll(field.Tag.Get("example"), "grader_name", grader_name)
@@ -42,20 +47,6 @@ func ReplaceMessageCourseGraderName(str interface{}, course_name, grader_name st
 	field, _ := reflect.TypeOf(str).Elem().FieldByName("Message")
 	message := strings.ReplaceAll(field.Tag.Get("example"), "course_name", course_name)
 	return strings.ReplaceAll(message, "grader_name", grader_name)
-}
-
-type GraderResponse struct {
-	Status int         `json:"status" example:"400"`
-	Type   int         `json:"type" example:"0"`
-	Error  any         `json:"error"`
-	Data   interface{} `json:"data"`
-}
-
-type NotValidResponse struct {
-	Status int         `json:"status" example:"404"`
-	Type   int         `json:"type" example:"0"`
-	Error  any         `json:"error"`
-	Data   interface{} `json:"data"`
 }
 
 type GraderNotValidError struct {
@@ -71,4 +62,9 @@ type UpdateNotSafeError struct {
 type DeleteNotSafeError struct {
 	Type    string `json:"type" example:"Grader"`
 	Message string `json:"message" example:"This grader name 'grader_name' is used in some questions. Therefore, it cannot be deleted!"`
+}
+
+type GraderNoUploadError struct {
+	Type    string `json:"type" example:"Grader"`
+	Message string `json:"message" example:"There is no file uploaded to this grader 'grader_name'"`
 }

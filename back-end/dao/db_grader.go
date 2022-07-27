@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/exp/slices"
 )
 
 type PythonFile struct {
@@ -23,13 +24,15 @@ type PythonFile struct {
 	Uploaded     bool     `gorm:"type:bool"`
 }
 
+// @Description grader model info
 type Grader_API struct {
 	Name     string   `json:"name" binding:"required"`
-	Blanks   []Blanks `json:"blanks"`
-	Valid    bool     `json:"valid" binding:"required"`
-	Uploaded bool     `json:"uploaded"`
+	Blanks   []Blanks `json:"blanks"`                   // describing the structure of blanks in this grader
+	Valid    bool     `json:"valid" binding:"required"` // whether the grader is valid by /courses/{course_name}/graders/{grader_name}/valid api
+	Uploaded bool     `json:"uploaded"`                 // whether the python file is uploaded
 }
 
+// @Description describing the type of a certain blank
 type Blanks struct {
 	ID           uint   `json:"-" gorm:"primaryKey"`
 	PythonFileID uint   `json:"-"`
@@ -132,6 +135,22 @@ func ReadAllGraders(course string) ([]Grader_API, error) {
 	return api, nil
 }
 
+// read all validated graders
+func ReadAllValidGraders(course string) ([]Grader_API, error) {
+	instances, err := search_all_grader(course)
+	if err != nil {
+		return nil, err
+	}
+
+	var api []Grader_API
+	for _, instance := range instances {
+		if instance.Valid {
+			api = append(api, instance.ToGraderAPI())
+		}
+	}
+	return api, nil
+}
+
 func ReadGrader(question_type, course string) (Grader_API, error) {
 	instance, err := search_grader(question_type, course)
 	if err != nil {
@@ -171,6 +190,10 @@ func Delete_grader(question_type, course string) error {
 
 // return true for no grader in MySQL
 func ValidateGrader(question_type, course string) bool {
+	if slices.Contains(global.Settings.Basic_Grader, question_type) {
+		return false
+	}
+
 	var instance PythonFile
 	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&instance)
 	return rows.RowsAffected < 1
@@ -196,9 +219,7 @@ func ValidateGraderUsed(question_type, course string) (bool, error) {
 
 func UpdateGraderValid(question_type, course string, valid bool) (Grader_API, error) {
 	if err := global.DB.Model(new(PythonFile)).Where("question_type=? AND base_course=?", question_type, course).Update("valid", valid).Error; err != nil {
-		fmt.Println("update failed!")
-		fmt.Println(err)
-		return Grader_API{}, nil
+		return Grader_API{}, err
 	}
 	return ReadGrader(question_type, course)
 }
@@ -206,6 +227,11 @@ func UpdateGraderValid(question_type, course string, valid bool) (Grader_API, er
 func GetCode(question_type, course string) string {
 	grader, _ := search_grader(question_type, course)
 	return grader.Code()
+}
+
+func GetUploadStatus(question_type, course string) bool {
+	grader, _ := search_grader(question_type, course)
+	return grader.Uploaded
 }
 
 func (grader *PythonFile) Code() string {
