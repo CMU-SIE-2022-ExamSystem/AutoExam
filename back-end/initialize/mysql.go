@@ -29,7 +29,10 @@ func InitMysqlDB() {
 	global.DB = db
 
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Course{})
 	db.AutoMigrate(&dao.UserCourseRelationship{})
 	db.AutoMigrate(&dao.Blanks{})
 	db.AutoMigrate(&dao.PythonFile{})
+	db.AutoMigrate(&models.Base_Course_Relationship{})
+
 }

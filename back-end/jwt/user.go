@@ -78,6 +78,18 @@ func Check_authlevel_DB(c *gin.Context) {
 	response.SuccessResponse(c, auth_level)
 }
 
+func Check_Baselevel(c *gin.Context) {
+	user_email := GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+
+	auth := dao.Get_Baseauth(user.ID)
+	if !auth {
+		response.ErrForbiddenResponse(c, "The user is not an instructor in any courses")
+		c.Abort()
+	}
+}
+
 func Get_authlevel_DB(c *gin.Context) (auth_level string) {
 	course_name := GetCourse(c)
 	user_email := GetEmail(c)

@@ -149,3 +149,18 @@ func Get_all_courses(user_id uint) (courses Strings) {
 	courses = append(courses, userCourseInstance.ClassesAsStudent...)
 	return
 }
+
+func Get_Baseauth(user_id uint) bool {
+	userCourseInstanceAddress, flag := find_userinfo(user_id)
+	userCourseInstance := *userCourseInstanceAddress
+	if flag {
+		User_InstructorCourses := userCourseInstance.ClassesAsInstructor
+		if User_InstructorCourses != nil {
+			return true
+		} else {
+			return false
+		}
+	} else {
+		return false
+	}
+}

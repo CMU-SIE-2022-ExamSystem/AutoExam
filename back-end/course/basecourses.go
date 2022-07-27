@@ -4,14 +4,10 @@ import (
 	"fmt"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/gin-gonic/gin"
 )
-
-type Base_Course_Relationships struct {
-	Course_Name string `json:"name" gorm:"type:varchar(255)"`
-	Base_Course string `json:"base_course" gorm:"type:varchar(255)"`
-}
 
 func GetCourseBaseCourse(c *gin.Context) (string, string) {
 	course := GetCourse(c)
@@ -26,7 +22,7 @@ func GetCourseBaseCourse(c *gin.Context) (string, string) {
 }
 
 func CourseToBase(course_name string) (string, error) {
-	var instance Base_Course_Relationships
-	result := global.DB.Where(&Base_Course_Relationships{Course_Name: course_name}).Find(&instance)
-	return instance.Base_Course, result.Error
+	var instance models.Base_Course_Relationship
+	result := global.DB.Where(&models.Base_Course_Relationship{Course_name: course_name}).Find(&instance)
+	return instance.Base_course, result.Error
 }
