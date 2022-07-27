@@ -53,5 +53,11 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.PUT("/:course_name/graders/:grader_name/force", jwt.JWTAuth(), controller.UpdateForceGrader_Handler)
 		CourseRouter.PUT("/:course_name/graders/:grader_name/upload", jwt.JWTAuth(), controller.UploadGrader_Handler)
 		CourseRouter.PUT("/:course_name/graders/:grader_name/upload/force", jwt.JWTAuth(), controller.UploadForceGrader_Handler)
+
+		// base relationship CRUD
+		CourseRouter.GET("/:course_name/base", jwt.JWTAuth(), controller.ReadBaseCourseRelation_Handler)
+		CourseRouter.POST("/:course_name/:base", jwt.JWTAuth(), controller.CreateBaseCourseRelation_Handler)
+		CourseRouter.PUT("/:course_name/:base", jwt.JWTAuth(), controller.UpdateBaseCourseRelation_Handler)
+		CourseRouter.DELETE("/:course_name/base", jwt.JWTAuth(), controller.DeleteBaseCourseRelation_Handler)
 	}
 }

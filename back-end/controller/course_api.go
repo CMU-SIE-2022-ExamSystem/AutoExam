@@ -48,7 +48,8 @@ func Usercoursesinfo_Handler(c *gin.Context) {
 	global.DB.Find(&user)
 	token := user.Access_token
 
-	course_name := c.Param("course_name")
+	// course_name := c.Param("course_name")
+	course_name := course.GetCourse(c)
 
 	body := autolab.AutolabGetHandler(c, token, "/courses")
 	// fmt.Println(string(body))
@@ -100,8 +101,9 @@ func Submissions_Handler(c *gin.Context) {
 	global.DB.Find(&user)
 	token := user.Access_token
 
-	course_name := c.Param("course_name")
-	assessment_name := c.Param("assessment_name")
+	// course_name := c.Param("course_name")
+	// assessment_name := c.Param("assessment_name")
+	course_name, assessment_name := course.GetCourseAssessment(c)
 
 	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
 	// fmt.Println(string(body))
@@ -320,8 +322,9 @@ func Usersubmit_Handler(c *gin.Context) {
 	global.DB.Find(&user)
 	token := user.Access_token
 
-	course_name := c.Param("course_name")
-	assessment_name := c.Param("assessment_name")
+	// course_name := c.Param("course_name")
+	// assessment_name := c.Param("assessment_name")
+	course_name, assessment_name := course.GetCourseAssessment(c)
 
 	body := autolab.AutolabSubmitHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submit", "./tmp/answer.tar")
 	// fmt.Println(string(body))

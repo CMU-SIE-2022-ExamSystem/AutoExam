@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//todo: need some works
+//TODO: need some works
 func Examconfig_Handler(c *gin.Context) {
 	course_name := c.Param("course_name")
 	assessment_name := c.Param("assessment_name")
