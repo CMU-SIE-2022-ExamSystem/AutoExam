@@ -6,27 +6,28 @@ import (
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/go-playground/validator/v10"
 )
 
 func GraderCreateValidation(sl validator.StructLevel) {
 	grader := sl.Current().Interface().(course.Grader_Create_Validate)
 
-	// validate grader name
-	if status := dao.ValidateGrader(grader.Name, grader.Course); !status {
-		sl.ReportError(grader.Name, "name", "Name", "name", grader.Course)
+	if !dao.ValidateGrader(grader.Name, grader.BaseCourse) {
+		sl.ReportError(grader.Name, "name", "Name", "name", grader.BaseCourse)
 	}
 
-	if fileRequired(grader.File) {
-		// validate file extension
-		if !fileExtValidate(grader.File.Filename) {
-			sl.ReportError(grader.File, "file", "File", "extension", ".py")
-		}
-	}
+	blanksType(sl, grader.Blanks)
 }
 
 func GraderUpdateValidation(sl validator.StructLevel) {
 	grader := sl.Current().Interface().(course.Grader_Update)
+
+	blanksType(sl, grader.Blanks)
+}
+
+func GraderUploadValidation(sl validator.StructLevel) {
+	grader := sl.Current().Interface().(course.Grader_Upload)
 
 	if fileRequired(grader.File) {
 		// validate file extension
@@ -42,4 +43,21 @@ func fileRequired(file *multipart.FileHeader) bool {
 
 func fileExtValidate(name string) bool {
 	return filepath.Ext(name) == ".py"
+}
+
+func blanksType(sl validator.StructLevel, blanks []dao.Blanks) {
+	if len(blanks) == 0 {
+		sl.ReportError(blanks, "blanks", "Blanks", "required", "")
+	}
+
+	for i, blank := range blanks {
+		if blank.Type == "" {
+			sl.ReportError(blank.Type, "type", "Type", "requiredType", utils.Ordinalize(i+1))
+			return
+		}
+		if blank.Type != "string" && blank.Type != "code" {
+			sl.ReportError(blank.Type, "type", "Type", "oneofType", "string code,"+utils.Ordinalize(i+1))
+		}
+
+	}
 }

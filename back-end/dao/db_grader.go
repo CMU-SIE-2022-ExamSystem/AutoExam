@@ -14,62 +14,108 @@ import (
 )
 
 type PythonFile struct {
-	QuestionType string `gorm:"type:varchar(255)"`
-	PythonGrader []byte `gorm:"type:longblob"`
-	Course       string `grom:"type:varchar(255)"`
-	Valid        bool   `gorm:"type:bool"`
+	ID           uint     `json:"-" gorm:"primaryKey"`
+	QuestionType string   `gorm:"type:varchar(255)"`
+	PythonGrader []byte   `gorm:"type:longblob"`
+	BaseCourse   string   `grom:"type:varchar(255)"`
+	Valid        bool     `gorm:"type:bool"`
+	Blanks       []Blanks `gorm:"constraint:OnUpdate:CASCADE,,OnDelete:CASCADE,foreignKey:PythonFileID"`
+	Uploaded     bool     `gorm:"type:bool"`
 }
 
 type Grader_API struct {
-	Name   string `json:"name" binding:"required"`
-	Course string `json:"course" binding:"required"`
-	Valid  bool   `json:"valid" binding:"required"`
+	Name     string   `json:"name" binding:"required"`
+	Blanks   []Blanks `json:"blanks"`
+	Valid    bool     `json:"valid" binding:"required"`
+	Uploaded bool     `json:"uploaded"`
+}
+
+type Blanks struct {
+	ID           uint   `json:"-" gorm:"primaryKey"`
+	PythonFileID uint   `json:"-"`
+	Type         string `json:"type" binding:"required,oneof=string code"`
 }
 
 func insert(instance PythonFile) error {
 	if err := global.DB.Create(&instance).Error; err != nil {
-		fmt.Println("insert failed")
-		fmt.Println(err)
 		return err
 	}
-	fmt.Println("insert successfully")
 	return nil
+}
+
+func Insert_grader(instance PythonFile) (Grader_API, error) {
+	err := insert(instance)
+	if err != nil {
+		return Grader_API{}, err
+	}
+	return ReadGrader(instance.QuestionType, instance.BaseCourse)
+}
+
+func Update_blanks_grader(instance PythonFile) (Grader_API, error) {
+	old_instance, _ := search_grader(instance.QuestionType, instance.BaseCourse)
+	// delete old_instance's blanks
+	for _, blank := range old_instance.Blanks {
+		global.DB.Delete(&blank)
+	}
+
+	// insert new blanks into old_instance
+	global.DB.Model(&old_instance).Association("Blanks").Replace(instance.Blanks)
+
+	return ReadGrader(instance.QuestionType, instance.BaseCourse)
+}
+
+func Update_python_grader(instance PythonFile) (Grader_API, error) {
+	old_instance, _ := search_grader(instance.QuestionType, instance.BaseCourse)
+	old_instance.PythonGrader = instance.PythonGrader
+	old_instance.Uploaded = true
+
+	global.DB.Save(&old_instance)
+
+	return ReadGrader(instance.QuestionType, instance.BaseCourse)
 }
 
 func InsertOrUpddbate_grader(question_type string, byte_array []byte, course string) (Grader_API, error) {
 	var instance PythonFile
-	rows := global.DB.Where(&PythonFile{QuestionType: question_type, Course: course}).Find(&instance)
+	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&instance)
 	if rows.RowsAffected < 1 {
 		// no grader file of this question type; need insert
 		new_instance := PythonFile{
 			QuestionType: question_type,
 			PythonGrader: byte_array,
-			Course:       course,
+			BaseCourse:   course,
 			Valid:        false,
 		}
 		err := insert(new_instance)
 		return new_instance.ToGraderAPI(), err
 	} else {
 		// the grader file of this type is already exsited, need to update
-		if err := global.DB.Model(new(PythonFile)).Where("question_type=? AND course=?", question_type, course).Update("python_grader", byte_array).Error; err != nil {
-			fmt.Println("update failed!")
-			fmt.Println(err)
-			return Grader_API{}, nil
+		if len(byte_array) != 0 {
+			instance := PythonFile{
+				PythonGrader: byte_array,
+				Uploaded:     true,
+			}
+			if err := global.DB.Model(new(PythonFile)).Where("question_type=? AND base_course=?", question_type, course).Updates(instance).Error; err != nil {
+				return Grader_API{}, err
+			}
+		} else {
+			if err := global.DB.Model(new(PythonFile)).Where("question_type=? AND base_course=?", question_type, course).Update("python_grader", byte_array).Error; err != nil {
+				return Grader_API{}, err
+			}
 		}
-		fmt.Println("update succeed!")
+
 		return ReadGrader(question_type, course)
 	}
 }
 
 func search_grader(question_type, course string) (PythonFile, error) {
 	var instance PythonFile
-	result := global.DB.Where(&PythonFile{QuestionType: question_type, Course: course}).Find(&instance)
+	result := global.DB.Preload("Blanks").Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&instance)
 	return instance, result.Error
 }
 
 func search_all_grader(course string) ([]PythonFile, error) {
 	var instances []PythonFile
-	result := global.DB.Where(&PythonFile{Course: course}).Find(&instances)
+	result := global.DB.Preload("Blanks").Where(&PythonFile{BaseCourse: course}).Find(&instances)
 	return instances, result.Error
 }
 
@@ -117,14 +163,16 @@ func write_file(file_name string, byte_rray []byte, file_path string) {
 }
 
 func Delete_grader(question_type, course string) error {
-	result := global.DB.Where(&PythonFile{QuestionType: question_type, Course: course}).Delete(&PythonFile{})
+	instance, _ := search_grader(question_type, course)
+	// association delete
+	result := global.DB.Select("Blanks").Delete(&instance)
 	return result.Error
 }
 
 // return true for no grader in MySQL
 func ValidateGrader(question_type, course string) bool {
 	var instance PythonFile
-	rows := global.DB.Where(&PythonFile{QuestionType: question_type, Course: course}).Find(&instance)
+	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&instance)
 	return rows.RowsAffected < 1
 }
 
@@ -134,7 +182,7 @@ func ValidateGraderUsed(question_type, course string) (bool, error) {
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
 	filter := bson.D{{Key: "questions.questionType", Value: question_type}, {Key: "course", Value: course}}
-	var questions Question_Header
+	var questions AutoExam_Questions
 	err := collection.FindOne(context.TODO(), filter).Decode(&questions)
 	if err != nil {
 		// ErrNoDocuments means that the filter did not match any documents in the collection
@@ -147,7 +195,7 @@ func ValidateGraderUsed(question_type, course string) (bool, error) {
 }
 
 func UpdateGraderValid(question_type, course string, valid bool) (Grader_API, error) {
-	if err := global.DB.Model(new(PythonFile)).Where("question_type=? AND course=?", question_type, course).Update("valid", valid).Error; err != nil {
+	if err := global.DB.Model(new(PythonFile)).Where("question_type=? AND base_course=?", question_type, course).Update("valid", valid).Error; err != nil {
 		fmt.Println("update failed!")
 		fmt.Println(err)
 		return Grader_API{}, nil
@@ -166,9 +214,10 @@ func (grader *PythonFile) Code() string {
 
 func (grader *PythonFile) ToGraderAPI() Grader_API {
 	api := Grader_API{
-		Name:   grader.QuestionType,
-		Course: grader.Course,
-		Valid:  grader.Valid,
+		Name:     grader.QuestionType,
+		Valid:    grader.Valid,
+		Blanks:   grader.Blanks,
+		Uploaded: grader.Uploaded,
 	}
 	return api
 }

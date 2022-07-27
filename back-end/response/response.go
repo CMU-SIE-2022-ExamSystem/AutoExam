@@ -125,12 +125,12 @@ func ErrCourseNotValidResponse(c *gin.Context, course string) {
 
 func ErrAssessmentNotValidResponse(c *gin.Context, course, assessment string) {
 	err := Error{Type: Course, Message: "There is no this assessment '" + assessment + "' in such course '" + course + "'"}
-	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+	ErrorResponseWithStatus(c, err, http.StatusNotFound)
 }
 
 func ErrAssessmentNotInAutolabResponse(c *gin.Context, course, assessment string) {
 	err := Error{Type: Course, Message: "There is no this assessment '" + assessment + "' in such course '" + course + "' on autolab, please download this assessment and uploaded the tar file to the specific course '" + course + "' on autolab"}
-	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+	ErrorResponseWithStatus(c, err, http.StatusNotFound)
 }
 
 func ErrAssessmentNameNotValidResponse(c *gin.Context, status int, message string) {

@@ -2,10 +2,7 @@ package dao
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"strconv"
 	"time"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
@@ -80,42 +77,42 @@ func solutionHelper(client *mongo.Client, str1, str2, str3, path string) (string
 }
 
 func helper(student *Student, questCollection *mongo.Collection, path string) {
-	// get the the context object，it can be used to set timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	//level1
-	var result Question_Header
-	var filter bson.D
-	level1 := map[string]interface{}{}
-	for i, id := range student.Settings {
-		str1 := fmt.Sprintf("Q%s", strconv.Itoa(i+1))
-		//level2
-		filter = bson.D{{Key: "headerId", Value: id}}
-		questCollection.FindOne(ctx, filter).Decode(&result)
-		level2 := map[string]interface{}{}
-		questions := result.Questions
-		for questionId, question := range questions {
-			questionType := question.Type
-			answer := question.Answer
-			str2 := fmt.Sprintf("%s_sub%s", str1, strconv.Itoa(questionId+1))
-			if questionType != "multiple_blank" {
-				//level3
-				level3 := map[string]string{}
-				str3 := str2
-				level3[str3] = answer[0]
-				level2[str2] = level3
-			} else {
-				//level3
-				level3 := map[string]string{}
-				for answerId, value := range answer {
-					str3 := fmt.Sprintf("%s_sub%s", str2, strconv.Itoa(answerId+1))
-					level3[str3] = value
-				}
-				level2[str2] = level3
-			}
-		}
-		level1[str1] = level2
-	}
-	solution, _ := json.Marshal(level1)
-	ioutil.WriteFile(path+"solution_new.json", solution, 0644)
+	// // get the the context object，it can be used to set timeout
+	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// defer cancel()
+	// //level1
+	// var result AutoExam_Questions
+	// var filter bson.D
+	// level1 := map[string]interface{}{}
+	// for i, id := range student.Settings {
+	// 	str1 := fmt.Sprintf("Q%s", strconv.Itoa(i+1))
+	// 	//level2
+	// 	filter = bson.D{{Key: "headerId", Value: id}}
+	// 	questCollection.FindOne(ctx, filter).Decode(&result)
+	// 	level2 := map[string]interface{}{}
+	// 	questions := result.Questions
+	// 	for questionId, question := range questions {
+	// 		questionType := question.Type
+	// 		answer := question.Answers
+	// 		str2 := fmt.Sprintf("%s_sub%s", str1, strconv.Itoa(questionId+1))
+	// 		if questionType != "multiple_blank" {
+	// 			//level3
+	// 			level3 := map[string]string{}
+	// 			str3 := str2
+	// 			level3[str3] = answer[0]
+	// 			level2[str2] = level3
+	// 		} else {
+	// 			//level3
+	// 			level3 := map[string]string{}
+	// 			for answerId, value := range answer {
+	// 				str3 := fmt.Sprintf("%s_sub%s", str2, strconv.Itoa(answerId+1))
+	// 				level3[str3] = value
+	// 			}
+	// 			level2[str2] = level3
+	// 		}
+	// 	}
+	// 	level1[str1] = level2
+	// }
+	// solution, _ := json.Marshal(level1)
+	// ioutil.WriteFile(path+"solution_new.json", solution, 0644)
 }

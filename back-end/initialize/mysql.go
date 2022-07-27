@@ -30,5 +30,6 @@ func InitMysqlDB() {
 
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&dao.UserCourseRelationship{})
+	db.AutoMigrate(&dao.Blanks{})
 	db.AutoMigrate(&dao.PythonFile{})
 }

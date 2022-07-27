@@ -51,8 +51,8 @@ type GraderResponse struct {
 	Data   interface{} `json:"data"`
 }
 
-type NotValudResponse struct {
-	Status int         `json:"status" example:"400"`
+type NotValidResponse struct {
+	Status int         `json:"status" example:"404"`
 	Type   int         `json:"type" example:"0"`
 	Error  any         `json:"error"`
 	Data   interface{} `json:"data"`
@@ -60,7 +60,7 @@ type NotValudResponse struct {
 
 type GraderNotValidError struct {
 	Type    string `json:"type" example:"Grader"`
-	Message string `json:"message" example:"There is no this grader 'grader_name' in such course 'course_name'"`
+	Message string `json:"message" example:"There is no this grader 'grader_name' in such base course 'course_name'"`
 }
 
 type UpdateNotSafeError struct {

@@ -51,5 +51,7 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.GET("/:course_name/graders/list", jwt.JWTAuth(), controller.ReadGraderList_Handler)
 		CourseRouter.PUT("/:course_name/graders/:grader_name/valid", jwt.JWTAuth(), controller.ValidGrader_Handler)
 		CourseRouter.PUT("/:course_name/graders/:grader_name/force", jwt.JWTAuth(), controller.UpdateForceGrader_Handler)
+		CourseRouter.PUT("/:course_name/graders/:grader_name/upload", jwt.JWTAuth(), controller.UploadGrader_Handler)
+		CourseRouter.PUT("/:course_name/graders/:grader_name/upload/force", jwt.JWTAuth(), controller.UploadForceGrader_Handler)
 	}
 }

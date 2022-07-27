@@ -27,5 +27,7 @@ func InitValidator() {
 		v.RegisterStructValidation(validate.TagsNameValidation, dao.AutoExam_Tags_Create{})
 		v.RegisterStructValidation(validate.GraderCreateValidation, course.Grader_Create_Validate{})
 		v.RegisterStructValidation(validate.GraderUpdateValidation, course.Grader_Update{})
+		v.RegisterStructValidation(validate.GraderUploadValidation, course.Grader_Upload{})
+		v.RegisterStructValidation(validate.QuestionsCreateValidation, dao.Questions_Create_Validate{})
 	}
 }

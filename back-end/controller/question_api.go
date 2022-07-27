@@ -2,22 +2,18 @@ package controller
 
 import (
 	"fmt"
-	"io/ioutil"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/validate"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
-//TODO: need some works
-func Question_Handler(c *gin.Context) {
-	data, _ := ioutil.ReadAll(c.Request.Body)
-	color.Yellow(string(data))
-}
+const (
+	Que_Model = "question"
+)
 
 // ReadAllQuestion_Handler godoc
 // @Summary read all questions configuration
@@ -27,13 +23,20 @@ func Question_Handler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
-// @Success 200 {object} response.Response{data=dao.Tags_Return} "desc"
+// @Success 200 {object} response.Response{data=[]dao.Questions} "success"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBReadAllError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/questions [get]
 func ReadAllQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
-	course_name := c.Param("course_name")
-	fmt.Println(course_name)
+	_, base_course := course.GetCourseBaseCourse(c)
+
+	questions, err := dao.ReadAllQuestions(base_course)
+	if err != nil {
+		response.ErrMongoDBReadAllResponse(c, Que_Model)
+	}
+	response.SuccessResponse(c, questions)
 }
 
 // CreateQuestion_Handler godoc
@@ -44,17 +47,21 @@ func ReadAllQuestion_Handler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
-// @Param data body dao.Question_Header_Create true "body data"
-// @Success 201 {object} response.Response{data=dao.Question_Header} "desc"
+// @Param data body dao.Questions_Create true "body data"
+// @Success 201 {object} response.Response{data=dao.Questions} "created"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBCreateError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/questions/ [post]
-// @Deprecated
 func CreateQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
-	var body dao.Question_Header_Create
+	_, base_course := course.GetCourseBaseCourse(c)
+
+	var body dao.Questions_Create_Validate
+	body.Course = base_course
 	validate.ValidateJson(c, &body)
-	// course_name := course.GetCourse(c)
+
 	// course.Validate_assessment_name(c, course_name, body.Name)
 	// assessment := body.ToAutoExamAssessments(course_name)
 	// _, err := dao.CreateExam(assessment)
@@ -73,10 +80,11 @@ func CreateQuestion_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		question_id			path	string	true	"Questions Id"
-// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
+// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "success"
+// @Failure 404 {object} response.NotValidResponse{} "not valid"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBReadError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/questions/{question_id} [get]
-// @Deprecated
 func ReadQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
@@ -98,10 +106,12 @@ func ReadQuestion_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		question_id			path	string	true	"Questions Id"
 // @Param data body dao.AutoExam_Assessments_Update true "body data"
-// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
+// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "success"
+// @Failure 404 {object} response.NotValidResponse{error=response.GraderNotValidError} "not valid"
+// @Failure 400 {object} response.GraderResponse{error=response.UpdateNotSafeError} "not update safe"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBUpdateError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/questions/{question_id} [put]
-// @Deprecated
 func UpdateQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
@@ -139,10 +149,11 @@ func UpdateQuestion_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		question_id			path	string	true	"Questions Id"
-// @Success 204
+// @Success 204 "no content"
+// @Failure 400 {object} response.GraderResponse{error=response.DeleteNotSafeError} "not delete safe"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBDeleteError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/questions/{question_id} [delete]
-// @Deprecated
 func DeleteQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 

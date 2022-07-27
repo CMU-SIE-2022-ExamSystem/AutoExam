@@ -178,7 +178,7 @@ func ValidateTagUsedById(id string) (bool, error) {
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
 	filter := bson.D{{Key: "questionTag", Value: id}}
-	var questions Question_Header
+	var questions AutoExam_Questions
 	err := collection.FindOne(context.TODO(), filter).Decode(&questions)
 	if err != nil {
 		// ErrNoDocuments means that the filter did not match any documents in the collection
