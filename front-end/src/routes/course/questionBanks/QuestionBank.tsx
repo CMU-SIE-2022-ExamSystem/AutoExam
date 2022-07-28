@@ -44,14 +44,11 @@ const AddTagModal = ({show, errorMessage, onClose, onSubmit, clearMessage}: {sho
 }
 
 const AddQuestionModal = ({tag, show, onClose} : {tag: string, show: boolean, onClose: () => void}) => {
-    const editorRef = useRef<any>(null);
-    const log = (): string => {
-        if (editorRef.current) {
-            console.log(editorRef.current.getContent());
-            return editorRef.current.getContent();
-        }
-        return "";
-    };
+    const [description, setDescription]= useState<string>("");
+
+    const updateDescription = (newDescription: string) => {
+        setDescription(newDescription);
+    }
 
     const [type, setType] = useState<string>();
     const [subqList, setSubqList] = useState<string[]>([]);
@@ -81,7 +78,7 @@ const AddQuestionModal = ({tag, show, onClose} : {tag: string, show: boolean, on
                     <Form.Group className="mb-3">
                         <Form.Label>Description</Form.Label>
                             <div>
-                                <HTMLEditor editorRef={editorRef}/>
+                                {<HTMLEditor init={description} update={updateDescription}/>}
                                 {/* <button onClick={log}>Log editor content</button> */}
                             </div>
                     </Form.Group>

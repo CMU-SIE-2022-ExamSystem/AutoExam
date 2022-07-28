@@ -2,11 +2,12 @@ import React from 'react';
 import {Editor} from "@tinymce/tinymce-react";
 import {getFrontendUrl} from "../utils/url";
 
-const HTMLEditor = ({editorRef} : {editorRef: any}) => {
+const HTMLEditor = ({init, update} : {init: string, update: any}) => {
     return (
         <Editor
             tinymceScriptSrc={getFrontendUrl('') + '/tinymce/tinymce.min.js'}
-            onInit={(evt, editor) => editorRef.current = editor}
+            onChange={(evt, editor) => update(editor.getContent())}
+            initialValue={init}
             init={{
                 height: 500,
                 menubar: false,
@@ -17,7 +18,7 @@ const HTMLEditor = ({editorRef} : {editorRef: any}) => {
                 ],
                 toolbar: 'undo redo | casechange blocks | bold italic backcolor | ' +
                     'alignleft aligncenter alignright alignjustify | ' +
-                    'bullist numlist checklist outdent indent | removeformat | a11ycheck code table help',
+                    'bullist numlist outdent indent | removeformat | image table help',
                 content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
             }}
         />

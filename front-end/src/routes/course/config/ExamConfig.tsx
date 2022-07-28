@@ -31,7 +31,7 @@ const BackModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () => v
 }
 
 const verifyState = () => {
-    let {examConfigState} = useConfigStates();
+
     
 }
 
