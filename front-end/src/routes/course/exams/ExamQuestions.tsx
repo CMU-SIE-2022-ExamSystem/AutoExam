@@ -93,7 +93,7 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
     function getMultipleBlankAnswer(choices: choiceDataType[], subQuestionKey: string) {
         let returnObject: LooseObject = {};
         choices.forEach((choice) => {
-            let choiceId = subQuestionKey + '_sub' + choice.choiceId;
+            let choiceId = subQuestionKey + '_sub' + choice.choice_id;
             let element = document.getElementById(choiceId);
             if (element !== null) {
                 returnObject[choiceId] = (element as HTMLInputElement).value;
@@ -119,11 +119,11 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
         let returnObject: LooseObject = {};
         let answerList : string[] = [];
         choices.forEach((choice) => {
-            let choiceId = subQuestionKey + '_choice' + choice.choiceId;
+            let choiceId = subQuestionKey + '_choice' + choice.choice_id;
             let element = document.getElementById(choiceId);
             if (element !== null) {
                 let answer = (element as HTMLInputElement).checked;
-                if (answer) answerList.push(choice.choiceId);
+                if (answer) answerList.push(choice.choice_id);
             }
         })
         returnObject[subQuestionKey] = answerList.join("");
@@ -134,11 +134,11 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
         let returnObject: LooseObject = {};
         let answerList : string[] = [];
         choices.forEach((choice) => {
-            let choiceId = subQuestionKey + '_choice' + choice.choiceId;
+            let choiceId = subQuestionKey + '_choice' + choice.choice_id;
             let element = document.getElementById(choiceId);
             if (element !== null) {
                 let answer = (element as HTMLInputElement).checked;
-                if (answer) answerList.push(choice.choiceId);
+                if (answer) answerList.push(choice.choice_id);
             }
         })
         returnObject[subQuestionKey] = answerList.join("");
@@ -146,13 +146,13 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
     }
 
     qList.forEach((question: questionDataType) => {
-        const questionKey = "Q" + question.headerId;
+        const questionKey = "Q" + question.id;
         let subResult: LooseObject = {};
         question.questions.forEach((subQuestion) => {
-            const subQuestionKey = questionKey + "_sub" + subQuestion.questionId;
+            const subQuestionKey = questionKey + "_sub" + subQuestion.question_id;
             let answerObject: object = {};
 
-            switch (subQuestion.questionType) {
+            switch (subQuestion.question_type) {
                 case "multiple-blank":
                     answerObject = getMultipleBlankAnswer(subQuestion.choices, subQuestionKey);
                     break;
@@ -186,7 +186,7 @@ const ExamQuestions = () => {
 
     questionList = require('./questions_new.json').data;
     let subQuestionArray = questionList.flatMap((question) =>
-        question.questions.map(subQuestion => ["Q" + question.headerId + "_sub" + subQuestion.questionId, subQuestion.questionType, subQuestion.choices]));
+        question.questions.map(subQuestion => ["Q" + question.id + "_sub" + subQuestion.question_id, subQuestion.question_type, subQuestion.choices]));
     let idList: string[] = [];
     for (let i = 0; i < subQuestionArray.length; i++) {
         if (subQuestionArray[i][1] === "single-blank" || subQuestionArray[i][1] === "single-choice" || subQuestionArray[i][1] === "multiple-choice") {
@@ -196,7 +196,7 @@ const ExamQuestions = () => {
         
         // multiple-blank
         for (let j = 0; j < subQuestionArray[i][2].length; j++) {
-            idList.push(subQuestionArray[i][0].toString() + "_sub" + (subQuestionArray[i][2][j] as choiceDataType).choiceId);
+            idList.push(subQuestionArray[i][0].toString() + "_sub" + (subQuestionArray[i][2][j] as choiceDataType).choice_id);
         }
     }
     // console.log(idList);
@@ -219,7 +219,7 @@ const ExamQuestions = () => {
     }
 
     const questions = questionList.map((question) => {
-        return <Question key={`Q${question.headerId}`} questionData={question} />
+        return <Question key={`Q${question.id}`} questionData={question} />
     })
 
     const removeAllLocalStorage = () => {

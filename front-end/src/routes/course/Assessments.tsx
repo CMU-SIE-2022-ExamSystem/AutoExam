@@ -28,6 +28,11 @@ interface extAssessmentProps extends assessmentProps {
     permission: boolean
 }
 
+interface tagProps {
+    id: string;
+    name: string;
+}
+
 const AssessmentRow = ({name, display_name, start_at, due_at, permission}: extAssessmentProps) => {
     let startTime = moment(start_at).format("MMMM Do YYYY, h:mm:ss a");
     let dueTime = moment(due_at).format("MMMM Do YYYY, h:mm:ss a");
@@ -192,7 +197,7 @@ function Assessments() {
             });
     }
 
-    const [tags, setTags] = useState<string[]>([]);
+    const [tags, setTags] = useState<tagProps[]>([]);
   
     const getTags = useCallback(async () => {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/tags");
@@ -215,7 +220,7 @@ function Assessments() {
                 {courseInfo?.auth_level === "instructor" &&
                     <div className="text-end pe-5">
                         <Button variant="info" className="me-3 text-white" onClick={() => {setShowModal(true);}}>New Exam</Button>
-                        <Link to={"questionBank/" + tags[0]}><Button variant="primary">Question Bank</Button></Link>
+                        <Link to={"questionBank/" + (tags[0].name || "null")}><Button variant="primary">Question Bank</Button></Link>
                     </div>
                 }
                 <Row>

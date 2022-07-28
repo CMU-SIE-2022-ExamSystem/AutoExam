@@ -1,11 +1,11 @@
 export interface choiceDataType {
-    choiceId: string;
+    choice_id: string;
     content: string;
 }
 
 export interface subQuestionDataType {
-    questionType: "single-choice" | "multiple-choice" | "single-blank" | "multiple-blank";
-    questionId: number;
+    question_type: "single-choice" | "multiple-choice" | "single-blank" | "multiple-blank";
+    question_id: number;
     description: string;
     choices: choiceDataType[];
 };
