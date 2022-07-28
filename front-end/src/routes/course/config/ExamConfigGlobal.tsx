@@ -70,20 +70,17 @@ const ExamConfigGlobal = () => {
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Start At</Form.Label>
-                        <DateTimePicker setUpdate={_ => {}} pickerId="start_at" />
+                        <DateTimePicker setUpdate={newStart => {updateGeneral({start_at: newStart});}} pickerId="start_at" />
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>End At</Form.Label>
-                        <DateTimePicker setUpdate={_ => {}} pickerId="end_at" />
+                        <DateTimePicker setUpdate={newEnd => {updateGeneral({end_at: newEnd});}} pickerId="end_at" />
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Grading Deadline</Form.Label>
-                        <DateTimePicker setUpdate={_ => {}} pickerId="grading_deadline"/>
+                        <DateTimePicker setUpdate={newGradingDeadline => {updateGeneral({grading_deadline: newGradingDeadline});}} pickerId="grading_deadline"/>
                     </Form.Group>
                 </Form>
-                <div>
-                    {/* Activate and Remove Exam */}
-                </div>
             </Col>
         </Row>
 

@@ -30,6 +30,11 @@ const BackModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () => v
     );
 }
 
+const verifyState = () => {
+    let {examConfigState} = useConfigStates();
+    
+}
+
 function ExamConfig() {
     let params = useParams();
     const {globalState} = useGlobalState();
@@ -63,6 +68,7 @@ function ExamConfig() {
 
     const [backModalShow, setBackModalShow] = useState(false);
     const backHandler = () => {
+        setBackModalShow(false);
         navigate("/courses/" + courseName);
     }
 
@@ -112,6 +118,11 @@ function ExamConfig() {
                                         Exam Questions
                                     </Nav.Link>
                                 </Nav.Item>
+                                <Nav.Item>
+                                    <Nav.Link eventKey="publish" href="#">
+                                        Publish
+                                    </Nav.Link>
+                                </Nav.Item>
                             </Nav>
                         </Col>
                         <Col xs={{span: "9"}}>
@@ -125,6 +136,9 @@ function ExamConfig() {
                                     </Tab.Pane>
                                     <Tab.Pane eventKey="questions">
                                         <ExamConfigQuestions />
+                                    </Tab.Pane>
+                                    <Tab.Pane eventKey="publish">
+                                        Publish
                                     </Tab.Pane>
                                 </Tab.Content>
                                 <Container fluid className="text-end">

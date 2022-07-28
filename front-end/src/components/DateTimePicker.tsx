@@ -1,11 +1,13 @@
 import React, {useEffect} from 'react';
-import {TempusDominus} from "@eonasdan/tempus-dominus";
+import {Namespace, TempusDominus} from "@eonasdan/tempus-dominus";
 import { Form, InputGroup } from 'react-bootstrap';
+import {ChangeEvent} from "@eonasdan/tempus-dominus/types/utilities/event-types";
 
 export const DateTimePicker = ({setUpdate, pickerId} : {setUpdate : (timeDate: string) => void, pickerId: string}) => {
 
     useEffect(() =>{
-        const picker = new TempusDominus(document.getElementById(pickerId) as HTMLElement, {
+        const myElement = document.getElementById(pickerId) as HTMLElement;
+        const picker = new TempusDominus(myElement, {
             display: {
                 sideBySide: true,
                 icons: {
@@ -22,6 +24,10 @@ export const DateTimePicker = ({setUpdate, pickerId} : {setUpdate : (timeDate: s
                 }
             }
         });
+        myElement.addEventListener(Namespace.events.change, (e: Event) => {
+            console.log(e);
+            setUpdate(new Date((e as CustomEvent).detail.date!).toISOString());
+        })
     }, []);
 
     return (
