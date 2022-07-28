@@ -13,7 +13,7 @@ import (
 func GraderCreateValidation(sl validator.StructLevel) {
 	grader := sl.Current().Interface().(course.Grader_Create_Validate)
 
-	if !dao.ValidateGrader(grader.Name, grader.BaseCourse) {
+	if !dao.ValidateGraderName(grader.Name, grader.BaseCourse) {
 		sl.ReportError(grader.Name, "name", "Name", "name", grader.BaseCourse)
 	}
 

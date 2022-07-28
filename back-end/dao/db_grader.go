@@ -26,10 +26,11 @@ type PythonFile struct {
 
 // @Description grader model info
 type Grader_API struct {
-	Name     string   `json:"name" binding:"required"`
-	Blanks   []Blanks `json:"blanks"`                   // describing the structure of blanks in this grader
-	Valid    bool     `json:"valid" binding:"required"` // whether the grader is valid by /courses/{course_name}/graders/{grader_name}/valid api
-	Uploaded bool     `json:"uploaded"`                 // whether the python file is uploaded
+	Name         string   `json:"name" binding:"required"`
+	Blanks       []Blanks `json:"blanks"`                   // describing the structure of blanks in this grader
+	BlanksNumber int      `json:"-"`                        // the number of blanks
+	Valid        bool     `json:"valid" binding:"required"` // whether the grader is valid by /courses/{course_name}/graders/{grader_name}/valid api
+	Uploaded     bool     `json:"uploaded"`                 // whether the python file is uploaded
 }
 
 // @Description describing the type of a certain blank
@@ -188,8 +189,9 @@ func Delete_grader(question_type, course string) error {
 	return result.Error
 }
 
-// return true for no grader in MySQL
-func ValidateGrader(question_type, course string) bool {
+// return true for the name is not equal to the basic grader and those graders in mysql
+func ValidateGraderName(question_type, course string) bool {
+	// return false when the question_type is one of the basic grader
 	if slices.Contains(global.Settings.Basic_Grader, question_type) {
 		return false
 	}
@@ -197,6 +199,18 @@ func ValidateGrader(question_type, course string) bool {
 	var instance PythonFile
 	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&instance)
 	return rows.RowsAffected < 1
+}
+
+// return true for the grader is one of the basic grader or the graders in mysql
+func ValidateGrader(question_type, course string) bool {
+	if slices.Contains(global.Settings.Basic_Grader, question_type) {
+		return true
+	}
+
+	var instance PythonFile
+	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&instance)
+	fmt.Println(rows.RowsAffected)
+	return rows.RowsAffected >= 1
 }
 
 // return true for safe delete
@@ -240,10 +254,11 @@ func (grader *PythonFile) Code() string {
 
 func (grader *PythonFile) ToGraderAPI() Grader_API {
 	api := Grader_API{
-		Name:     grader.QuestionType,
-		Valid:    grader.Valid,
-		Blanks:   grader.Blanks,
-		Uploaded: grader.Uploaded,
+		Name:         grader.QuestionType,
+		Valid:        grader.Valid,
+		Blanks:       grader.Blanks,
+		BlanksNumber: len(grader.Blanks),
+		Uploaded:     grader.Uploaded,
 	}
 	return api
 }

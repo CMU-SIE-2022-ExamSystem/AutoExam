@@ -24,12 +24,12 @@ func ErrGraderNotValidResponse(c *gin.Context, course, grader string) {
 }
 
 func ErrGraderDeleteNotSafeResponse(c *gin.Context, grader_name string) {
-	err := Error{Type: Grader, Message: ReplaceMessageGraderName(&DeleteNotSafeError{}, grader_name)}
+	err := Error{Type: Grader, Message: ReplaceMessageGraderName(&GraderDeleteNotSafeError{}, grader_name)}
 	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
 }
 
 func ErrGraderUpdateNotSafeResponse(c *gin.Context, grader_name string) {
-	err := Error{Type: Grader, Message: ReplaceMessageGraderName(&UpdateNotSafeError{}, grader_name)}
+	err := Error{Type: Grader, Message: ReplaceMessageGraderName(&GraderUpdateNotSafeError{}, grader_name)}
 	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
 }
 
@@ -54,12 +54,12 @@ type GraderNotValidError struct {
 	Message string `json:"message" example:"There is no this grader 'grader_name' in such base course 'course_name'"`
 }
 
-type UpdateNotSafeError struct {
+type GraderUpdateNotSafeError struct {
 	Type    string `json:"type" example:"Grader"`
 	Message string `json:"message" example:"This grader name 'grader_name' is already valid. It would be dangerous to upload a new grader"`
 }
 
-type DeleteNotSafeError struct {
+type GraderDeleteNotSafeError struct {
 	Type    string `json:"type" example:"Grader"`
 	Message string `json:"message" example:"This grader name 'grader_name' is used in some questions. Therefore, it cannot be deleted!"`
 }

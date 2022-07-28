@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/gin-gonic/gin"
@@ -47,7 +48,7 @@ type Grader_Valid struct {
 func GetCourseGrader(c *gin.Context) (string, string) {
 	course := GetCourse(c)
 	grader := c.Param("grader_name")
-	if status := dao.ValidateGrader(grader, course); status {
+	if status := dao.ValidateGraderName(grader, course); status {
 		response.ErrGraderNotValidResponse(c, course, grader)
 	}
 	return course, grader
@@ -56,7 +57,7 @@ func GetCourseGrader(c *gin.Context) (string, string) {
 func GetBaseCourseGrader(c *gin.Context) (string, string) {
 	_, base := GetCourseBaseCourse(c)
 	grader := c.Param("grader_name")
-	if status := dao.ValidateGrader(grader, base); status {
+	if status := dao.ValidateGraderName(grader, base); status {
 		response.ErrGraderNotValidResponse(c, base, grader)
 	}
 	return base, grader
@@ -80,4 +81,12 @@ func FileToByte(c *gin.Context, file *multipart.FileHeader) []byte {
 		response.ErrGraderReadFileResponse(c, err)
 	}
 	return byteContent
+}
+
+func GetBasicGraderLenDict() map[string]int {
+	grader_dict := make(map[string]int)
+	for _, grader := range global.Settings.Basic_Grader {
+		grader_dict[grader] = 1
+	}
+	return grader_dict
 }

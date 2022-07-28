@@ -45,23 +45,32 @@ func getErrorMsg(fe validator.FieldError) string {
 		return "There is an internal mongodb error when validate this field"
 	case "name":
 		return "This name is already used in this base course '" + fe.Param() + "'"
-	case "extension":
-		return "This file's extension should be '" + fe.Param() + "'"
-	case "singleBlank":
-		s := strings.Split(fe.Param(), ",")
-		return "The length of array is required to be 1 when the question_type is '" + s[0] + "' in the " + s[1] + " questions"
-	case "notValidNumber":
-		s := strings.Split(fe.Param(), ",")
-		return "The length of this answers does not equal to '" + s[0] + "' in the " + s[1] + " questions"
-	case "notValidAnswer":
-		return "The type of this field should two-dimensional array of string in the " + fe.Param() + " questions"
 
-	// assessment's grader
+	// grader tag
 	case "requiredType":
 		return "This field is required in the " + fe.Param() + " blanks"
 	case "oneofType":
 		s := strings.Split(fe.Param(), ",")
 		return "This field should be one of [" + strings.ReplaceAll(s[0], " ", ", ") + "] in the " + s[1] + " blanks"
+	case "extension":
+		return "This file's extension should be '" + fe.Param() + "'"
+
+	// question tag
+	case "notValidGrader":
+		s := strings.Split(fe.Param(), ",")
+		return "This field is not one of the valid grader in the base course '" + s[0] + "' in the " + s[1] + " sub_questions"
+	case "requiredGrader":
+		return "This field is required in the " + fe.Param() + " sub_questions"
+	case "singleBlank":
+		s := strings.Split(fe.Param(), ",")
+		return "The length of array is required to be 1 when the question_type is '" + s[0] + "' in the " + s[1] + " sub_questions"
+	case "lenAnswer":
+		s := strings.Split(fe.Param(), ",")
+		return "The length of the solutions does not equal to the blank length " + s[1] + " of grader '" + s[0] + "' in the " + s[2] + " sub_questions"
+	case "notValidAnswer":
+		return "The type of this field should two-dimensional array of string in the " + fe.Param() + " sub_questions"
+	case "requiredChoice":
+		return "This field is required when the grader name contains 'choice' in the " + fe.Param() + " sub_questions"
 	}
 	fmt.Println(fe.Namespace())
 	fmt.Println(fe.Field())
