@@ -248,6 +248,22 @@ func GetUploadStatus(question_type, course string) bool {
 	return grader.Uploaded
 }
 
+func GetBasicGraderDict() map[string]Grader_API {
+	grader_dict := make(map[string]Grader_API)
+	var blanks []Blanks
+	blanks = append(blanks, Blanks{Type: "string"})
+	for _, grader := range global.Settings.Basic_Grader {
+		grader_dict[grader] = Grader_API{
+			Name:         grader,
+			Blanks:       blanks,
+			BlanksNumber: 1,
+			Valid:        true,
+			Uploaded:     true,
+		}
+	}
+	return grader_dict
+}
+
 func (grader *PythonFile) Code() string {
 	return string(grader.PythonGrader[:])
 }

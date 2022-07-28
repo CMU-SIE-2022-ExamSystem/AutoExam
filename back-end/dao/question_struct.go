@@ -10,7 +10,6 @@ type Choice struct {
 	Content  string `json:"content" bson:"content"`
 }
 
-// sub question with answer
 type Sub_Question struct {
 	Grader      string     `json:"grader" bson:"grader"`           // sub question's grader
 	Description string     `json:"description" bson:"description"` // sub question's content
@@ -18,23 +17,31 @@ type Sub_Question struct {
 	Solutions   [][]string `json:"solutions" bson:"solutions"`     // solutions of the sub question, the design for 2D slices is that the first dimension would be capable of multiple blanks while the second dimension would be used when if multiple solutions are all correct\n example: [["A", "B"], ["C"]]
 }
 
+type Sub_Question_Blank struct {
+	Grader      string     `json:"grader" bson:"grader"`           // sub question's grader
+	Description string     `json:"description" bson:"description"` // sub question's content
+	Choices     []Choice   `json:"choices" bson:"choices"`         // required for "choices" type sub question
+	Solutions   [][]string `json:"solutions" bson:"solutions"`     // solutions of the sub question, the design for 2D slices is that the first dimension would be capable of multiple blanks while the second dimension would be used when if multiple solutions are all correct\n example: [["A", "B"], ["C"]]
+	Blanks      []Blanks   `json:"blanks" bson:"blanks"`           // detail of blanks of sub question, based on grader
+}
+
 type AutoExam_Questions struct {
-	ObjectID          primitive.ObjectID `bson:"_id" json:"_id"`
-	Title             string             `json:"title" bson:"title"`
-	Description       string             `json:"description" bson:"description"`
-	BaseCourse        string             `yaml:"base_course" json:"base_course" bson:"base_course" form:"base_course" binding:"required"`
-	Tag               string             `json:"question_tag" bson:"question_tag"`
-	SubQuestions      []Sub_Question     `json:"sub_questions" bson:"sub_questions"`
-	SubQuestionNumber int                `json:"sub_question_number" bson:"sub_question_number"`
+	ObjectID          primitive.ObjectID   `bson:"_id" json:"_id"`
+	Title             string               `json:"title" bson:"title"`
+	Description       string               `json:"description" bson:"description"`
+	BaseCourse        string               `yaml:"base_course" json:"base_course" bson:"base_course" form:"base_course" binding:"required"`
+	Tag               string               `json:"question_tag" bson:"question_tag"`
+	SubQuestions      []Sub_Question_Blank `json:"sub_questions" bson:"sub_questions"`
+	SubQuestionNumber int                  `json:"sub_question_number" bson:"sub_question_number"`
 }
 
 type AutoExam_Questions_Create struct {
-	Title             string         `json:"title" bson:"title"`
-	Description       string         `json:"description" bson:"description"`
-	BaseCourse        string         `yaml:"base_course" json:"base_course" bson:"base_course" form:"base_course" binding:"required"`
-	Tag               string         `json:"question_tag" bson:"question_tag"`
-	SubQuestions      []Sub_Question `json:"sub_questions" bson:"sub_questions"`
-	SubQuestionNumber int            `json:"sub_question_number" bson:"sub_question_number"`
+	Title             string               `json:"title" bson:"title"`
+	Description       string               `json:"description" bson:"description"`
+	BaseCourse        string               `yaml:"base_course" json:"base_course" bson:"base_course" form:"base_course" binding:"required"`
+	Tag               string               `json:"question_tag" bson:"question_tag"`
+	SubQuestions      []Sub_Question_Blank `json:"sub_questions" bson:"sub_questions"`
+	SubQuestionNumber int                  `json:"sub_question_number" bson:"sub_question_number"`
 }
 
 type Tags_Return struct {
@@ -43,12 +50,12 @@ type Tags_Return struct {
 
 // @Description questions model info
 type Questions struct {
-	Id                string         `bson:"id" json:"id"`                                   // question id
-	Title             string         `json:"title" bson:"title"`                             // question title
-	Description       string         `json:"description" bson:"description"`                 // question content details
-	Tag               string         `json:"question_tag" bson:"question_tag"`               // tag of the question, would return tag name
-	SubQuestions      []Sub_Question `json:"sub_questions" bson:"sub_questions"`             // detail of sub_questions
-	SubQuestionNumber int            `json:"sub_question_number" bson:"sub_question_number"` // number of sub_questions
+	Id                string               `bson:"id" json:"id"`                                   // question id
+	Title             string               `json:"title" bson:"title"`                             // question title
+	Description       string               `json:"description" bson:"description"`                 // question content details
+	Tag               string               `json:"question_tag" bson:"question_tag"`               // tag of the question, would return tag name
+	SubQuestions      []Sub_Question_Blank `json:"sub_questions" bson:"sub_questions"`             // detail of sub_questions
+	SubQuestionNumber int                  `json:"sub_question_number" bson:"sub_question_number"` // number of sub_questions
 }
 
 // @Description questions model info
@@ -60,8 +67,11 @@ type Questions_Create struct {
 }
 
 type Questions_Create_Validate struct {
-	BaseCourse string `yaml:"base_course" json:"base_course" bson:"base_course" form:"base_course" binding:"required"`
-	Questions_Create
+	BaseCourse   string               `yaml:"base_course" json:"base_course" bson:"base_course" form:"base_course" binding:"required"`
+	Title        string               `json:"title" bson:"title"`               // question title
+	Description  string               `json:"description" bson:"description"`   // question content details
+	Tag          string               `json:"question_tag" bson:"question_tag"` // tag of the question, only accept the tag id
+	SubQuestions []Sub_Question_Blank `json:"sub_questions" bson:"sub_questions"`
 }
 
 func (autoexam *AutoExam_Questions) ToQuestions() Questions {

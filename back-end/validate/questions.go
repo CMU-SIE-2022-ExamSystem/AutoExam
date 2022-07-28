@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/go-playground/validator/v10"
@@ -18,7 +17,7 @@ func QuestionsCreateValidation(sl validator.StructLevel) {
 		sl.ReportError(question.Tag, "question_tag", "Tag", "notValidTag", question.BaseCourse)
 	}
 
-	grader_dict := course.GetBasicGraderLenDict()
+	grader_dict := dao.GetBasicGraderDict()
 
 	// validate sub questions
 	for i, sub_question := range question.SubQuestions {
@@ -39,11 +38,14 @@ func QuestionsCreateValidation(sl validator.StructLevel) {
 		_, ok := grader_dict[grader_name]
 		if !ok {
 			grader, _ := dao.ReadGrader(grader_name, question.BaseCourse)
-			grader_dict[grader_name] = grader.BlanksNumber
+			grader_dict[grader_name] = grader
 		}
-		if grader_dict[grader_name] != len(sub_question.Solutions) {
-			sl.ReportError(sub_question.Solutions, "solutions", "Solutions", "lenAnswer", grader_name+","+strconv.Itoa(grader_dict[grader_name])+","+utils.Ordinalize(i+1))
+		if grader_dict[grader_name].BlanksNumber != len(sub_question.Solutions) {
+			sl.ReportError(sub_question.Solutions, "solutions", "Solutions", "lenAnswer", grader_name+","+strconv.Itoa(grader_dict[grader_name].BlanksNumber)+","+utils.Ordinalize(i+1))
+			break
 		}
+
+		question.SubQuestions[i].Blanks = grader_dict[grader_name].Blanks
 
 		// validate choices required for "choices" grader
 		if strings.Contains(grader_name, "choice") {
