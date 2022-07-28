@@ -21,7 +21,7 @@ const OneInMultipleBlank = ({placeholder, index, storageKey} : {placeholder: str
 
 const MultipleBlank = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
     let blanks = data.choices.map((placeholder, index) => {
-        let storageKey = `Q${headerId}_sub${data.questionId}_sub${placeholder.choiceId}`;
+        let storageKey = `Q${headerId}_sub${data.question_id}_sub${placeholder.choice_id}`;
         return (
             <OneInMultipleBlank
                 placeholder={placeholder.content}
@@ -34,7 +34,7 @@ const MultipleBlank = ({data, headerId} : {data: subQuestionDataType, headerId: 
     });
 
     return (
-        <QuestionLayout questionId={data.questionId.toString()} description={data.description}>
+        <QuestionLayout questionId={data.question_id.toString()} description={data.description}>
             {blanks}
         </QuestionLayout>
     );

@@ -12,10 +12,15 @@ import HTMLEditor from "../../../components/HTMLEditor";
 import AddSingleBlank from '../../../components/questionTemplate/AddSingleBlank';
 import AddChoice from '../../../components/questionTemplate/AddChoice';
 
+interface tagProps {
+    id: string;
+    name: string;
+}
+
 const AddTagModal = ({show, errorMessage, onClose, onSubmit, clearMessage}: {show: boolean, errorMessage: string, onClose: () => void, onSubmit: (tag: string) => void, clearMessage: () => void}) => {
     const [value, setValue] = useState("");
     return (
-        <Modal show={show} onHide={onClose}>
+        <Modal show={show} onHide={() => {onClose(); clearMessage()}}>
             <Modal.Header closeButton>
                 <Modal.Title>Add New Tag</Modal.Title>
             </Modal.Header>
@@ -26,10 +31,10 @@ const AddTagModal = ({show, errorMessage, onClose, onSubmit, clearMessage}: {sho
                             onChange={(event) => {setValue(event.target.value); clearMessage();}}/>
                     </Form.Group>
                     <div>
-                        <small className="text-dander">{errorMessage}</small>
+                        <small className="text-danger">{errorMessage}</small>
                     </div>
                     <div className="text-end">
-                        <Button variant="secondary" onClick={onClose}>Cancel</Button>
+                        <Button variant="secondary" onClick={() => {onClose(); clearMessage()}}>Cancel</Button>
                         <Button variant="primary" type="submit" className="ms-2">Add</Button>
                     </div>
                 </Form>
@@ -113,7 +118,7 @@ const QuestionsByTag = ({questionsByTag}: {questionsByTag: questionDataType[]}) 
             <Col sm={10}>
                 {
                     questionsByTag.map((question) => {
-                        return <CollapseQuestion questionData={question}/>
+                        return <CollapseQuestion questionData={question} key={question.id}/>
                     })
                 }
             </Col>
@@ -125,13 +130,14 @@ function QuestionBank () {
     const params = useParams();
     const {globalState} = useGlobalState();
 
-    const [tags, setTags] = useState<string[]>(["Integer", "Float", "Cache", "Memory"]);
+    const [tags, setTags] = useState<tagProps[]>([]);
     const [addTagShow, setAddTagShow] = useState(false);
 
     const getTags = useCallback(async () => {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/tags");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
+        console.log(result.data.data);
         setTags(result.data.data);
     }, [globalState.token, params.course_name]);
 
@@ -142,19 +148,18 @@ function QuestionBank () {
     const [invalidAddTag, setInvalidAddTag] = useState("");
 
     const addNewTag = async (tag: string) => {
-        const postUrl = getBackendApiUrl("/courses/" + params.course_name + "/tags");
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/tags");
         const token = globalState.token;
         const data = {
             name: tag
         };
-        axios.post(postUrl, data, {headers: {Authorization: "Bearer " + token}})
+        axios.post(url, data, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
-                setTags((prevTags: string[]) => [...prevTags, tag]);
                 setAddTagShow(false);
             })
             .catch((error: any) => {
                 let response = error.response.data;
-                setInvalidAddTag(response.error.message);
+                setInvalidAddTag(response.error.message[0].message);
             });
     };
 
@@ -165,6 +170,7 @@ function QuestionBank () {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/questions");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
+        console.log(result.data.data);
         setQuestions(result.data.data);
     }, [globalState.token, params.course_name]);
 
@@ -175,11 +181,11 @@ function QuestionBank () {
     const updateTagQuestionMap = (questions: questionDataType[]) => {
         let tagQuestionMap = new Map<string, questionDataType[]>();
         for (let i = 0; i < questions.length; i++) {
-            const tag = questions[i].questionTag;
-            if (!tagQuestionMap.has(tag)) {
-                tagQuestionMap.set(tag, [questions[i]]);
+            const tagName = questions[i].question_tag;
+            if (!tagQuestionMap.has(tagName)) {
+                tagQuestionMap.set(tagName, [questions[i]]);
             } else {
-                (tagQuestionMap.get(tag) as questionDataType[]).push(questions[i]);
+                (tagQuestionMap.get(tagName) as questionDataType[]).push(questions[i]);
             }
         }
         return tagQuestionMap;
@@ -191,50 +197,54 @@ function QuestionBank () {
             <Row>
                 <TopNavbar brand={params.course_name} brandLink={"/courses/"+params.course_name}/>
             </Row>
-            <Tab.Container id="questionBank" defaultActiveKey={params.tag || tags[0]}>
+            <Tab.Container id="questionBank" defaultActiveKey={params.tag || tags[0].name}>
                 <Row>
                     <Col xs={2} className="d-flex flex-column bg-light vh-100 sticky-top text-start">
                         <Nav variant="pills" className="my-3">
-                            {tags.map((tag) => (
-                                <Row className="d-flex flex-row align-items-center vw-100">
-                                    <Col xs={7}>
-                                        <Nav.Item>
-                                            <Nav.Link eventKey={tag} href={tag}>{tag}</Nav.Link>
-                                        </Nav.Item>
-                                    </Col>
-                                    <Col xs={5} className="text-end">
-                                        <i className="bi-pencil-square" style={{cursor: "pointer"}}/>
-                                        <i className="bi-trash mx-2" style={{cursor: "pointer"}}/>
-                                    </Col>
-                                </Row>
-                            ))}
+                            {params.tag !== "null" &&
+                                tags.map((tag) => (
+                                    <Row className="d-flex flex-row align-items-center vw-100">
+                                        <Col xs={8}>
+                                            <Nav.Item>
+                                                <Nav.Link eventKey={tag.name} href={tag.name}>{tag.name}</Nav.Link>
+                                            </Nav.Item>
+                                        </Col>
+                                        <Col xs={4} className="text-end">
+                                            <i className="bi-pencil-square" style={{cursor: "pointer"}}/>
+                                            <i className="bi-trash mx-2" style={{cursor: "pointer"}}/>
+                                        </Col>
+                                    </Row>
+                                ))
+                            }
                         </Nav>
                         <i className="bi-plus-square ms-3" style={{cursor: "pointer"}} onClick={() => setAddTagShow(true)}/>
                     </Col>
-                    <Col xs={10}>
-                        <Row className="text-end">
-                            <Link to="#"><Button variant="primary" className='me-4 my-4' onClick={() => setAddQuestionShow(true)}>Add Question</Button></Link>
-                        </Row>
-                        <Tab.Content className="text-start mx-4">
-                            {tags.map((tag) => {
-                                if (tagQuestionMap.has(tag)) return (
-                                    <Tab.Pane eventKey={tag}>
-                                        <QuestionsByTag questionsByTag={(tagQuestionMap.get(tag) as questionDataType[])}/>
-                                    </Tab.Pane>
-                                    );
-                                else return (
-                                    <Tab.Pane eventKey={tag}>
-                                        <p>No questions in this tag!</p>
-                                    </Tab.Pane>
-                                    );
-                            })}
-                        </Tab.Content>
-                    </Col>
+                    {params.tag !== "null" &&
+                        <Col xs={10}>
+                            <Row className="text-end">
+                                <Link to="#"><Button variant="primary" className='me-4 my-4' onClick={() => setAddQuestionShow(true)}>Add Question</Button></Link>
+                            </Row>
+                            <Tab.Content className="text-start mx-4">
+                                {tags.map((tag) => {
+                                    if (tagQuestionMap.has(tag.name)) return (
+                                        <Tab.Pane eventKey={tag.name}>
+                                            <QuestionsByTag questionsByTag={(tagQuestionMap.get(tag.name) as questionDataType[])} key={tag.name}/>
+                                        </Tab.Pane>
+                                        );
+                                    else return (
+                                        <Tab.Pane eventKey={tag.name}>
+                                            <p>No questions in this tag!</p>
+                                        </Tab.Pane>
+                                        );
+                                })}
+                            </Tab.Content>
+                        </Col>
+                    }
                 </Row>
                 <AddTagModal show={addTagShow}
                     errorMessage={invalidAddTag}
                     onClose={() => setAddTagShow(false)}
-                    onSubmit={(tag) => {addNewTag(tag)}}
+                    onSubmit={(tagName) => {addNewTag(tagName)}}
                     clearMessage={() => setInvalidAddTag("")}/>
                 <AddQuestionModal tag={(params.tag as string)}
                     show={addQuestionShow}

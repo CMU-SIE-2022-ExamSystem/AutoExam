@@ -5,16 +5,16 @@ import { subQuestionDataType } from "./subQuestionDataType";
 import usePersistState from "../../utils/usePersistState";
 
 const SingleBlank = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
-    const {value, setValue} = usePersistState("", `Q${headerId}_sub${data.questionId}`)
+    const {value, setValue} = usePersistState("", `Q${headerId}_sub${data.question_id}`)
     let placeholder: string = "";
     if (data.choices.length > 0) {
         placeholder = data.choices[0].content;
     }
     return (
-        <QuestionLayout questionId={data.questionId.toString()} description={data.description}>
+        <QuestionLayout questionId={data.question_id.toString()} description={data.description}>
             <Form.Control type="text"
                           placeholder={placeholder}
-                          id={`Q${headerId}_sub${data.questionId}`}
+                          id={`Q${headerId}_sub${data.question_id}`}
                           className="w-50 mb-2"
                           value={value}
                           onChange={(event) => {
