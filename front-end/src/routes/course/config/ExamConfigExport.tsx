@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ExamConfigPublish = () => {
+const ExamConfigExport = () => {
     return (
         <div>
             {/**/}
@@ -8,4 +8,4 @@ const ExamConfigPublish = () => {
     )
 }
 
-export default ExamConfigPublish;
+export default ExamConfigExport;
