@@ -45,6 +45,11 @@ type Grader_Valid struct {
 	Valid bool `json:"valid"`
 }
 
+type Test_Grader struct {
+	Answer   string `json:"answer"`
+	Solution string `json:"solution"`
+}
+
 func GetCourseGrader(c *gin.Context) (string, string) {
 	course := GetCourse(c)
 	grader := c.Param("grader_name")

@@ -32,6 +32,41 @@ func ReadAllQuestions(base_course string) ([]Questions, error) {
 	return questions, err
 }
 
+func ReadQuestionById(id string) (Questions, error) {
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
+
+	objectid, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.D{{Key: "_id", Value: objectid}}
+
+	var tags AutoExam_Questions
+	err := collection.FindOne(context.TODO(), filter).Decode(&tags)
+	return tags.ToQuestions(), err
+}
+
+func ReadAllQuestionsByTag(base_course, tag_id string) ([]Questions, error) {
+	if tag_id == "" {
+		return ReadAllQuestions(base_course)
+	}
+
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
+	filter := bson.D{{Key: "question_tag", Value: tag_id}}
+
+	cursor, err := collection.Find(context.TODO(), filter)
+
+	var questions []Questions
+
+	for cursor.Next(context.TODO()) {
+		var autoexam AutoExam_Questions
+		cursor.Decode(&autoexam)
+		questions = append(questions, autoexam.ToQuestions())
+	}
+	return questions, err
+}
+
 func CreateQuestion(question AutoExam_Questions_Create) (Questions, error) {
 	client := global.Mongo
 	//get the collection instance
@@ -50,19 +85,6 @@ func CreateQuestion(question AutoExam_Questions_Create) (Questions, error) {
 		return Questions{}, err
 	}
 	return ReadQuestionById(result.InsertedID.(primitive.ObjectID).Hex())
-}
-
-func ReadQuestionById(id string) (Questions, error) {
-	client := global.Mongo
-	//get the collection instance
-	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
-
-	objectid, _ := primitive.ObjectIDFromHex(id)
-	filter := bson.D{{Key: "_id", Value: objectid}}
-
-	var tags AutoExam_Questions
-	err := collection.FindOne(context.TODO(), filter).Decode(&tags)
-	return tags.ToQuestions(), err
 }
 
 func UpdateQuestions(id string, question AutoExam_Questions_Create) error {

@@ -1,12 +1,18 @@
 package controller
 
 import (
+	"bytes"
+	"os"
+	"os/exec"
+	"syscall"
+
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/validate"
+	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
@@ -382,4 +388,26 @@ func upload_and_store_grader(c *gin.Context, base_course, grader_name string, bo
 	course.StoreFile(c, file)
 
 	response.SuccessResponse(c, grader)
+}
+
+func Testgrader_Handler(c *gin.Context) {
+	question_type := c.Param("question_type")
+	base_course, _ := course.GetBaseCourseGrader(c)
+	color.Yellow(base_course)
+	dao.SearchAndStore_grader(c, question_type, base_course, "./autograder/exec/autograders/")
+
+	var stdout, stderr bytes.Buffer
+	cmd := exec.Command("python", "main.py", question_type)
+	cmd.Dir = "./autograder/exec/"
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	os.Remove("./autograder/exec/autograders/" + question_type + ".py")
+	if err != nil {
+		response.ErrorInternaWithData(c, err.Error(), stdout.String()+stderr.String())
+	} else {
+		dao.UpdateGraderValid(question_type, base_course, true)
+		response.SuccessResponse(c, stdout.String())
+	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -176,6 +177,7 @@ func Take_exam_Test(c *gin.Context) {
 
 func Autograder_Test(c *gin.Context) {
 	question_type := c.Param("question_type")
+	// dao.SearchAndStore_grader(c, question_type, "./autograder/exec/autograders/")
 
 	var stdout, stderr bytes.Buffer
 	cmd := exec.Command("python", "main.py", question_type)
@@ -184,6 +186,7 @@ func Autograder_Test(c *gin.Context) {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
+	os.Remove("./autograder/exec/autograders/" + question_type + ".py")
 	if err != nil {
 		// color.Red(err.Error())
 		// color.Red(stdout.String())

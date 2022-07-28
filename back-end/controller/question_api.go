@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"fmt"
-
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
@@ -23,6 +21,7 @@ const (
 // @Accept json
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
+// @Param		tag_id				query	string	false	"Tag Id"
 // @Success 200 {object} response.Response{data=[]dao.Questions} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
@@ -33,10 +32,8 @@ const (
 func ReadAllQuestion_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 	_, base_course := course.GetCourseBaseCourse(c)
-
-	fmt.Println(base_course)
-
-	questions, err := dao.ReadAllQuestions(base_course)
+	tag_id := course.GetQueryTagId(c)
+	questions, err := dao.ReadAllQuestionsByTag(base_course, tag_id)
 	if err != nil {
 		response.ErrMongoDBReadAllResponse(c, Que_Model)
 	}

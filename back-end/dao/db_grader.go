@@ -160,9 +160,9 @@ func ReadGrader(question_type, course string) (Grader_API, error) {
 	return instance.ToGraderAPI(), nil
 }
 
-func SearchAndStore_grader(c *gin.Context, question_type string, file_path string) {
+func SearchAndStore_grader(c *gin.Context, question_type string, course string, file_path string) {
 	var new_data PythonFile
-	rows := global.DB.Where(&PythonFile{QuestionType: question_type}).Find(&new_data)
+	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&new_data)
 	if rows.RowsAffected < 1 {
 		response.ErrDBResponse(c, "The corresponding grader of this question type can not be found.")
 		return

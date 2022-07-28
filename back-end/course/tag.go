@@ -14,6 +14,14 @@ func GetCourseTagID(c *gin.Context) (string, string) {
 	return course, tag_id
 }
 
+func GetBaseCourseTagID(c *gin.Context) (string, string) {
+	_, base := GetCourseBaseCourse(c)
+	tag_id := c.Param("tag_id")
+	Validate_tag(c, base, tag_id)
+
+	return base, tag_id
+}
+
 func Validate_tag(c *gin.Context, course, tag_id string) {
 	if status, err := dao.ValidateTagById(course, tag_id); err != nil {
 		response.ErrMongoDBReadResponse(c, "tag")

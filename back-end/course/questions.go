@@ -17,3 +17,13 @@ func GetBaseCourseQuestion(c *gin.Context) (string, string) {
 	}
 	return base, question
 }
+
+func GetQueryTagId(c *gin.Context) string {
+	_, base := GetCourseBaseCourse(c)
+	tag_id := c.Query("tag_id")
+	if tag_id == "" {
+		return tag_id
+	}
+	Validate_tag(c, base, tag_id)
+	return tag_id
+}
