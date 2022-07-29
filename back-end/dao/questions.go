@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
@@ -156,4 +157,21 @@ func ValidateQuestionUsedById(id string) (bool, error) {
 	// 	return false, err
 	// }
 	return false, nil
+}
+
+func GetAllSubQuestionNumber(base_course string) ([]int, []string) {
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
+	filter := bson.D{{Key: "base_course", Value: base_course}}
+
+	results, _ := collection.Distinct(context.TODO(), "sub_question_number", filter)
+
+	var numbers []int
+	var numbers_text []string
+	for _, result := range results {
+		numbers = append(numbers, int(result.(int32)))
+		numbers_text = append(numbers_text, strconv.Itoa(int(result.(int32))))
+	}
+	return numbers, numbers_text
 }

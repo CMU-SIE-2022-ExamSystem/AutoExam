@@ -28,9 +28,16 @@ type AutoExam_Assessments_Create struct {
 	Category_name string `yaml:"category_name" json:"category_name" bson:"category_name" default:"Exam" binding:"required,oneof=Exam Quiz"`
 }
 
+// @Description assessment update structure
 type AutoExam_Assessments_Update struct {
-	General  General    `yaml:"general" json:"general"`
-	Settings []Settings `yaml:"settings" json:"settings"`
+	General  General    `yaml:"general" json:"general"`   // general details of the assessment
+	Settings []Settings `yaml:"settings" json:"settings"` // questions settings of the assessment
+}
+
+type AutoExam_Assessments_Update_Validate struct {
+	BaseCourse string
+	General    General    `yaml:"general" json:"general"`   // general details of the assessment
+	Settings   []Settings `yaml:"settings" json:"settings"` // questions settings of the assessment
 }
 
 type General struct {
@@ -39,16 +46,18 @@ type General struct {
 	Category_name    string `yaml:"category_name" json:"category_name" bson:"category_name" default:"Exam" binding:"required,oneof=Exam Quiz"`
 	Start_at         string `yaml:"start_at" json:"start_at" bson:"start_at" default:"2022-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`
 	End_at           string `yaml:"end_at" json:"end_at" bson:"end_at" default:"2023-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`
-	Grading_deadline string `yaml:"grading_deadline" json:"grading_deadline" bson:"grading_deadline" default:"2023-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`
+	Grading_deadline string `yaml:"grading_deadline" json:"grading_deadline" bson:"grading_deadline" default:"2023-06-16T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`
 	MaxSubmissions   int    `yaml:"max_submissions" json:"max_submissions" bson:"max_submissions" binding:"required,gte=1"`
 }
 
+// @Description questions settings structure
 type Settings struct {
-	Id        int    `yaml:"id" json:"id" bson:"id"`
-	Title     string `yaml:"title" json:"title" bson:"title" default:"title"`
-	Tag       string `yaml:"tag" json:"tag" bson:"tag" binding:"required"`
-	Max_score int    `yaml:"max_score" json:"max_score" bson:"max_score"`
-	Score     []int  `yaml:"score" json:"score" bson:"score"`
+	Id                []string  `yaml:"id" json:"id" bson:"id"`                                                                       // specify the possible question ids for the assessment, can be empty. If there are multiple ids, the exam would randomly choose from those ids. If there is no id, the exam would randomly select the question based on tag_id and sub_question_number
+	Title             string    `yaml:"title" json:"title" bson:"title" default:"title"`                                              // title for the exam of this question
+	Tag               string    `yaml:"tag" json:"tag" bson:"tag" binding:"required"`                                                 // tag id of this question
+	Max_score         float64   `yaml:"max_score" json:"max_score" bson:"max_score"`                                                  // max score of this question
+	Scores            []float64 `yaml:"scores" json:"scores" bson:"scores"`                                                           // detail sub score for each sub_question, can be empty. If this field is empty, the sub score would be divide equally based on max_score and sub_question_number
+	SubQuestionNumber int       `yaml:"sub_question_number" json:"sub_question_number" bson:"sub_question_number" binding:"required"` // sub question number of this question, cannot be empty
 }
 
 type Problems struct {
@@ -58,7 +67,6 @@ type Problems struct {
 	MaxScore    int           `yaml:"max_score" json:"max_score" bson:"max_score"`
 	Optional    bool          `yaml:"optional" json:"optional" bson:"optional"`
 }
-
 type Description struct {
 	Name string `yaml:"name" json:"name" bson:"name"`
 	//Answer string `yaml:"answer" json:"answer" bson:"answer"`
@@ -101,7 +109,7 @@ func (assessment *AutoExam_Assessments_Create) ToAutoExamAssessments(course stri
 	return autoexam
 }
 
-func (assessment *AutoExam_Assessments_Update) ToAutoExamAssessments(course string) AutoExam_Assessments {
+func (assessment *AutoExam_Assessments_Update_Validate) ToAutoExamAssessments(course string) AutoExam_Assessments {
 	assessment.General.Start_at = Time_to_EST(assessment.General.Start_at)
 	assessment.General.End_at = Time_to_EST(assessment.General.End_at)
 	assessment.General.Grading_deadline = Time_to_EST(assessment.General.Grading_deadline)

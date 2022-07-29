@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -74,7 +73,10 @@ func Usercoursesinfo_Handler(c *gin.Context) {
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Response{data=[]models.Autolab_Assessments} "desc"
+// @Success 200 {object} response.Response{data=[]models.Autolab_Assessments} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 404 {object} response.NotValidResponse{error=response.CourseNotValidError} "not valid of course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBReadAllError} "mongo error"
 // @Param		course_name			path	string	true	"Course Name"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments [get]
@@ -90,7 +92,7 @@ func Assessments_Handler(c *gin.Context) {
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Response{data=models.Submissions} "desc"
+// @Success 200 {object} response.Response{data=models.Submissions} "success"
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Security ApiKeyAuth
@@ -120,7 +122,7 @@ func Submissions_Handler(c *gin.Context) {
 // @Tags exam
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Response{data=dao.Categories_Return} "desc"
+// @Success 200 {object} response.Response{data=dao.Categories_Return} "success"
 // @Security ApiKeyAuth
 // @Router /courses/assessments/config/categories [get]
 func AssessmentCategories_Handler(c *gin.Context) {
@@ -137,15 +139,20 @@ func AssessmentCategories_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param data body dao.AutoExam_Assessments_Create true "body data"
-// @Success 201 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
+// @Success 201 {object} response.Response{data=dao.AutoExam_Assessments} "created"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.CourseNotValidError} "not valid of course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBCreateError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/ [post]
 func CreateAssessment_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
+	course_name, _ := course.GetCourseBaseCourse(c)
 
 	var body dao.AutoExam_Assessments_Create
 	validate.ValidateJson(c, &body)
-	course_name := course.GetCourse(c)
+
 	course.Validate_assessment_name(c, course_name, body.Name)
 	assessment := body.ToAutoExamAssessments(course_name)
 
@@ -166,13 +173,19 @@ func CreateAssessment_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
-// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
+// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBReadError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name} [get]
 func ReadAssessment_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
 	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
+
 	assessment := read_assessment(c, course_name, assessment_name)
 	response.SuccessResponse(c, assessment)
 }
@@ -187,15 +200,20 @@ func ReadAssessment_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Param data body dao.AutoExam_Assessments_Update true "body data"
-// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "desc"
+// @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.AssessmentModifyNotSafeError} "not update safe or no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBUpdateError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name} [put]
 func UpdateAssessment_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
-
 	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
 
-	var body dao.AutoExam_Assessments_Update
+	var body dao.AutoExam_Assessments_Update_Validate
+	_, body.BaseCourse = course.GetCourseBaseCourse(c)
 	validate.ValidateJson(c, &body)
 	assessment := body.ToAutoExamAssessments(course_name)
 
@@ -209,9 +227,6 @@ func UpdateAssessment_Handler(c *gin.Context) {
 	// check mongo error
 	err := dao.UpdateExam(course_name, assessment_name, assessment)
 	if err != nil {
-		fmt.Println("==========")
-		fmt.Println(err)
-		fmt.Println("==========")
 		response.ErrMongoDBUpdateResponse(c, "assessment")
 	}
 
@@ -227,13 +242,18 @@ func UpdateAssessment_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
-// @Success 204
+// @Success 204 "no content"
+// @Failure 400 {object} response.BadRequestResponse{error=response.AssessmentModifyNotSafeError} "not delete safe or no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBDeleteError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name} [delete]
 func DeleteAssessment_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
 	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
 	err := dao.DeleteExam(course_name, assessment_name)
 	if err != nil {
 		response.ErrMongoDBDeleteResponse(c, "assessment")
@@ -251,13 +271,18 @@ func DeleteAssessment_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Param data body dao.Draft true "body data"
-// @Success 200 {object} response.Response{data=dao.Draft} "desc"
+// @Success 200 {object} response.Response{data=dao.Draft} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBUpdateError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name}/draft [put]
 func DraftAssessment_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
 	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
 
 	var body dao.Draft
 	validate.ValidateJson(c, &body)
@@ -274,9 +299,6 @@ func DraftAssessment_Handler(c *gin.Context) {
 
 	err := dao.UpdateExam(course_name, assessment_name, assessment)
 	if err != nil {
-		fmt.Println("==========")
-		fmt.Println(err)
-		fmt.Println("==========")
 		response.ErrMongoDBUpdateResponse(c, "assessment")
 	}
 	response.SuccessResponse(c, assessment)
@@ -295,6 +317,7 @@ func DraftAssessment_Handler(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name}/download [get]
 // @Success 404 {object} response.Response{} "Not found course"
+// @deprecated
 func DownloadAssessments_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
