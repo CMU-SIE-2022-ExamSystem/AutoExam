@@ -1,6 +1,11 @@
 import React, {useState} from 'react';
-import {Button, Col, Modal, Row} from "react-bootstrap";
+import {Alert, Button, Col, Modal, Row} from "react-bootstrap";
 import {useConfigStates} from "./ExamConfigStates";
+import {getBackendApiUrl} from "../../../utils/url";
+import axios from "axios";
+import {useNavigate, useParams} from "react-router-dom";
+import {useGlobalState} from "../../../components/GlobalStateProvider";
+import {RightBottomAlert} from "../../../components/RightBottomAlert";
 
 const PublishModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () => void, onClose: () => void }) => {
     return (
@@ -15,7 +20,7 @@ const PublishModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () =
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="secondary" onClick={onClose}>Close</Button>
+                <Button variant="secondary" onClick={onClose}>Back</Button>
                 <Button variant="primary" onClick={onSubmit}>Confirm</Button>
             </Modal.Footer>
         </Modal>
@@ -30,11 +35,11 @@ const RemoveModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () =>
             </Modal.Header>
 
             <Modal.Body>
-                <p>You are deleting this exam.</p>
+                <p>You are permanently removing this exam. This operation cannot be undone.</p>
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="secondary" onClick={onClose}>Close</Button>
+                <Button variant="secondary" onClick={onClose}>Back</Button>
                 <Button variant="danger" onClick={onSubmit}>Delete</Button>
             </Modal.Footer>
         </Modal>
@@ -45,6 +50,18 @@ const ExamConfigExport = () => {
     let {examConfigState} = useConfigStates();
     const [publishModalShow, setPublishModalShow] = useState<boolean>(false);
     const publishedText = !!(examConfigState?.draft) ? "No" : "Yes";
+
+    const [alertVariant, setAlertVariant] = useState<string>("success");
+    const [alertShow, setAlertShow] = useState<boolean>(false);
+    const [alertContent, setAlertContent] = useState<string>("");
+
+
+    let params = useParams();
+    const courseName = params.course_name;
+    const examId = params.exam_id;
+    const {globalState} = useGlobalState();
+    const navigate = useNavigate();
+
     const publishOnClick = () => {
         setPublishModalShow(true);
     }
@@ -55,8 +72,21 @@ const ExamConfigExport = () => {
     const removeOnClick = () => {
         setRemoveModalShow(true);
     }
-    const removeOnSubmit = () => {
+    const removeOnSubmit = async () => {
         setRemoveModalShow(false);
+        const url = getBackendApiUrl("/courses/" + courseName + "/assessments/" + examId);
+        const token = globalState.token;
+        axios.delete(url, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                navigate("/courses/" + courseName);
+            })
+            .catch(onFailure => {
+                setAlertVariant("danger");
+                setAlertContent(onFailure.toString().substring(0, 50))
+                console.error(onFailure);
+                setAlertShow(true);
+            });
+
     }
     const downloadExamPackage = () => {
         console.log("downloadExam");
@@ -82,6 +112,7 @@ const ExamConfigExport = () => {
             </Row>
             <PublishModal show={publishModalShow} onSubmit={publishOnSubmit} onClose={() => setPublishModalShow(false)}/>
             <RemoveModal show={removeModalShow} onSubmit={removeOnSubmit} onClose={() => setRemoveModalShow(false)} />
+            <RightBottomAlert variant={alertVariant} content={alertContent} show={alertShow} onClose={() => {setAlertShow(false)}} />
         </div>
     );
 }

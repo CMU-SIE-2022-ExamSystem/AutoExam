@@ -20,7 +20,7 @@ const BackModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () => v
             </Modal.Header>
 
             <Modal.Body>
-                <p>You are returning back to the assessment page.</p>
+                <p>You are returning back to the assessment page, and all unsaved changes will be discarded.</p>
             </Modal.Body>
 
             <Modal.Footer>
