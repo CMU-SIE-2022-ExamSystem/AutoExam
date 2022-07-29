@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Button, Col, Form, InputGroup, Modal, Nav, Row, Tab} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../../components/TopNavbar";
@@ -54,6 +54,7 @@ const EditTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessage}
                 <Form onSubmit={(event) => {event.preventDefault(); onSubmit(tag.id, value);}}>
                     <Form.Group className="my-4">
                         <Form.Control type="text" placeholder="New Tag Name" required autoFocus id="edit-tag-name"
+                            // defaultValue={tag.name}
                             onChange={(event) => {setValue(event.target.value); clearMessage();}}/>
                     </Form.Group>
                     <div>
@@ -66,7 +67,26 @@ const EditTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessage}
                 </Form>
             </Modal.Body>
         </Modal>
+    );
+}
 
+const DeleteTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessage}: {show: boolean, tag: tagProps, errorMessage: string, onClose: () => void, onSubmit: (id: string) => void, clearMessage: () => void}) => {
+    return (
+        <Modal show={show} onHide={() => {onClose(); clearMessage()}}>
+            <Modal.Header closeButton>
+                <Modal.Title>Delete Tag</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                Do you want to delete this tag?
+                <div>
+                    <small className="text-danger">{errorMessage}</small>
+                </div>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => {onClose(); clearMessage()}}>Cancel</Button>
+                <Button variant="primary" type="submit" className="ms-2" onClick={() => onSubmit(tag.id)}>Confirm</Button>
+            </Modal.Footer>
+        </Modal>
     );
 }
 
@@ -136,12 +156,12 @@ const AddQuestionModal = ({tag, show, onClose} : {tag: string, show: boolean, on
     );
 }
 
-const QuestionsByTag = ({questionsByTag}: {questionsByTag: questionDataType[]}) => {
+const QuestionsByTag = ({questions}: {questions: questionDataType[] | undefined}) => {
     return (
         <Row>
             <Col sm={10}>
-                {
-                    questionsByTag.map((question) => {
+                {questions !== undefined &&
+                    questions.map((question) => {
                         return <CollapseQuestion questionData={question} key={question.id}/>
                     })
                 }
@@ -191,9 +211,8 @@ function QuestionBank () {
     };
 
     const editTag = async (id: string, name: string) => {
-        console.log(id);
+        console.log("edit tag " + id);
         const url = getBackendApiUrl("/courses/" + params.course_name + "/tags/" + id);
-        console.log(url);
         const token = globalState.token;
         const data = {
             name: name,
@@ -206,52 +225,42 @@ function QuestionBank () {
             .catch((error: any) => {
                 let response = error.response.data;
                 console.log(error);
-                // setTagError(response.error.message.message);
+                // setTagError(response.error.message);
             })
     }
 
     const deleteTag = async (id: string) => {
+        console.log("delete tag " + id);
         const url = getBackendApiUrl("/courses/" + params.course_name + "/tags/" + id);
         const token = globalState.token;
         axios.delete(url, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
                 setDeleteTagShow(false);
+                getTags();
             })
             .catch((error: any) => {
                 let response = error.response.data;
-                setTagError(response.error.message[0].message);
+                console.log(error);
+                // setTagError(response.error.message);
             })
     }
 
-    const [questions, setQuestions] = useState<questionDataType[]>(require('../exams/questions_new.json').data);
+    const [questionsByTag, setQuestionsByTag] = useState<questionDataType[]>();
     const [addQuestionShow, setAddQuestionShow] = useState(false);
-    
-    const getQuestions = useCallback(async () => {
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions");
+
+    const getQuestionsByTag = useCallback(async () => {
+        const id = [...tags].filter((tag) => tag.name === params.tag)[0].id;
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions?tag_id=" + id);
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         console.log(result.data.data);
-        setQuestions(result.data.data);
-    }, [globalState.token, params.course_name]);
+        setQuestionsByTag(result.data.data);
+    }, [globalState.token, params.course_name, params.tag, tags])
 
     useEffect(() => {
-        getQuestions().catch();
-    }, [getQuestions]);
-    
-    const updateTagQuestionMap = (questions: questionDataType[]) => {
-        let tagQuestionMap = new Map<string, questionDataType[]>();
-        for (let i = 0; i < questions.length; i++) {
-            const tagName = questions[i].question_tag;
-            if (!tagQuestionMap.has(tagName)) {
-                tagQuestionMap.set(tagName, [questions[i]]);
-            } else {
-                (tagQuestionMap.get(tagName) as questionDataType[]).push(questions[i]);
-            }
-        }
-        return tagQuestionMap;
-    };
-    const tagQuestionMap = useMemo(() => updateTagQuestionMap(questions), [questions]);
-    
+        getQuestionsByTag().catch();
+    }, [getQuestionsByTag]);
+
     return (
         <AppLayout>
             <Row>
@@ -265,13 +274,13 @@ function QuestionBank () {
                                 tags.map((tag) => (
                                     <Row className="d-flex flex-row align-items-center vw-100" key={tag.id}>
                                         <Col xs={8}>
-                                            <Nav.Item>
+                                            <Nav.Item onClick={() => setTag(tag)}>
                                                 <Nav.Link eventKey={tag.name} href={tag.name}>{tag.name}</Nav.Link>
                                             </Nav.Item>
                                         </Col>
                                         <Col xs={4} className="text-end">
                                             <i className="bi-pencil-square" style={{cursor: "pointer"}} onClick={() => {setTag(tag); setEditTagShow(true);}}/>
-                                            <i className="bi-trash mx-2" style={{cursor: "pointer"}} onClick={() => setDeleteTagShow(true)}/>
+                                            <i className="bi-trash mx-2" style={{cursor: "pointer"}} onClick={() => {setTag(tag); setDeleteTagShow(true);}}/>
                                         </Col>
                                     </Row>
                                 ))
@@ -286,21 +295,17 @@ function QuestionBank () {
                             </Row>
                             <Tab.Content className="text-start mx-4">
                                 {tags.map((tag) => {
-                                    if (tagQuestionMap.has(tag.name)) return (
+                                    if (questionsByTag !== null)
+                                    return (
                                         <Tab.Pane eventKey={tag.name}>
-                                            <QuestionsByTag questionsByTag={(tagQuestionMap.get(tag.name) as questionDataType[])} key={tag.name}/>
-                                        </Tab.Pane>
-                                        );
-                                    else return (
-                                        <Tab.Pane eventKey={tag.name}>
-                                            <p>No questions in this tag!</p>
-                                        </Tab.Pane>
-                                        );
+                                            <QuestionsByTag questions={questionsByTag} key={tag.id}/>
+                                        </Tab.Pane>);
                                 })}
                             </Tab.Content>
                         </Col>
                     }
                 </Row>
+                
                 <AddTagModal show={addTagShow}
                     errorMessage={tagError}
                     onClose={() => setAddTagShow(false)}
@@ -312,6 +317,13 @@ function QuestionBank () {
                     errorMessage={tagError}
                     onClose={() => setEditTagShow(false)}
                     onSubmit={(id, name) => editTag(id, name)}
+                    clearMessage={() => setTagError("")}/>
+
+                <DeleteTagModal show={deleteTagShow}
+                    tag={(tag as tagProps)}
+                    errorMessage={tagError}
+                    onClose={() => setDeleteTagShow(false)}
+                    onSubmit={(id) => deleteTag(id)}
                     clearMessage={() => setTagError("")}/>
                 
                 <AddQuestionModal tag={(params.tag as string)}
