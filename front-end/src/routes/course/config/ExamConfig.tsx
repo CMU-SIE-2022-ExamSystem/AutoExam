@@ -11,6 +11,7 @@ import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
 import ExamConfigExport from "./ExamConfigExport";
+import {GlobalAlertProperties} from "../../../components/globalAlert";
 
 const BackModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () => void, onClose: () => void }) => {
     return (
@@ -38,7 +39,7 @@ const verifyState = () => {
 
 function ExamConfig() {
     let params = useParams();
-    const {globalState} = useGlobalState();
+    const {globalState, updateGlobalState} = useGlobalState();
     const navigate = useNavigate();
 
     const courseName = params.course_name;
@@ -50,9 +51,19 @@ function ExamConfig() {
     const getSavedConfig = useCallback(async () =>  {
         const url = getBackendApiUrl("/courses/" + courseName + "/assessments/" + examId);
         const token = globalState.token;
-        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        setExamConfigState(result.data.data);
-        setDataReady(true);
+        axios.get(url, {headers: {Authorization: "Bearer " + token}})
+            .then(result => {
+                setExamConfigState(result.data.data);
+                setDataReady(true);
+            })
+            .catch(response => {
+                let alertInfo: GlobalAlertProperties = {variant: "danger", content: "", show: true};
+                if (response?.response?.data?.error?.message) {
+                    alertInfo.content = response.response.data.error.message;
+                }
+                updateGlobalState({alert: alertInfo});
+                navigate('/courses/' + courseName, {replace: true});
+            })
     }, [globalState.token, courseName, examId, setExamConfigState]);
 
     const postConfig = async() => {
