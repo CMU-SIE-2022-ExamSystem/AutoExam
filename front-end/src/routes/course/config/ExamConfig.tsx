@@ -10,6 +10,7 @@ import {useConfigStates} from "./ExamConfigStates";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
+import ExamConfigExport from "./ExamConfigExport";
 
 const BackModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () => void, onClose: () => void }) => {
     return (
@@ -49,8 +50,6 @@ function ExamConfig() {
         const url = getBackendApiUrl("/courses/" + courseName + "/assessments/" + examId);
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-
-        console.log(result.data.data);
         setExamConfigState(result.data.data);
     }, [globalState.token, courseName, examId, setExamConfigState]);
 
@@ -119,8 +118,8 @@ function ExamConfig() {
                                     </Nav.Link>
                                 </Nav.Item>
                                 <Nav.Item>
-                                    <Nav.Link eventKey="publish" href="#">
-                                        Publish
+                                    <Nav.Link eventKey="export" href="#">
+                                        Export
                                     </Nav.Link>
                                 </Nav.Item>
                             </Nav>
@@ -137,8 +136,8 @@ function ExamConfig() {
                                     <Tab.Pane eventKey="questions">
                                         <ExamConfigQuestions />
                                     </Tab.Pane>
-                                    <Tab.Pane eventKey="publish">
-                                        Publish
+                                    <Tab.Pane eventKey="export">
+                                        <ExamConfigExport />
                                     </Tab.Pane>
                                 </Tab.Content>
                                 <Container fluid className="text-end">
