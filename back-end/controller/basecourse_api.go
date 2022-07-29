@@ -213,6 +213,7 @@ func CreateBaseCourseRelation_Handler(c *gin.Context) {
 // @Param		base				path	string	true	"Base Course Name"
 // @Success 200 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
+// @Failure 400 "not valid"
 // @Failure 404 "not exists"
 // @Security ApiKeyAuth
 // @Router /{course_name}/{base} [put]
@@ -250,6 +251,7 @@ func UpdateBaseCourseRelation_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Success 204
 // @Failure 500 {object} response.DBesponse{error=response.MySQLDeleteError} "mysql error"
+// @Failure 400 "not valid"
 // @Failure 404 "not exists"
 // @Security ApiKeyAuth
 // @Router /{course_name}/base [delete]
