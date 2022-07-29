@@ -1,8 +1,10 @@
 package course
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
@@ -157,4 +159,26 @@ func get_autolab_assessments(c *gin.Context, course string) []models.Assessments
 		temp = append(temp, resp.ToAssessments())
 	}
 	return temp
+}
+
+func CourseUserData(c *gin.Context) ([]models.Course_User_Data, error) {
+	var users []models.Course_User_Data
+	jwt.Check_authlevel_Instructor(c)
+
+	user_email := jwt.GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+	token := user.Access_token
+
+	course_name := GetCourse(c)
+
+	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/course_user_data")
+	// fmt.Println(string(body))
+
+	if strings.Contains(string(body), "error") {
+		return users, errors.New(string(body))
+	} else {
+		users := utils.Course_user_trans(string(body))
+		return users, nil
+	}
 }

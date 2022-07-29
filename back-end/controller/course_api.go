@@ -353,11 +353,12 @@ func Usersubmit_Handler(c *gin.Context) {
 	// fmt.Println(string(body))
 
 	autolab_resp := utils.User_submit_trans(string(body))
-	if autolab_resp.Version == 0 {
-		response.ErrorResponseWithStatus(c, response.Error{Type: "Autolab", Message: "You are only allowed to submit once!"}, http.StatusForbidden)
-	} else {
-		response.SuccessResponse(c, autolab_resp)
-	}
+	response.SuccessResponse(c, autolab_resp)
+	// if autolab_resp.Version == 0 {
+	// 	response.ErrorResponseWithStatus(c, response.Error{Type: "Autolab", Message: "You are only allowed to submit once!"}, http.StatusForbidden)
+	// } else {
+	// 	response.SuccessResponse(c, autolab_resp)
+	// }
 }
 
 func read_assessment(c *gin.Context, course_name, assessment_name string) dao.AutoExam_Assessments {

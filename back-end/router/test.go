@@ -24,5 +24,7 @@ func TestRouter(Router *gin.RouterGroup) {
 		TestRouter.POST("/:course_name/:assessment_name/config", controller.Examconfig_Handler)
 		TestRouter.GET("/exam", jwt.JWTAuth(), controller.Test_exam)
 		TestRouter.GET("autograder/:question_type", controller.Autograder_Test)
+		TestRouter.GET("answertar", controller.Answertar_Test)
+
 	}
 }
