@@ -1,8 +1,8 @@
 import { subQuestionDataType } from "./subQuestionDataType";
 
 export default interface questionDataType {
-    id: number;
-    question_tag: string;
     description: string;
-    questions: subQuestionDataType[];
+    id: string;
+    question_tag: string;
+    sub_questions: subQuestionDataType[];
 };

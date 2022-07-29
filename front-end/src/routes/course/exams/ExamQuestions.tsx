@@ -148,7 +148,7 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
     qList.forEach((question: questionDataType) => {
         const questionKey = "Q" + question.id;
         let subResult: LooseObject = {};
-        question.questions.forEach((subQuestion) => {
+        question.sub_questions.forEach((subQuestion) => {
             const subQuestionKey = questionKey + "_sub" + subQuestion.question_id;
             let answerObject: object = {};
 
@@ -186,7 +186,7 @@ const ExamQuestions = () => {
 
     questionList = require('./questions_new.json').data;
     let subQuestionArray = questionList.flatMap((question) =>
-        question.questions.map(subQuestion => ["Q" + question.id + "_sub" + subQuestion.question_id, subQuestion.question_type, subQuestion.choices]));
+        question.sub_questions.map(subQuestion => ["Q" + question.id + "_sub" + subQuestion.question_id, subQuestion.question_type, subQuestion.choices]));
     let idList: string[] = [];
     for (let i = 0; i < subQuestionArray.length; i++) {
         if (subQuestionArray[i][1] === "single-blank" || subQuestionArray[i][1] === "single-choice" || subQuestionArray[i][1] === "multiple-choice") {

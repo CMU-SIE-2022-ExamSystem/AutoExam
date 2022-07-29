@@ -11,14 +11,14 @@ import questionDataType from "./questionTemplate/questionDataType";
 const CollapseQuestion = ({questionData} : {questionData: questionDataType}) => {
     const [open, setOpen] = useState(false);
 
-    const subQuestions = questionData.questions.map((subQuestionData: subQuestionDataType) => {
-        const key = "Q" + questionData.id.toString() + "_sub" + subQuestionData.question_id.toString();
-        if (subQuestionData.question_type === "single-choice") return (<SingleChoice key={key} data={subQuestionData} headerId={questionData.id.toString()} />);
-        if (subQuestionData.question_type === "multiple-choice") return (<MultipleChoice key={key} data={subQuestionData} headerId={questionData.id.toString()} />);
-        if (subQuestionData.question_type === "single-blank") return (<SingleBlank key={key} data={subQuestionData} headerId={questionData.id.toString()} />);
-        if (subQuestionData.question_type === "multiple-blank") return (<MultipleBlank key={key} data={subQuestionData} headerId={questionData.id.toString()} />);
-        return (<></>);
-    });
+    // const subQuestions = questionData.sub_questions.map((subQuestionData: subQuestionDataType) => {
+    //     const key = "Q" + questionData.id + "_sub" + subQuestionData.question_id;
+    //     if (subQuestionData.question_type === "single-choice") return (<SingleChoice key={key} data={subQuestionData} headerId={questionData.id.toString()} />);
+    //     if (subQuestionData.question_type === "multiple-choice") return (<MultipleChoice key={key} data={subQuestionData} headerId={questionData.id.toString()} />);
+    //     if (subQuestionData.question_type === "single-blank") return (<SingleBlank key={key} data={subQuestionData} headerId={questionData.id.toString()} />);
+    //     if (subQuestionData.question_type === "multiple-blank") return (<MultipleBlank key={key} data={subQuestionData} headerId={questionData.id.toString()} />);
+    //     return (<></>);
+    // });
 
     return (
         <>
@@ -28,13 +28,13 @@ const CollapseQuestion = ({questionData} : {questionData: questionDataType}) => 
                     onClick={() => setOpen(!open)}
                     aria-controls={`Q${questionData.id}`}
                     aria-expanded={open}>
-                    {questionData.id + ". Question Title"}
+                    {"Question Title"}
                 </Card.Header>
                 <Collapse in={open}>
                     <div id={`Q${questionData.id}`}>
                     <Card.Body>
                         <div dangerouslySetInnerHTML={{__html: questionData.description}}/>
-                        {subQuestions}
+                        {/* {subQuestions} */}
                     </Card.Body>
                     </div>
                 </Collapse>
