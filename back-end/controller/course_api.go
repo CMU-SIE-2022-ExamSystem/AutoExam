@@ -370,3 +370,36 @@ func read_assessment(c *gin.Context, course_name, assessment_name string) dao.Au
 	}
 	return assessment
 }
+
+// CheckSubmission_Handler godoc
+// @Summary check assessment submission
+// @Schemes
+// @Description check assessment submission
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Success 200 "This user has already submitted."
+// @Failure 404 "This user has no submission records."
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/assessments/{assessment_name}/check [get]
+func CheckSubmission_Handler(c *gin.Context) {
+	user_email := jwt.GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+	token := user.Access_token
+
+	course_name, assessment_name := course.GetCourseAssessment(c)
+
+	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
+	// fmt.Println(string(body))
+
+	_, flag := utils.Assessments_submissionscheck_trans(string(body))
+
+	if flag {
+		response.SuccessResponse(c, "This user has already submitted.")
+	} else {
+		response.ErrorResponseWithStatus(c, "This user has no submission records.", http.StatusNotFound)
+	}
+}
