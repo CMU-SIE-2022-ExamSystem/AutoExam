@@ -391,8 +391,7 @@ func upload_and_store_grader(c *gin.Context, base_course, grader_name string, bo
 }
 
 func Testgrader_Handler(c *gin.Context) {
-	question_type := c.Param("question_type")
-	base_course, _ := course.GetBaseCourseGrader(c)
+	base_course, question_type := course.GetBaseCourseGrader(c)
 	color.Yellow(base_course)
 	dao.SearchAndStore_grader(c, question_type, base_course, "./autograder/exec/autograders/")
 
@@ -405,6 +404,7 @@ func Testgrader_Handler(c *gin.Context) {
 	err := cmd.Run()
 	os.Remove("./autograder/exec/autograders/" + question_type + ".py")
 	if err != nil {
+		dao.UpdateGraderValid(question_type, base_course, false)
 		response.ErrorInternaWithData(c, err.Error(), stdout.String()+stderr.String())
 	} else {
 		dao.UpdateGraderValid(question_type, base_course, true)

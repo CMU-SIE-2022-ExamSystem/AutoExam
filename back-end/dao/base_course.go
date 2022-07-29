@@ -34,6 +34,16 @@ func ValidBaseCourse(base string) bool {
 	}
 }
 
+func ValidBaseCourseRelation(coursename string) bool {
+	var course models.Base_Course_Relationship
+	rows := global.DB.Where("course_name = ?", coursename).Find(&course)
+	if rows.RowsAffected < 1 {
+		return false
+	} else {
+		return true
+	}
+}
+
 func usedBaseCourse(base string) bool {
 	var course models.Base_Course_Relationship
 	rows := global.DB.Where("base_course = ?", base).Find(&course)

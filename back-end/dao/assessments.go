@@ -90,3 +90,22 @@ func DeleteExam(course, assessment_name string) error {
 
 	return err
 }
+
+// return true for there are some assessment in mongo
+func ValidateAssessmentByCourse(course string) (bool, error) {
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Ass_Collection_Name)
+	filter := bson.D{{Key: "course", Value: course}}
+
+	var assessment AutoExam_Assessments
+	err := collection.FindOne(context.TODO(), filter).Decode(&assessment)
+	if err != nil {
+		// ErrNoDocuments means that the filter did not match any documents in the collection
+		if err == mongo.ErrNoDocuments {
+			return true, nil
+		}
+		return false, err
+	}
+	return false, err
+}
