@@ -321,7 +321,6 @@ func DraftAssessment_Handler(c *gin.Context) {
 // @Failure 400 {object} response.BadRequestResponse{error=response.AssessmentNoSettingsbError} "no settings or no base course"
 // @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
-// @deprecated
 func DownloadAssessments_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
@@ -336,6 +335,35 @@ func DownloadAssessments_Handler(c *gin.Context) {
 	fmt.Println("============")
 	tar := course.Build_Assessment(c, course_name, base_course, assessment)
 	c.FileAttachment(tar, tar[strings.LastIndex(tar, "/")+1:])
+}
+
+// GenerateAssessments_Handler godoc
+// @Summary generate the assessment for all student in the course
+// @Schemes
+// @Description generate the assessment for all student in the course
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Success 200  "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Router /courses/{course_name}/assessments/{assessment_name}/generate [get]
+// @Security ApiKeyAuth
+func GenerateAssessments_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+	user := jwt.GetUser(c)
+	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
+	student := dao.Assessment_Student{
+		Id:         int(user.ID),
+		Course:     course_name,
+		Assessment: assessment_name,
+	}
+	fmt.Println(dao.CreateStudent(student))
+
 }
 
 // Usersubmit_Handler godoc

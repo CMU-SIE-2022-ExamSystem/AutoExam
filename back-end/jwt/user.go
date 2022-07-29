@@ -91,6 +91,13 @@ func Check_Baselevel(c *gin.Context) {
 	}
 }
 
+func GetUser(c *gin.Context) models.User {
+	user_email := GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+	return user
+}
+
 func Get_authlevel_DB(c *gin.Context) (auth_level string) {
 	course_name := GetCourse(c)
 	user_email := GetEmail(c)

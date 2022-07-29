@@ -9,13 +9,6 @@ import (
 	"golang.org/x/text/language"
 )
 
-type Student struct {
-	StudentId string      `json:"studentId" bson:"studentId"`
-	ExamId    string      `json:"examId" bson:"examId"`
-	CourseId  string      `json:"course" bson:"course"`
-	Settings  map[int]int `json:"settings" bson:"settings"`
-}
-
 type AutoExam_Assessments struct {
 	Id       string     `yaml:"id" json:"id" bson:"id"`
 	Course   string     `yaml:"course" json:"course" bson:"course"`

@@ -59,7 +59,7 @@ func solutionHelper(client *mongo.Client, str1, str2, str3, path string) (string
 
 	//student bank collection
 	stuCollection := client.Database("auto_exam").Collection("student_bank")
-	var student Student
+	var student Assessment_Student
 	filter := bson.D{{Key: "course", Value: str1}, {Key: "examId", Value: str2}, {Key: "studentId", Value: str3}}
 	//judge if we have stored this student; if not we should generate config for him
 	err := stuCollection.FindOne(ctx, filter).Decode(&student)
@@ -76,7 +76,7 @@ func solutionHelper(client *mongo.Client, str1, str2, str3, path string) (string
 	return "", nil
 }
 
-func helper(student *Student, questCollection *mongo.Collection, path string) {
+func helper(student *Assessment_Student, questCollection *mongo.Collection, path string) {
 	// // get the the context object，it can be used to set timeout
 	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	// defer cancel()
