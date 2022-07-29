@@ -44,7 +44,7 @@ func UserRefreshHandler(c *gin.Context) {
 	}
 }
 
-//todo: these two check functions are testing user auth_level
+// These two check functions are testing user auth_level
 func Check_authlevel_API(c *gin.Context) {
 	course_name := c.Param("course_name")
 	user_email := GetEmail(c)
@@ -68,6 +68,7 @@ func Check_authlevel_API(c *gin.Context) {
 	}
 }
 
+// These two check functions are testing user auth_level
 func Check_authlevel_DB(c *gin.Context) {
 	course_name := c.Param("course_name")
 	user_email := GetEmail(c)

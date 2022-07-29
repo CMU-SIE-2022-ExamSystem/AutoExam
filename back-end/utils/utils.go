@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
+	"syscall"
 	"time"
 
 	cp "github.com/otiai10/copy"
@@ -102,4 +104,16 @@ func Ordinalize(num int) string {
 	}
 
 	return strconv.Itoa(num) + ordinalDictionary[positiveNum]
+}
+
+func MakeAnswertar(path string) bool {
+	cmd := exec.Command("tar", "cvf", "answer.tar", "answer")
+	cmd.Dir = path
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
+	err := cmd.Run()
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
 }

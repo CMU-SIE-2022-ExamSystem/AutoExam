@@ -87,3 +87,13 @@ func Course_user_err_trans(str string) models.Course_User_err {
 	}
 	return response
 }
+
+func Assessments_submissionscheck_trans(str string) ([]models.Submissions, bool) {
+	var response []models.Submissions
+	err := json.Unmarshal([]byte(str), &response)
+	if err != nil {
+		color.Yellow("json transfer error>>> " + err.Error())
+		return response, false
+	}
+	return response, true
+}

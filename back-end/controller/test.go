@@ -106,7 +106,7 @@ func FolderTest(c *gin.Context) {
 	fmt.Println(path)
 }
 
-//todo: This is for all user auth-level in a course
+// This is for all user auth-level in a course
 func Course_all_Test(c *gin.Context) {
 	user_email := jwt.GetEmail(c)
 	user := models.User{ID: user_email.ID}
@@ -195,5 +195,15 @@ func Autograder_Test(c *gin.Context) {
 	} else {
 		// color.Yellow(stdout.String())
 		response.SuccessResponse(c, stdout.String())
+	}
+}
+
+func Answertar_Test(c *gin.Context) {
+	path := "./tmp/"
+	flag := utils.MakeAnswertar(path)
+	if flag {
+		response.SuccessResponse(c, "Get it!")
+	} else {
+		response.ErrFileNotValidResponse(c)
 	}
 }
