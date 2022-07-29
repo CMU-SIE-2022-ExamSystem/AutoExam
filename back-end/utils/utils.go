@@ -36,7 +36,7 @@ func CreateFolder(path string) {
 
 func Copy_file(file, src, dest string) {
 	// copy certain file from src folder to dest folder
-
+	fmt.Println(file, src, dest)
 	src = filepath.Join(src, file)
 	dest = filepath.Join(dest, file)
 	if _, err := os.Stat(src); os.IsNotExist(err) {

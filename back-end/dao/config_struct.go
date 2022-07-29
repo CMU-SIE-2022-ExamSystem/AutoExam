@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
@@ -40,14 +41,16 @@ type AutoExam_Assessments_Update_Validate struct {
 	Settings   []Settings `yaml:"settings" json:"settings"` // questions settings of the assessment
 }
 
+// @Description questions general structure
 type General struct {
-	Name             string `yaml:"name" json:"name" bson:"name" binding:"required"`
-	Description      string `yaml:"description" json:"description" bson:"description"`
-	Category_name    string `yaml:"category_name" json:"category_name" bson:"category_name" default:"Exam" binding:"required,oneof=Exam Quiz"`
-	Start_at         string `yaml:"start_at" json:"start_at" bson:"start_at" default:"2022-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`
-	End_at           string `yaml:"end_at" json:"end_at" bson:"end_at" default:"2023-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`
-	Grading_deadline string `yaml:"grading_deadline" json:"grading_deadline" bson:"grading_deadline" default:"2023-06-16T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`
-	MaxSubmissions   int    `yaml:"max_submissions" json:"max_submissions" bson:"max_submissions" binding:"required,gte=1"`
+	Name             string `yaml:"name" json:"name" bson:"name" binding:"required"`                                                                                                           // name of assessment
+	Description      string `yaml:"description" json:"description" bson:"description"`                                                                                                         // description of assessment
+	Category_name    string `yaml:"category_name" json:"category_name" bson:"category_name" default:"Exam" binding:"required,oneof=Exam Quiz"`                                                 // only accept Exam or Quiz
+	Start_at         string `yaml:"start_at" json:"start_at" bson:"start_at" default:"2022-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`                         // start time of assessment
+	End_at           string `yaml:"end_at" json:"end_at" bson:"end_at" default:"2023-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`                               // end time of assessment
+	Grading_deadline string `yaml:"grading_deadline" json:"grading_deadline" bson:"grading_deadline" default:"2023-06-16T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"` // grading deadline of assessment
+	MaxSubmissions   int    `yaml:"max_submissions" json:"max_submissions" bson:"max_submissions" binding:"required,gte=1"`                                                                    // number of submission, Exam category would only accept 1
+	Url              string `json:"url" bson:"url"`                                                                                                                                            // assessment url
 }
 
 // @Description questions settings structure
@@ -64,9 +67,10 @@ type Problems struct {
 	Name        string        `yaml:"name" json:"name" bson:"name"`
 	Type        string        `yaml:"type" json:"type" bson:"type"`
 	Description []Description `yaml:"description" json:"description" bson:"description"`
-	MaxScore    int           `yaml:"max_score" json:"max_score" bson:"max_score"`
+	MaxScore    float64       `yaml:"max_score" json:"max_score" bson:"max_score"`
 	Optional    bool          `yaml:"optional" json:"optional" bson:"optional"`
 }
+
 type Description struct {
 	Name string `yaml:"name" json:"name" bson:"name"`
 	//Answer string `yaml:"answer" json:"answer" bson:"answer"`
@@ -125,7 +129,7 @@ func (assessment *AutoExam_Assessments_Update_Validate) ToAutoExamAssessments(co
 	return autoexam
 }
 
-func (assessment *AutoExam_Assessments) ToAutolabAssessments() models.Download_Assessments {
+func (assessment *AutoExam_Assessments) ToDownloadAssessments() models.Download_Assessments {
 	general := models.General{}
 	general.Default()
 	AutoExamToDownloadAssessmentsGeneral(*assessment, &general)
@@ -134,8 +138,8 @@ func (assessment *AutoExam_Assessments) ToAutolabAssessments() models.Download_A
 	autograder.Default()
 
 	ass := models.Download_Assessments{
-		General: general,
-		// Problems:   assessment.Problems,
+		General:    general,
+		Problems:   AutoExamToDownloadAssessmentsProblems(*assessment),
 		Autograder: autograder,
 	}
 	return ass
@@ -157,6 +161,22 @@ func AutoExamToDownloadAssessmentsGeneral(assessment AutoExam_Assessments, gener
 	general.Due_at = general.End_at
 	general.Grading_deadline = Time_to_Download_Assessment_str(assessment.General.Grading_deadline)
 
+}
+
+func AutoExamToDownloadAssessmentsProblems(assessment AutoExam_Assessments) []models.Problems {
+	problems := []models.Problems{}
+
+	for i, setting := range assessment.Settings {
+		for j := 0; j < setting.SubQuestionNumber; j++ {
+			problems = append(problems, models.Problems{
+				Name:        "Q" + strconv.Itoa(i+1) + "_" + "sub" + strconv.Itoa(j+1),
+				Description: "",
+				Max_score:   setting.Scores[j],
+				Optional:    false,
+			})
+		}
+	}
+	return problems
 }
 
 func (assessment *AutoExam_Assessments) ToAssessments() models.Assessments {

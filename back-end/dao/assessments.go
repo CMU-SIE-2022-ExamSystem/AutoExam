@@ -91,7 +91,7 @@ func DeleteExam(course, assessment_name string) error {
 	return err
 }
 
-// return true for there are some assessment in mongo
+// return true for there is no assessment in mongo
 func ValidateAssessmentByCourse(course string) (bool, error) {
 	client := global.Mongo
 	//get the collection instance

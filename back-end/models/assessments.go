@@ -32,10 +32,10 @@ type General struct {
 }
 
 type Problems struct {
-	Name        string `json:"name" mapstructure:"name"`
-	Description string `json:"description" mapstructure:"description"`
-	Max_score   int    `json:"max_score" mapstructure:"max_score"`
-	Optional    bool   `json:"optional" mapstructure:"optional"`
+	Name        string  `json:"name" mapstructure:"name"`
+	Description string  `json:"description" mapstructure:"description"`
+	Max_score   float64 `json:"max_score" mapstructure:"max_score"`
+	Optional    bool    `json:"optional" mapstructure:"optional"`
 }
 
 type Autograder struct {

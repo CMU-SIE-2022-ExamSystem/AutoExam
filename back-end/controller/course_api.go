@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -272,7 +273,7 @@ func DeleteAssessment_Handler(c *gin.Context) {
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Param data body dao.Draft true "body data"
 // @Success 200 {object} response.Response{data=dao.Draft} "success"
-// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 400 {object} response.BadRequestResponse{error=response.AssessmentNotInAutolabError} "assessment not in autolab or no base course"
 // @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Failure 500 {object} response.DBesponse{error=response.MongoDBUpdateError} "mongo error"
@@ -316,15 +317,25 @@ func DraftAssessment_Handler(c *gin.Context) {
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name}/download [get]
-// @Success 404 {object} response.Response{} "Not found course"
+// @Success 200 {object} response.Response{data=dao.Draft} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.AssessmentNoSettingsbError} "no settings or no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @deprecated
 func DownloadAssessments_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
-	// course_name, assessment_name := course.GetCourseAssessment(c)
-	// _ := read_assessment(c, course_name, assessment_name)
-	// tar := course.Build_Assessment(c, course_name, assessment)
-	// c.FileAttachment(tar, tar[strings.LastIndex(tar, "/")+1:])
+	course_name, assessment_name := course.GetCourseAssessment(c)
+	_, base_course := course.GetCourseBaseCourse(c)
+	assessment := read_assessment(c, course_name, assessment_name)
+	if len(assessment.Settings) == 0 {
+		response.ErrAssessmentNoSettingsResponse(c, assessment_name)
+	}
+	fmt.Println("============")
+	fmt.Println(assessment.ToDownloadAssessments())
+	fmt.Println("============")
+	tar := course.Build_Assessment(c, course_name, base_course, assessment)
+	c.FileAttachment(tar, tar[strings.LastIndex(tar, "/")+1:])
 }
 
 // Usersubmit_Handler godoc

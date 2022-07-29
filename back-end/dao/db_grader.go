@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
@@ -12,6 +13,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/exp/slices"
+)
+
+var (
+	DBgrade_path = "./tmp/grader"
 )
 
 type PythonFile struct {
@@ -170,6 +175,13 @@ func SearchAndStore_grader(c *gin.Context, question_type string, course string, 
 	byte_array := new_data.PythonGrader
 	stored_file_name := fmt.Sprintf("%s.py", question_type)
 	write_file(stored_file_name, byte_array, file_path)
+}
+
+func Storegrader(grader Grader_API, course string) {
+	instance, _ := search_grader(grader.Name, course)
+	byte_array := instance.PythonGrader
+	stored_file_name := fmt.Sprintf("%s.py", instance.QuestionType)
+	write_file(stored_file_name, byte_array, filepath.Join(DBgrade_path, course))
 }
 
 func write_file(file_name string, byte_rray []byte, file_path string) {

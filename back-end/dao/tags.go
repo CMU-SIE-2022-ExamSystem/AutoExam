@@ -44,11 +44,11 @@ func (autoexam *AutoExam_Tags) ToTags() Tags {
 	return tags
 }
 
-func ReadAllTags(course string) ([]Tags, error) {
+func ReadAllTags(base_course string) ([]Tags, error) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Tag_Collection_Name)
-	filter := bson.D{{Key: "course", Value: course}}
+	filter := bson.D{{Key: "course", Value: base_course}}
 
 	cursor, err := collection.Find(context.TODO(), filter)
 
@@ -79,12 +79,12 @@ func CreateTag(tag AutoExam_Tags_Create) (result *mongo.InsertOneResult, err err
 	return
 }
 
-func ReadTag(course, name string) (Tags, error) {
+func ReadTag(base_course, name string) (Tags, error) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Tag_Collection_Name)
 
-	filter := bson.D{{Key: "course", Value: course}, {Key: "name", Value: name}}
+	filter := bson.D{{Key: "course", Value: base_course}, {Key: "name", Value: name}}
 	var tags AutoExam_Tags
 	err := collection.FindOne(context.TODO(), filter).Decode(&tags)
 	return tags.ToTags(), err
@@ -134,11 +134,11 @@ func DeleteTagById(id string) error {
 }
 
 // return true for no such object in mongo
-func ValidateTag(course, name string) (bool, error) {
+func ValidateTag(base_course, name string) (bool, error) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Tag_Collection_Name)
-	filter := bson.D{{Key: "course", Value: course}, {Key: "name", Value: name}}
+	filter := bson.D{{Key: "course", Value: base_course}, {Key: "name", Value: name}}
 
 	var tags AutoExam_Tags
 	err := collection.FindOne(context.TODO(), filter).Decode(&tags)
@@ -153,12 +153,12 @@ func ValidateTag(course, name string) (bool, error) {
 }
 
 // return true for no such object in mongo
-func ValidateTagById(course, id string) (bool, error) {
+func ValidateTagById(base_course, id string) (bool, error) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Tag_Collection_Name)
 	objectid, _ := primitive.ObjectIDFromHex(id)
-	filter := bson.D{{Key: "_id", Value: objectid}, {Key: "course", Value: course}}
+	filter := bson.D{{Key: "_id", Value: objectid}, {Key: "course", Value: base_course}}
 
 	var tags AutoExam_Tags
 	err := collection.FindOne(context.TODO(), filter).Decode(&tags)
@@ -177,7 +177,7 @@ func ValidateTagUsedById(id string) (bool, error) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
-	filter := bson.D{{Key: "questionTag", Value: id}}
+	filter := bson.D{{Key: "question_tag", Value: id}}
 	var questions AutoExam_Questions
 	err := collection.FindOne(context.TODO(), filter).Decode(&questions)
 	if err != nil {
