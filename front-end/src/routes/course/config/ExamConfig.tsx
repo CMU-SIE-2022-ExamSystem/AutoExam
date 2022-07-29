@@ -45,12 +45,14 @@ function ExamConfig() {
     const examId = params.exam_id;
 
     let {examConfigState, setExamConfigState}  = useConfigStates();
+    let [dataReady, setDataReady] = useState<boolean>(false);
 
     const getSavedConfig = useCallback(async () =>  {
         const url = getBackendApiUrl("/courses/" + courseName + "/assessments/" + examId);
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         setExamConfigState(result.data.data);
+        setDataReady(true);
     }, [globalState.token, courseName, examId, setExamConfigState]);
 
     const postConfig = async() => {
@@ -128,7 +130,7 @@ function ExamConfig() {
                             <div>
                                 <Tab.Content>
                                     <Tab.Pane eventKey="global">
-                                        <ExamConfigGlobal />
+                                        <ExamConfigGlobal dataReady={dataReady}/>
                                     </Tab.Pane>
                                     <Tab.Pane eventKey="instructions">
                                         <ExamConfigInstructions />

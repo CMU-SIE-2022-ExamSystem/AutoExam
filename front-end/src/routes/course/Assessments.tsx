@@ -158,7 +158,7 @@ function Assessments() {
         const infoResult = await axios.get(infoUrl, {headers: {Authorization: "Bearer " + token}});
         setCourseInfo(infoResult.data.data);
         const assessmentResult = await axios.get(assessmentUrl, {headers: {Authorization: "Bearer " + token}});
-        setExamList(assessmentResult.data.data);
+        if (assessmentResult.data.data) setExamList(assessmentResult.data.data);
     }, [globalState.token, params.course_name]);
 
     useEffect(() => {
@@ -187,7 +187,7 @@ function Assessments() {
         };
         axios.post(postUrl, data, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
-                const configPage = "/courses" + params.course_name + "/examConfig/" + name;
+                const configPage = "/courses/`" + params.course_name + "/examConfig/" + name;
                 setShowModal(false);
                 navigate(configPage);
             })
@@ -203,7 +203,7 @@ function Assessments() {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/tags");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        setTags(result.data.data);
+        if (result.data.data) setTags(result.data.data);
     }, [globalState.token, params.course_name]);
 
     useEffect(() => {
@@ -220,7 +220,7 @@ function Assessments() {
                 {courseInfo?.auth_level === "instructor" &&
                     <div className="text-end pe-5">
                         <Button variant="info" className="me-3 text-white" onClick={() => {setShowModal(true);}}>New Exam</Button>
-                        <Link to={"questionBank/" + (tags[0].name || "null")}><Button variant="primary">Question Bank</Button></Link>
+                        <Link to={"questionBank/" + (tags.length > 0 ? tags[0].name : "null")}><Button variant="primary">Question Bank</Button></Link>
                     </div>
                 }
                 <Row>

@@ -6,11 +6,12 @@ import axios from "axios";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
 import {DateTime, Namespace, TempusDominus} from "@eonasdan/tempus-dominus";
 import {ChangeEvent} from "@eonasdan/tempus-dominus/types/utilities/event-types";
+import moment from "moment";
 
 const DateTimePicker = ({pickerId}: { pickerId: string }) => {
     return (
         <InputGroup id={pickerId} data-td-target-input={'nearest'} data-td-target-toggle={'nearest'}>
-            <Form.Control type="text" id={pickerId + 'Input'} data-td-target={"#" + pickerId}/>
+            <Form.Control type="text" id={pickerId + '_input'} data-td-target={"#" + pickerId}/>
             <InputGroup.Text data-td-target={"#" + pickerId} data-td-toggle={'datetimepicker'}><i
                 className="bi bi-calendar"/></InputGroup.Text>
         </InputGroup>
@@ -42,20 +43,18 @@ const bindPicker = (pickerElement: HTMLElement, restrictions: any, initValue: Da
     defaultDate: initValue,
 });
 
-const ExamConfigGlobal = () => {
+const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
     let {examConfigState, setExamConfigState} = useConfigStates();
 
     const {globalState} = useGlobalState();
 
     const [categoryList, setCategoryList] = useState<string[]>([]);
-    const [apiReady, setApiReady] = useState<boolean>(false);
 
     const getCategoryList = useCallback(async () => {
         const categoryListUrl = getBackendApiUrl("/courses/assessments/config/categories");
         const token = globalState.token;
         const categoryListResult = await axios.get(categoryListUrl, {headers: {Authorization: "Bearer " + token}});
         setCategoryList(categoryListResult.data.data.categories);
-        setApiReady(true);
     }, [globalState.token])
 
     useEffect(() => {
@@ -88,7 +87,6 @@ const ExamConfigGlobal = () => {
     ))
 
     useEffect(() => {
-        if (!apiReady) return;
         if (!examConfigState) return;
         let {start_at, end_at, grading_deadline} = examConfigState.general;
         const startAtDateTime = toDateTime(start_at);
@@ -102,9 +100,8 @@ const ExamConfigGlobal = () => {
                                                                                                       restrictions
                                                                                                   }) => {
             const myElement = document.getElementById(pickerId) as HTMLElement;
-            const inputElement = document.getElementById(pickerId + 'Input') as HTMLInputElement;
-            console.log(value.format({timeStyle: "short", dateStyle: "short"}));
-            inputElement.value = value.format({timeStyle: "short", dateStyle: "short"});
+            const inputElement = document.getElementById(pickerId + '_input') as HTMLInputElement;
+            inputElement.value = moment(value.toISOString()).format("MM/DD/YYYY, h:mm A");
             return bindPicker(myElement, restrictions, value);
         })
         pickers[0].subscribe(Namespace.events.change, (e: ChangeEvent) => {
@@ -139,7 +136,7 @@ const ExamConfigGlobal = () => {
                 }
             })
         });
-    }, [apiReady]);
+    }, [dataReady]);
 
     return (
         <Row className="text-start">
