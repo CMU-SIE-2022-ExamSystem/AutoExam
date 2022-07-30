@@ -197,7 +197,7 @@ func (assessment *AutoExam_Assessments) ToAssessments() models.Assessments {
 func (assessment *AutoExam_Assessments) GenerateAssessmentStudent(email, course_name, assessment_name string) Assessment_Student {
 	var questions []string
 	var problems []Student_Problems
-	var solutions []Student_Questions
+	solutions := make(Student_Questions)
 	for i, ass := range assessment.Settings {
 		// get specified question_id id
 		var question_id string
@@ -216,7 +216,7 @@ func (assessment *AutoExam_Assessments) GenerateAssessmentStudent(email, course_
 
 		question, _ := ReadQuestionById(question_id)
 
-		var sub_solutions []Student_Sub_Questions
+		sub_solutions := make(Student_Sub_Questions)
 		for j, sub_quest := range question.SubQuestions {
 			// create problems
 			problem := Student_Problems{
@@ -226,15 +226,15 @@ func (assessment *AutoExam_Assessments) GenerateAssessmentStudent(email, course_
 			}
 			problems = append(problems, problem)
 			// create solutions
-			var sub_sub_solutions []Student_Sub_Sub_Questions
+			sub_sub_solutions := make(Student_Sub_Sub_Questions)
 			for k, sol := range sub_quest.Solutions {
-				sub_sub_solutions = append(sub_sub_solutions, Student_Sub_Sub_Questions{Key: ToSubSubQuestionName(i+1, j+1, k+1), Value: sol})
+				sub_sub_solutions[ToSubSubQuestionName(i+1, j+1, k+1)] = sol
 			}
-			sub_solutions = append(sub_solutions, Student_Sub_Questions{Key: ToSubQuestionName(i+1, j+1), Value: sub_sub_solutions})
+			sub_solutions[ToSubQuestionName(i+1, j+1)] = sub_sub_solutions
 		}
 
 		questions = append(questions, question_id)
-		solutions = append(solutions, Student_Questions{Key: "Q" + strconv.Itoa(i+1), Value: sub_solutions})
+		solutions["Q"+strconv.Itoa(i+1)] = sub_solutions
 	}
 
 	student := Assessment_Student{

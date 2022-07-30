@@ -14,28 +14,18 @@ const (
 )
 
 type Assessment_Student struct {
-	Email      string              `json:"email" bson:"email"`
-	Assessment string              `json:"assessment" bson:"assessment"`
-	Course     string              `json:"course" bson:"course"`
-	Questions  []string            `json:"questions" bson:"questions"`
-	Problems   []Student_Problems  `json:"problems" bson:"problems"`
-	Answers    []Student_Questions `json:"answers" bson:"answers"`
-	Solutions  []Student_Questions `json:"solutions" bson:"solutions"`
+	Email      string             `json:"email" bson:"email"`
+	Assessment string             `json:"assessment" bson:"assessment"`
+	Course     string             `json:"course" bson:"course"`
+	Questions  []string           `json:"questions" bson:"questions"`
+	Problems   []Student_Problems `json:"problems" bson:"problems"`
+	Answers    Student_Questions  `json:"answers" bson:"answers"`
+	Solutions  Student_Questions  `json:"solutions" bson:"solutions"`
 }
 
-type Student_Questions struct {
-	Key   string                  `json:"key" bson:"key"`
-	Value []Student_Sub_Questions `json:"value" bson:"value"`
-}
-
-type Student_Sub_Questions struct {
-	Key   string                      `json:"key" bson:"key"`
-	Value []Student_Sub_Sub_Questions `json:"value" bson:"value"`
-}
-type Student_Sub_Sub_Questions struct {
-	Key   string   `json:"key" bson:"key"`
-	Value []string `json:"value" bson:"value"`
-}
+type Student_Questions map[string]Student_Sub_Questions
+type Student_Sub_Questions map[string]Student_Sub_Sub_Questions
+type Student_Sub_Sub_Questions map[string][]string
 
 type Student_Problems struct {
 	Name     string  `yaml:"name" json:"name" bson:"name"`
@@ -60,12 +50,12 @@ type Sub_Question_Blank_Student struct {
 }
 
 type Answers_Upload struct {
-	Answers []Student_Questions `json:"answers"`
-}
+	Answers Student_Questions `json:"answers"`
+} //@name Answer
 
 type Answers_Upload_Validate struct {
 	Student Assessment_Student
-	Answers []Student_Questions `json:"answers" binding:"required"`
+	Answers Student_Questions `json:"answers" binding:"required"`
 }
 
 // create student
@@ -114,17 +104,17 @@ func (student *Assessment_Student) ToRealQuestions() []Questions_Student {
 	return questions_student
 }
 
-func (student *Assessment_Student) ToAnwerStruct() {
+func (student *Assessment_Student) ToAnwerStruct() Student_Questions {
 	solutions := student.Solutions
 	for i := range solutions {
 		// sub layers
-		for j := range solutions[i].Value {
+		for j := range solutions[i] {
 			// sub sub layers
-			for z := range solutions[i].Value[j].Value {
-				var value []string
-				value = append(value, "")
-				solutions[i].Value[j].Value[z].Value = value
+			for z := range solutions[i][j] {
+				value := []string{""}
+				solutions[i][j][z] = value
 			}
 		}
 	}
+	return solutions
 }

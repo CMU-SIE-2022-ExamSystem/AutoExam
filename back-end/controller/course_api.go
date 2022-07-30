@@ -375,7 +375,7 @@ func QuestionAssessments_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
-// @Success 200 {object} response.Response{data=dao.Answers_Upload} "success"
+// @Success 200 {object} response.Response{data=dao.Student_Questions} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers [get]
@@ -395,7 +395,7 @@ func GetAnswersAssessments_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Param data body dao.Answers_Upload true "body data"
-// @Success 200 {object} response.Response{data=dao.Answers_Upload} "success"
+// @Success 200 {object} response.Response{data=dao.Student_Questions} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers [put]
@@ -413,7 +413,7 @@ func UploadAnswersAssessments_Handler(c *gin.Context) {
 		response.ErrMongoDBUpdateResponse(c, Student_Model)
 	}
 
-	response.SuccessResponse(c, dao.Answers_Upload{Answers: instance.Answers})
+	response.SuccessResponse(c, instance.Answers)
 }
 
 // GetAnswersAssessments_Handler godoc
@@ -425,15 +425,14 @@ func UploadAnswersAssessments_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
-// @Success 200 {object} response.Response{data=[]dao.Student_Questions} "success"
+// @Success 200 {object} response.Response{data=dao.Student_Questions} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers/struct [get]
 // @Security ApiKeyAuth
 func GetAnswersStructAssessments_Handler(c *gin.Context) {
 	student := read_assessment_student(c)
-	student.ToAnwerStruct()
-	response.SuccessResponse(c, student.Solutions)
+	response.SuccessResponse(c, student.ToAnwerStruct())
 }
 
 // GenerateAssessments_Handler godoc

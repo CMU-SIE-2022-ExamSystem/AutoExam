@@ -65,9 +65,9 @@ func getErrorMsg(fe validator.FieldError) string {
 	case "numberNotDivisible":
 		return "The max_score is not divisible by sub_question_number in the " + fe.Param() + " settings. Please specifiy the field of scores"
 	case "answerNotValid":
-		return "The structure of data is wrong. Please use /courses/{course_name}/assessments/{assessment_name}/answers/struct to check the structure"
-	case "answerWrongName":
-		return "The key '" + fe.Param() + "' is wrong. Please use /courses/{course_name}/assessments/{assessment_name}/answers/struct to check the structure"
+		return "There are more key in the " + fe.Param() + " layer. Please use /courses/{course_name}/assessments/{assessment_name}/answers/struct to check the structure"
+	case "noKey":
+		return "The key '" + fe.Param() + "' is not in answers. Please use /courses/{course_name}/assessments/{assessment_name}/answers/struct to check the structure"
 
 	// grader
 	case "requiredType":
