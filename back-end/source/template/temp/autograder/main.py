@@ -34,8 +34,8 @@ if file_path_test(ansPath) == False:
 with open(yamlPath, 'r', encoding='utf-8') as f:
     config = f.read()
 configuration = yaml.load(config,Loader=yaml.FullLoader)
-problems = configuration['problems']
-# print(configuration)
+problems = configuration
+# print(problems)
 
 with open(sulPath, 'r', encoding='utf-8') as sul_file:
     sul_data = json.load(sul_file)
@@ -49,7 +49,7 @@ score_detail = {}
 type_detail = {}
 for id in range(len(problems)):
     score_detail.update({problems[id]['name']:problems[id]['max_score']})
-    type_detail.update({problems[id]['name']:problems[id]['type']})
+    type_detail.update({problems[id]['name']:problems[id]['grader']})
 
 score_result = {}
 for key in sul_data.keys():

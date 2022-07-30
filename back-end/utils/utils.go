@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 	"math"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fatih/color"
 	cp "github.com/otiai10/copy"
 )
 
@@ -107,11 +109,15 @@ func Ordinalize(num int) string {
 }
 
 func MakeAnswertar(path string) bool {
+	var stdout, stderr bytes.Buffer
 	cmd := exec.Command("tar", "cvf", "answer.tar", "answer")
 	cmd.Dir = path
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
+		color.Yellow(err.Error() + stdout.String() + stderr.String())
 		return false
 	} else {
 		return true

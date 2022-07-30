@@ -1,8 +1,8 @@
-def single_choice(answer, solution):
+def single_choice(solution, answer):
     for key in solution.keys():
         lower_str1 = answer[key][0].lower()
-        lower_str2 = solution[key][0].lower()
-        if lower_str1 == lower_str2:
-            return 1.0
-        else:
-            return 0.0
+        for i in range(len(solution[key])):
+            lower_str2 = solution[key][i].lower()
+            if lower_str1 == lower_str2:
+                return 1.0
+        return 0.0
