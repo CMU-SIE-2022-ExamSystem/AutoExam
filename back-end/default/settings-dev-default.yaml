@@ -8,7 +8,7 @@ logger: "info"
 
 mysql:
  name: "user"
- host: "autoexam.andrew.cmu.edu"
+ host: "autoexam-02.andrew.cmu.edu"
 #  host: "localhost"
  port: 3306
  password: "password"
@@ -29,6 +29,6 @@ jwt:
 
 
 mongodb:
-  host: "autoexam.andrew.cmu.edu"
+  host: "autoexam-02.andrew.cmu.edu"
   # host: "localhost"
   port: 27017
