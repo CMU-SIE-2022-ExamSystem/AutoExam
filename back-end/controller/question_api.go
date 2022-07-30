@@ -70,7 +70,7 @@ func CreateQuestion_Handler(c *gin.Context) {
 		response.ErrMongoDBCreateResponse(c, Que_Model)
 	}
 
-	response.SuccessResponse(c, question)
+	response.CreatedResponse(c, question)
 }
 
 // ReadQuestion_Handler godoc

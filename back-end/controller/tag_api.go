@@ -67,7 +67,7 @@ func CreateTag_Handler(c *gin.Context) {
 		if err != nil {
 			response.ErrMongoDBCreateResponse(c, Tag_Model)
 		}
-		response.SuccessResponse(c, tags)
+		response.CreatedResponse(c, tags)
 	} else {
 		response.ErrMongoDBCreateResponse(c, Tag_Model)
 	}

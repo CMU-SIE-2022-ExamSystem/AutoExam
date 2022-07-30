@@ -40,7 +40,7 @@ func AssessmentUpdateValidation(sl validator.StructLevel) {
 
 	// validate settings
 	base_course := assessment.BaseCourse
-	distinct_sub_number, distinct_sub_number_string := dao.GetAllSubQuestionNumber(base_course)
+
 	if len(assessment.Settings) > 0 {
 		for i, setting := range assessment.Settings {
 			// validate tag
@@ -58,6 +58,7 @@ func AssessmentUpdateValidation(sl validator.StructLevel) {
 				sl.ReportError(setting.SubQuestionNumber, "sub_question_number", "SubQuestionNumber", "gteSetting", "1,"+utils.Ordinalize(i+1))
 				break
 			}
+			distinct_sub_number, distinct_sub_number_string := dao.GetAllSubQuestionNumber(base_course, setting.Tag)
 			if !slices.Contains(distinct_sub_number, setting.SubQuestionNumber) {
 				sl.ReportError(setting.SubQuestionNumber, "sub_question_number", "SubQuestionNumber", "notValidSub", strings.Join(distinct_sub_number_string, " ")+", "+utils.Ordinalize(i+1))
 			}

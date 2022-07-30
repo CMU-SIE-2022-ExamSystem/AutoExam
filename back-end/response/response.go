@@ -49,6 +49,14 @@ func SuccessResponse(c *gin.Context, data interface{}) {
 	SuccessResponseWithType(c, data, 0)
 }
 
+func CreatedResponse(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusCreated, gin.H{
+		"type":  0,
+		"error": struct{}{},
+		"data":  data,
+	})
+}
+
 func NonContentResponse(c *gin.Context) {
 	c.Writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 	c.Writer.WriteHeader(http.StatusNoContent)

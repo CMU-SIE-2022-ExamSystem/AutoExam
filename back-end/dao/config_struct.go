@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"math/rand"
 	"strconv"
 	"time"
 
@@ -9,12 +10,16 @@ import (
 	"golang.org/x/text/language"
 )
 
+// @Description assessment
 type AutoExam_Assessments struct {
-	Id       string     `yaml:"id" json:"id" bson:"id"`
-	Course   string     `yaml:"course" json:"course" bson:"course"`
-	General  General    `yaml:"general" json:"general"`
-	Settings []Settings `yaml:"settings" json:"settings"`
-	Draft    bool       `json:"draft" bson:"draft"`
+	Id             string     `yaml:"id" json:"id" bson:"id"`                 // name of assessment
+	Course         string     `yaml:"course" json:"course" bson:"course"`     // course of assessment
+	BaseCourse     string     `json:"-" bson:"base_course"`                   // base course of assessment
+	General        General    `yaml:"general" json:"general"`                 // general details of  assessment
+	Settings       []Settings `yaml:"settings" json:"settings"`               // questions settings of  assessment
+	Draft          bool       `json:"draft" bson:"draft"`                     // whether the assessment could be used for student
+	Generated      int        `json:"generated" bson:"generated"`             // whether assessment is generated for all student in the course. 0: not generated, 1: already generated, -1: generated error
+	GeneratedError string     `json:"generated_error" bson:"generated_error"` // error message for an error happened when generatings all student's exam
 }
 
 type AutoExam_Assessments_Create struct {
@@ -112,11 +117,12 @@ func (assessment *AutoExam_Assessments_Update_Validate) ToAutoExamAssessments(co
 	assessment.General.Grading_deadline = Time_to_EST(assessment.General.Grading_deadline)
 
 	autoexam := AutoExam_Assessments{
-		Id:       assessment.General.Name,
-		Course:   course,
-		General:  assessment.General,
-		Settings: assessment.Settings,
-		Draft:    true,
+		Id:         assessment.General.Name,
+		Course:     course,
+		BaseCourse: assessment.BaseCourse,
+		General:    assessment.General,
+		Settings:   assessment.Settings,
+		Draft:      true,
 	}
 
 	return autoexam
@@ -162,7 +168,7 @@ func AutoExamToDownloadAssessmentsProblems(assessment AutoExam_Assessments) []mo
 	for i, setting := range assessment.Settings {
 		for j := 0; j < setting.SubQuestionNumber; j++ {
 			problems = append(problems, models.Problems{
-				Name:        "Q" + strconv.Itoa(i+1) + "_" + "sub" + strconv.Itoa(j+1),
+				Name:        ToSubQuestionName(i+1, j+1),
 				Description: "",
 				Max_score:   setting.Scores[j],
 				Optional:    false,
@@ -186,6 +192,61 @@ func (assessment *AutoExam_Assessments) ToAssessments() models.Assessments {
 		Draft:            assessment.Draft,
 	}
 	return ass
+}
+
+func (assessment *AutoExam_Assessments) GenerateAssessmentStudent(email, course_name, assessment_name string) Assessment_Student {
+	var questions []string
+	var problems []Student_Problems
+	var solutions []Student_Questions
+	for i, ass := range assessment.Settings {
+		// get specified question_id id
+		var question_id string
+		if len(ass.Id) != 0 { // limit id
+			number := len(ass.Id)
+			s1 := rand.NewSource(time.Now().UnixNano())
+			r1 := rand.New(s1)
+			question_id = ass.Id[r1.Intn(number)]
+		} else { // not limit id
+			ids := GetAllQuestionIDBySubQuestionNumber(assessment.BaseCourse, ass.Tag, ass.SubQuestionNumber)
+			number := len(ids)
+			s1 := rand.NewSource(time.Now().UnixNano())
+			r1 := rand.New(s1)
+			question_id = ids[r1.Intn(number)]
+		}
+
+		question, _ := ReadQuestionById(question_id)
+
+		var sub_solutions []Student_Sub_Questions
+		for j, sub_quest := range question.SubQuestions {
+			// create problems
+			problem := Student_Problems{
+				Name:     ToSubQuestionName(i+1, j+1),
+				Grader:   sub_quest.Grader,
+				MaxScore: ass.Scores[j],
+			}
+			problems = append(problems, problem)
+			// create solutions
+			var sub_sub_solutions []Student_Sub_Sub_Questions
+			for k, sol := range sub_quest.Solutions {
+				sub_sub_solutions = append(sub_sub_solutions, Student_Sub_Sub_Questions{Key: ToSubSubQuestionName(i+1, j+1, k+1), Value: sol})
+			}
+			sub_solutions = append(sub_solutions, Student_Sub_Questions{Key: ToSubQuestionName(i+1, j+1), Value: sub_sub_solutions})
+		}
+
+		questions = append(questions, question_id)
+		solutions = append(solutions, Student_Questions{Key: "Q" + strconv.Itoa(i+1), Value: sub_solutions})
+	}
+
+	student := Assessment_Student{
+		Email:      email,
+		Course:     course_name,
+		Assessment: assessment_name,
+		Questions:  questions,
+		Problems:   problems,
+		Solutions:  solutions,
+	}
+
+	return student
 }
 
 func Time_to_EST(t string) string {
@@ -226,4 +287,11 @@ func LocalTime_to_EST() (start_at, end_at string) {
 	start_at = tm.In(loc).Format(models.TimeFormat)
 	end_at = tm.AddDate(0, 0, 1).In(loc).Format(models.TimeFormat)
 	return
+}
+
+func ToSubQuestionName(question_index, sub_question_index int) string {
+	return "Q" + strconv.Itoa(question_index) + "_" + "sub" + strconv.Itoa(sub_question_index)
+}
+func ToSubSubQuestionName(question_index, sub_question_index, sub_sub_question_index int) string {
+	return "Q" + strconv.Itoa(question_index) + "_" + "sub" + strconv.Itoa(sub_question_index) + "_sub" + strconv.Itoa(sub_sub_question_index)
 }

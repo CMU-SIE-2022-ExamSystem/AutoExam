@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -15,6 +14,11 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/validate"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+const (
+	Student_Model = "student"
 )
 
 // Exam_Handler godoc
@@ -162,7 +166,7 @@ func CreateAssessment_Handler(c *gin.Context) {
 	if err != nil {
 		response.ErrMongoDBCreateResponse(c, "assessment")
 	}
-	response.SuccessResponse(c, assessment)
+	response.CreatedResponse(c, assessment)
 }
 
 // ReadAssessment_Handler godoc
@@ -330,11 +334,106 @@ func DownloadAssessments_Handler(c *gin.Context) {
 	if len(assessment.Settings) == 0 {
 		response.ErrAssessmentNoSettingsResponse(c, assessment_name)
 	}
-	fmt.Println("============")
-	fmt.Println(assessment.ToDownloadAssessments())
-	fmt.Println("============")
 	tar := course.Build_Assessment(c, course_name, base_course, assessment)
 	c.FileAttachment(tar, tar[strings.LastIndex(tar, "/")+1:])
+}
+
+// QuestionAssessments_Handler godoc
+// @Summary get all the questions based on the user
+// @Schemes
+// @Description get all the questions based on the user
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Success 200  "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Router /courses/{course_name}/assessments/{assessment_name}/question [get]
+// @Security ApiKeyAuth
+func QuestionAssessments_Handler(c *gin.Context) {
+	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
+	email := jwt.GetEmail(c)
+	student, err := dao.ReadStudent(course_name, assessment_name, email.Email)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			// TODO response for no student instance
+		}
+		response.ErrMongoDBReadResponse(c, Student_Model)
+	}
+	response.SuccessResponse(c, student.ToRealQuestions())
+}
+
+// GetAnswersAssessments_Handler godoc
+// @Summary get answers based on the user
+// @Schemes
+// @Description get answers based on the user
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Success 200 {object} response.Response{data=dao.Answers_Upload} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Router /courses/{course_name}/assessments/{assessment_name}/answers [get]
+// @Security ApiKeyAuth
+func GetAnswersAssessments_Handler(c *gin.Context) {
+	student := read_assessment_student(c)
+	response.SuccessResponse(c, student.Answers)
+}
+
+// GetAnswersAssessments_Handler godoc
+// @Summary upload user's answers
+// @Schemes
+// @Description upload user's answers
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Param data body dao.Answers_Upload true "body data"
+// @Success 200 {object} response.Response{data=dao.Answers_Upload} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Router /courses/{course_name}/assessments/{assessment_name}/answers [put]
+// @Security ApiKeyAuth
+func UploadAnswersAssessments_Handler(c *gin.Context) {
+	student := read_assessment_student(c)
+
+	var body dao.Answers_Upload_Validate
+	body.Student = student
+	validate.ValidateJson(c, &body)
+
+	student.Answers = body.Answers
+	instance, err := dao.CreateOrUpdateStudent(student)
+	if err != nil {
+		response.ErrMongoDBUpdateResponse(c, Student_Model)
+	}
+
+	response.SuccessResponse(c, dao.Answers_Upload{Answers: instance.Answers})
+}
+
+// GetAnswersAssessments_Handler godoc
+// @Summary get answers structure based on the user
+// @Schemes
+// @Description get answers structure based on the user
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Success 200 {object} response.Response{data=[]dao.Student_Questions} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Router /courses/{course_name}/assessments/{assessment_name}/answers/struct [get]
+// @Security ApiKeyAuth
+func GetAnswersStructAssessments_Handler(c *gin.Context) {
+	student := read_assessment_student(c)
+	student.ToAnwerStruct()
+	response.SuccessResponse(c, student.Solutions)
 }
 
 // GenerateAssessments_Handler godoc
@@ -354,16 +453,12 @@ func DownloadAssessments_Handler(c *gin.Context) {
 // @Security ApiKeyAuth
 func GenerateAssessments_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
-	user := jwt.GetUser(c)
-	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
-	student := dao.Assessment_Student{
-		Id:         int(user.ID),
-		Course:     course_name,
-		Assessment: assessment_name,
-	}
-	fmt.Println(dao.CreateStudent(student))
 
+	generate_assessment_student(c)
+	// TODO que system for back process
+	response.SuccessResponse(c, nil)
 }
 
 // Usersubmit_Handler godoc
@@ -400,17 +495,6 @@ func Usersubmit_Handler(c *gin.Context) {
 	// }
 }
 
-func read_assessment(c *gin.Context, course_name, assessment_name string) dao.AutoExam_Assessments {
-	// read certain assessment
-	assessment, err := dao.ReadExam(course_name, assessment_name)
-
-	// check mongo error
-	if err != nil {
-		response.ErrMongoDBReadResponse(c, "assessment")
-	}
-	return assessment
-}
-
 // CheckSubmission_Handler godoc
 // @Summary check assessment submission
 // @Schemes
@@ -442,4 +526,55 @@ func CheckSubmission_Handler(c *gin.Context) {
 	} else {
 		response.ErrorResponseWithStatus(c, "This user has no submission records.", http.StatusNotFound)
 	}
+}
+
+func read_assessment(c *gin.Context, course_name, assessment_name string) dao.AutoExam_Assessments {
+	// read certain assessment
+	assessment, err := dao.ReadExam(course_name, assessment_name)
+
+	// check mongo error
+	if err != nil {
+		response.ErrMongoDBReadResponse(c, Student_Model)
+	}
+	return assessment
+}
+
+func generate_assessment_student(c *gin.Context) {
+	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
+
+	assessment := read_assessment(c, course_name, assessment_name)
+	users, _ := course.CourseUserData(c)
+	var err error
+	for _, user := range users {
+		student := assessment.GenerateAssessmentStudent(user.Email, course_name, assessment_name)
+		_, err = dao.CreateOrUpdateStudent(student)
+		if err != nil {
+			assessment.Generated = -1
+			assessment.GeneratedError = "There is an error happen when generating " + student.Email + "'s exam with error message: " + err.Error()
+		}
+	}
+	if err == nil {
+		assessment.Generated = 1
+		assessment.GeneratedError = ""
+	}
+
+	dao.UpdateExam(course_name, assessment_name, assessment)
+}
+
+func read_assessment_student(c *gin.Context) dao.Assessment_Student {
+	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
+
+	email := jwt.GetEmail(c)
+	student, err := dao.ReadStudent(course_name, assessment_name, email.Email)
+
+	// check mongo error
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			// TODO response for no student instance
+		}
+		response.ErrMongoDBReadResponse(c, Student_Model)
+	}
+	return student
 }

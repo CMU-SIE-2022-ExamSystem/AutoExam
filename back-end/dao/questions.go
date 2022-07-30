@@ -159,11 +159,11 @@ func ValidateQuestionUsedById(id string) (bool, error) {
 	return false, nil
 }
 
-func GetAllSubQuestionNumber(base_course string) ([]int, []string) {
+func GetAllSubQuestionNumber(base_course, tag_id string) ([]int, []string) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
-	filter := bson.D{{Key: "base_course", Value: base_course}}
+	filter := bson.D{{Key: "base_course", Value: base_course}, {Key: "question_tag", Value: tag_id}}
 
 	results, _ := collection.Distinct(context.TODO(), "sub_question_number", filter)
 
@@ -174,4 +174,22 @@ func GetAllSubQuestionNumber(base_course string) ([]int, []string) {
 		numbers_text = append(numbers_text, strconv.Itoa(int(result.(int32))))
 	}
 	return numbers, numbers_text
+}
+
+func GetAllQuestionIDBySubQuestionNumber(base_course, tag_id string, sub_question_number int) []string {
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
+	filter := bson.D{{Key: "base_course", Value: base_course}, {Key: "question_tag", Value: tag_id}, {Key: "sub_question_number", Value: sub_question_number}}
+
+	cursor, _ := collection.Find(context.TODO(), filter)
+
+	var id []string
+
+	for cursor.Next(context.TODO()) {
+		var autoexam AutoExam_Questions
+		cursor.Decode(&autoexam)
+		id = append(id, autoexam.ToQuestions().Id)
+	}
+	return id
 }

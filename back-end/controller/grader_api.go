@@ -116,7 +116,7 @@ func CreateGrader_Handler(c *gin.Context) {
 		response.ErrMySQLCreateResponse(c, Grader_Model)
 	}
 
-	response.SuccessResponse(c, grader)
+	response.CreatedResponse(c, grader)
 }
 
 // ReadGrader_Handler godoc

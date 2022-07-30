@@ -10,13 +10,6 @@ type Choice struct {
 	Content  string `json:"content" bson:"content"`
 }
 
-type Sub_Question struct {
-	Grader      string     `json:"grader" bson:"grader"`           // sub question's grader
-	Description string     `json:"description" bson:"description"` // sub question's content
-	Choices     []Choice   `json:"choices" bson:"choices"`         // required for "choices" type sub question
-	Solutions   [][]string `json:"solutions" bson:"solutions"`     // solutions of the sub question, the design for 2D slices is that the first dimension would be capable of multiple blanks while the second dimension would be used when if multiple solutions are all correct\n example: [["A", "B"], ["C"]]
-}
-
 type Sub_Question_Blank struct {
 	Grader      string     `json:"grader" bson:"grader"`           // sub question's grader
 	Description string     `json:"description" bson:"description"` // sub question's content
@@ -66,6 +59,13 @@ type Questions_Create struct {
 	SubQuestions []Sub_Question `json:"sub_questions" bson:"sub_questions"` // detail of sub_questions
 }
 
+type Sub_Question struct {
+	Grader      string     `json:"grader" bson:"grader"`           // sub question's grader
+	Description string     `json:"description" bson:"description"` // sub question's content
+	Choices     []Choice   `json:"choices" bson:"choices"`         // required for "choices" type sub question
+	Solutions   [][]string `json:"solutions" bson:"solutions"`     // solutions of the sub question, the design for 2D slices is that the first dimension would be capable of multiple blanks while the second dimension would be used when if multiple solutions are all correct\n example: [["A", "B"], ["C"]]
+}
+
 type Questions_Create_Validate struct {
 	BaseCourse   string               `yaml:"base_course" json:"base_course" bson:"base_course" form:"base_course" binding:"required"`
 	Title        string               `json:"title" bson:"title"`               // question title
@@ -96,4 +96,30 @@ func (question *Questions_Create_Validate) ToAutoExamQuestions() AutoExam_Questi
 		SubQuestionNumber: len(question.SubQuestions),
 	}
 	return instance
+}
+
+func (autoexam *Questions) ToQuestionsStudent() Questions_Student {
+	var sub_question []Sub_Question_Blank_Student
+	for _, quest := range autoexam.SubQuestions {
+		sub_question = append(sub_question, quest.ToSubQuestionsBlankStudent())
+	}
+
+	questions := Questions_Student{
+		Id:                autoexam.Id,
+		Title:             autoexam.Title,
+		Description:       autoexam.Description,
+		Tag:               autoexam.Tag,
+		SubQuestions:      sub_question,
+		SubQuestionNumber: autoexam.SubQuestionNumber,
+	}
+	return questions
+}
+
+func (autoexam *Sub_Question_Blank) ToSubQuestionsBlankStudent() Sub_Question_Blank_Student {
+	student := Sub_Question_Blank_Student{
+		Description: autoexam.Description,
+		Choices:     autoexam.Choices,
+		Blanks:      autoexam.Blanks,
+	}
+	return student
 }

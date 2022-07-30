@@ -24,7 +24,12 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/", jwt.JWTAuth(), controller.ReadAssessment_Handler)
 		CourseRouter.PUT("/:course_name/assessments/:assessment_name/", jwt.JWTAuth(), controller.UpdateAssessment_Handler)
 		CourseRouter.DELETE("/:course_name/assessments/:assessment_name/", jwt.JWTAuth(), controller.DeleteAssessment_Handler)
+
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/generate", jwt.JWTAuth(), controller.GenerateAssessments_Handler)
+		CourseRouter.GET("/:course_name/assessments/:assessment_name/question", jwt.JWTAuth(), controller.QuestionAssessments_Handler)
+		CourseRouter.GET("/:course_name/assessments/:assessment_name/answers", jwt.JWTAuth(), controller.GetAnswersAssessments_Handler)
+		CourseRouter.PUT("/:course_name/assessments/:assessment_name/answers", jwt.JWTAuth(), controller.UploadAnswersAssessments_Handler)
+		CourseRouter.GET("/:course_name/assessments/:assessment_name/answers/struct", jwt.JWTAuth(), controller.GetAnswersStructAssessments_Handler)
 
 		// modify assessment's draft
 		CourseRouter.PUT("/:course_name/assessments/:assessment_name/draft", jwt.JWTAuth(), controller.DraftAssessment_Handler)
