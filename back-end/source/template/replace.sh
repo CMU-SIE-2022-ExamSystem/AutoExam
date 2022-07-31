@@ -22,5 +22,3 @@ sed -i'' -e "s/temp/$1/g" $1.rb
 # replace writeup url
 sed -i'' -e "s/url/$2/g" ./writeup/exam.html
 
-# make autograde tar
-tar cvf $SCRIPT_DIR/$1/autograde.tar autograder

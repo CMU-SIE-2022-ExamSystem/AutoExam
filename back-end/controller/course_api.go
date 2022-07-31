@@ -354,6 +354,7 @@ func DownloadAssessments_Handler(c *gin.Context) {
 // @Router /courses/{course_name}/assessments/{assessment_name}/question [get]
 // @Security ApiKeyAuth
 func QuestionAssessments_Handler(c *gin.Context) {
+	// TODO should check time
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
 	email := jwt.GetEmail(c)
@@ -402,6 +403,7 @@ func GetAnswersAssessments_Handler(c *gin.Context) {
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers [put]
 // @Security ApiKeyAuth
 func UploadAnswersAssessments_Handler(c *gin.Context) {
+	// TODO should check time
 	student := read_assessment_student(c)
 
 	var body dao.Answers_Upload_Validate
@@ -432,6 +434,7 @@ func UploadAnswersAssessments_Handler(c *gin.Context) {
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers/struct [get]
 // @Security ApiKeyAuth
 func GetAnswersStructAssessments_Handler(c *gin.Context) {
+	// TODO should check time
 	student := read_assessment_student(c)
 	response.SuccessResponse(c, student.ToAnwerStruct())
 }
