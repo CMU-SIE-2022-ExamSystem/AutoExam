@@ -33,6 +33,9 @@ func PrepareSolution(student dao.Assessment_Student, path string) error {
 	}
 	defer file.Close()
 
+	if student.Solutions == nil {
+		return errors.New("the solution can not be found")
+	}
 	data, _ := json.Marshal(student.Solutions)
 
 	_, err = fmt.Fprint(file, string(data))
@@ -48,6 +51,9 @@ func PrepareConfig(student dao.Assessment_Student, path string) error {
 	}
 	defer file.Close()
 
+	if student.Problems == nil {
+		return errors.New("the config can not be found")
+	}
 	data, _ := yaml.Marshal(student.Problems)
 
 	_, err = fmt.Fprint(file, string(data))
@@ -63,6 +69,9 @@ func PrepareAnswer(student dao.Assessment_Student, path string) error {
 	}
 	defer file.Close()
 
+	if student.Answers == nil {
+		return errors.New("the answer can not be found")
+	}
 	data, _ := json.Marshal(student.Answers)
 
 	_, err = fmt.Fprint(file, string(data))
