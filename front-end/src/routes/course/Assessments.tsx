@@ -7,7 +7,6 @@ import {getBackendApiUrl} from "../../utils/url";
 import axios from "axios";
 import {useGlobalState} from "../../components/GlobalStateProvider";
 import moment from 'moment';
-import {start} from "repl";
 
 interface assessmentProps {
     name: string;
@@ -131,10 +130,8 @@ const NewExamConfig = ({show, onSubmit, clearMessage, onClose, categoryList, err
                                       className="mb-2"
                                       required
                                       id="new-exam-name"
-                                      pattern="[A-za-z][A-za-z0-9_]{0,15}"
                                       onChange={clearMessage}
                         />
-                        <small>Use only alphabets, numbers and underscore(_).</small>
                         <div>
                             <small className="text-danger">{errorMessage}</small>
                         </div>

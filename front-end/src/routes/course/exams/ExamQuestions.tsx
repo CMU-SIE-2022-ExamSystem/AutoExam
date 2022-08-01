@@ -1,16 +1,15 @@
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Button, Col, Modal, Row} from 'react-bootstrap';
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import AppLayout from "../../../components/AppLayout";
 import Question from "../../../components/Question";
 import CountdownTimer from "../../../components/CountdownTimer";
 import questionDataType from "../../../components/questionTemplate/questionDataType";
 import {choiceDataType} from '../../../components/questionTemplate/subQuestionDataType';
 import downloadFile from "../../../utils/downloadFile";
-
-const getQuestionList = () => {
-    return [];
-}
+import {useGlobalState} from "../../../components/GlobalStateProvider";
+import {getBackendApiUrl} from "../../../utils/url";
+import axios from "axios";
 
 const TimeoutModal = ({show, toClose, onClose} :{ show: boolean, toClose: () => void, onClose: () => void }) => {
     return (
@@ -181,10 +180,29 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
 
 const ExamQuestions = () => {
     let params = useParams();
-    let questionList: questionDataType[];
-    //useCallback(() => questionList = getQuestionList(), []);
+    const {globalState} = useGlobalState();
+    const navigate = useNavigate();
+    const courseName = params.course_name, examId = params.exam_id;
+    const [questionList, setQuestionList] = useState<questionDataType[]>([]);
 
-    questionList = require('./questions_new.json').data;
+    const getQuestionList = useCallback(async () => {
+        const examUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/exam`);
+        const token = globalState.token;
+        axios.get(examUrl, {headers: {Authorization: "Bearer " + token}})
+            .then(result => {
+                setQuestionList(result.data.data);
+            })
+            .catch(badExam => {
+                console.error(badExam);
+            });
+    }, [globalState.token]);
+
+    useEffect(() => {
+        getQuestionList()
+            .catch();
+    }, []);
+
+    //questionList = require('./questions_new.json').data;
     let subQuestionArray = questionList.flatMap((question) =>
         question.sub_questions.map(subQuestion => ["Q" + question.id + "_sub" + subQuestion.question_id, subQuestion.question_type, subQuestion.choices]));
     let idList: string[] = [];
@@ -228,6 +246,15 @@ const ExamQuestions = () => {
         })
     }
 
+    const submitExam = (examAnswer: object) => {
+        const examUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/answers`);
+        const token = globalState.token;
+        const data = {
+            answer: examAnswer
+        };
+        return axios.put(examUrl, data,{headers: {Authorization: "Bearer " + token}})
+    }
+
     const manualSubmitExam = () => {
         setConfirmShow(false);
         setAckShow(true);
@@ -236,6 +263,15 @@ const ExamQuestions = () => {
         console.log(studentAnswer);
         console.log(JSON.stringify(studentAnswer));
         //downloadFile(params.exam_id! + ".json", JSON.stringify(studentAnswer));
+
+        submitExam(studentAnswer)
+            .then(response => {
+
+            })
+            .catch(badExam => {
+
+            })
+
         removeAllLocalStorage();
     }
 
@@ -245,6 +281,15 @@ const ExamQuestions = () => {
         const studentAnswer = prepareAnswer(questionList);
         console.log(studentAnswer);
         //downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
+
+        submitExam(studentAnswer)
+            .then(response => {
+
+            })
+            .catch(badExam => {
+
+            })
+
         removeAllLocalStorage();
     }
 
