@@ -44,6 +44,35 @@ func UserRefreshHandler(c *gin.Context) {
 	}
 }
 
+func UserRefreshByEmailHandler(c *gin.Context, email string) string {
+	user := models.User{Email: email}
+	global.DB.Find(&user)
+	refresh := user.Refresh_token
+
+	auth := global.Settings.Autolabinfo
+
+	http_body := models.Http_Body_Refresh{
+		Grant_type:    "refresh_token",
+		Refresh_token: refresh,
+		Scope:         auth.Scope,
+		Client_id:     auth.Client_id,
+		Client_secret: auth.Client_secret,
+	}
+
+	autolab_resp, flag := autolab.AutolabAuthHandler(c, "/oauth/token", http_body)
+
+	if flag {
+		user.Access_token = autolab_resp.Access_token
+		user.Refresh_token = autolab_resp.Refresh_token
+		user.Create_at = utils.GetNowTime()
+		user.Expires_in = autolab_resp.Expires_in
+		color.Yellow(user.Access_token)
+		color.Yellow(user.Refresh_token)
+		global.DB.Save(&user)
+	}
+	return autolab_resp.Access_token
+}
+
 // These two check functions are testing user auth_level
 func Check_authlevel_API(c *gin.Context) {
 	course_name := c.Param("course_name")

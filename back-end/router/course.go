@@ -9,7 +9,6 @@ import (
 func CourseRouter(Router *gin.RouterGroup) {
 	CourseRouter := Router.Group("courses")
 	{
-		CourseRouter.GET("/:course_name/assessments/:assessment_name/exam", controller.Exam_Handler)
 		CourseRouter.GET("/:course_name/info", jwt.JWTAuth(), controller.Usercoursesinfo_Handler)
 		CourseRouter.GET("/:course_name/assessments", jwt.JWTAuth(), controller.Assessments_Handler)
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/submissions", jwt.JWTAuth(), controller.Submissions_Handler)
@@ -27,9 +26,9 @@ func CourseRouter(Router *gin.RouterGroup) {
 
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/generate", jwt.JWTAuth(), controller.GenerateAssessments_Handler)
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/question", jwt.JWTAuth(), controller.QuestionAssessments_Handler)
-		CourseRouter.GET("/:course_name/assessments/:assessment_name/answers", jwt.JWTAuth(), controller.GetAnswersAssessments_Handler)
+		CourseRouter.GET("/:course_name/assessments/:assessment_name/answers", jwt.JWTAuth(), controller.ReadAnswersAssessments_Handler)
 		CourseRouter.PUT("/:course_name/assessments/:assessment_name/answers", jwt.JWTAuth(), controller.UploadAnswersAssessments_Handler)
-		CourseRouter.GET("/:course_name/assessments/:assessment_name/answers/struct", jwt.JWTAuth(), controller.GetAnswersStructAssessments_Handler)
+		CourseRouter.GET("/:course_name/assessments/:assessment_name/answers/struct", jwt.JWTAuth(), controller.ReadAnswersStructAssessments_Handler)
 
 		// modify assessment's draft
 		CourseRouter.PUT("/:course_name/assessments/:assessment_name/draft", jwt.JWTAuth(), controller.DraftAssessment_Handler)
