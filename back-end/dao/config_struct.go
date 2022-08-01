@@ -91,11 +91,17 @@ type Draft struct {
 }
 
 type Statistic struct {
+	Best    bool    `json:"best" bson:"best"` // for instructor to determine ths statistic use the best score or the latest score
 	Number  int     `json:"number" bson:"number"`
 	Highest float64 `json:"highest" bson:"highest"`
 	Lowest  float64 `json:"lowest" bson:"lowest"`
 	Mean    float64 `json:"mean" bson:"mean"`
 }
+
+// @Description statistic api body
+type Statistic_Create struct {
+	Best bool `json:"best" bson:"best"` // for instructor to determine ths statistic use the best score or the latest score
+} // @name statictic
 
 var (
 	Assessment_Catergories []string = []string{"Exam", "Quiz"}

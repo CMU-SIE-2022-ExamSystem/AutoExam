@@ -58,6 +58,17 @@ func Assessments_submissions_trans(str string) []models.Submissions {
 	if err != nil {
 		color.Yellow("json transfer error>>> " + err.Error())
 	}
+
+	if len(response) != 0 {
+		for i, submission := range response {
+			sum := 0.0
+			for index := range submission.Scores {
+				sum += submission.Scores[index]
+			}
+			response[i].TotalScore = sum
+		}
+	}
+
 	return response
 }
 

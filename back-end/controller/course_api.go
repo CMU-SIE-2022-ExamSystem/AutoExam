@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -463,17 +463,18 @@ func GenerateAssessments_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
-// @Success 200  "success"
+// @Success 200 {object} response.Response{data=dao.Statistic} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/statistic [get]
 // @Security ApiKeyAuth
 func ReadStatisticAssessments_Handler(c *gin.Context) {
-	course.GetCourseAssessment(c)
+	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
+	assessment := read_assessment(c, course_name, assessment_name)
 
-	response.SuccessResponse(c, nil)
+	response.SuccessResponse(c, assessment.Statistic)
 }
 
 // CreateStatisticAssessments_Handler godoc
@@ -485,35 +486,62 @@ func ReadStatisticAssessments_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
-// @Success 200  "success"
+// @Param data body dao.Statistic_Create true "body data"
+// @Success 200 {object} response.Response{data=dao.Statistic} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/statistic [post]
 // @Security ApiKeyAuth
 func CreateStatisticAssessments_Handler(c *gin.Context) {
-
+	// TODO should check with greg to get the latest or the best score
 	jwt.Check_authlevel_Instructor(c)
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
+	assessment := read_assessment(c, course_name, assessment_name)
+
+	var data dao.Statistic_Create
+	validate.ValidateJson(c, &data)
+
 	var statistic dao.Statistic
 	// var score []float64
+	var sum_score = 0.0
+	highest := 0.0
+	lowest := math.MaxFloat64
 	// method 1 access every student's score by refresh token in db
 	users, _ := course.CourseUserData(c)
 	for _, user := range users {
 		token := jwt.UserRefreshByEmailHandler(c, user.Email)
 		body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
-		instance, flag := utils.Assessments_submissionscheck_trans(string(body))
-		if flag {
+		submissions := utils.Assessments_submissions_trans(string(body))
+		if len(submissions) != 0 {
 			statistic.Number += 1
-			fmt.Println(instance)
-			// score = append(score, instance[0].Scores)
+			var best_index = 0
+			if data.Best {
+				var best_score = 0.0
+				for i, submission := range submissions {
+					if submission.TotalScore > best_score {
+						best_score = submission.TotalScore
+						best_index = i
+					}
+				}
+			}
+			highest = math.Max(highest, submissions[best_index].TotalScore)
+			lowest = math.Min(lowest, submissions[best_index].TotalScore)
+			sum_score += submissions[best_index].TotalScore
 		}
 	}
 
+	statistic.Highest = highest
+	statistic.Lowest = lowest
+	statistic.Mean = math.Round((sum_score/float64(statistic.Number))*100) / 100
+	statistic.Best = data.Best
+	assessment.Statistic = statistic
+	dao.UpdateExam(course_name, assessment_name, assessment)
+
 	// method 2 only use score in student's db
 
-	response.SuccessResponse(c, nil)
+	response.SuccessResponse(c, statistic)
 }
 
 // Usersubmit_Handler godoc

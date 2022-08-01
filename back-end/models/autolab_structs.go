@@ -47,10 +47,11 @@ type Assessments struct {
 }
 
 type Submissions struct {
-	Version    int         `json:"version"`
-	Filename   string      `json:"filename"`
-	Created_at string      `json:"created_at"`
-	Scores     interface{} `json:"scores"`
+	Version    int                `json:"version"`
+	Filename   string             `json:"filename"`
+	Created_at string             `json:"created_at"`
+	Scores     map[string]float64 `json:"scores"`
+	TotalScore float64            `json:"total_score"`
 }
 
 type Submit struct {
