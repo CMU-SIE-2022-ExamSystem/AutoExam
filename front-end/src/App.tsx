@@ -13,6 +13,7 @@ import RequireAuth from "./middlewares/RequireAuth";
 import QuestionBank from "./routes/course/questionBanks/QuestionBank";
 import ExamConfig from "./routes/course/config/ExamConfig";
 import {ExamConfigStateProvider} from "./routes/course/config/ExamConfigStates";
+import ExamResults from "./routes/course/results/ExamResults";
 
 const App = () => {
     return (
@@ -36,6 +37,9 @@ const App = () => {
                         <Route path="exams/:exam_id">
                             <Route index element={<RequireAuth><ExamInstructions/></RequireAuth>}/>
                             <Route path="questions" element={<RequireAuth><ExamQuestions/></RequireAuth>}/>
+                        </Route>
+                        <Route path="examResults">
+                            <Route path=":exam_id" element={<RequireAuth><ExamResults /></RequireAuth>} />
                         </Route>
                     </Route>
                 </Routes>

@@ -7,6 +7,7 @@ import {getBackendApiUrl} from "../../utils/url";
 import axios from "axios";
 import {useGlobalState} from "../../components/GlobalStateProvider";
 import moment from 'moment';
+import {start} from "repl";
 
 interface assessmentProps {
     name: string;
@@ -34,15 +35,26 @@ interface tagProps {
 }
 
 const AssessmentRow = ({name, display_name, start_at, due_at, permission}: extAssessmentProps) => {
-    let startTime = moment(start_at).format("MMMM Do YYYY, h:mm:ss a");
-    let dueTime = moment(due_at).format("MMMM Do YYYY, h:mm:ss a");
+    let now = moment();
+    let start = moment(start_at);
+    let end = moment(due_at);
+    let startTime = start.format("MMMM Do YYYY, h:mm:ss a");
+    let dueTime = end.format("MMMM Do YYYY, h:mm:ss a");
+
+    let beforeExamTime = now.diff(start) < 0;
+    let inExamTime = now.diff(start) >= 0 && end.diff(now) >= 0;
+    let afterExamTime = end.diff(now) < 0;
 
     let actionList = [];
     if (permission) {
         actionList.push(<Link to={"examConfig/" + name} key="_EditExam" className="btn btn-success m-1">Edit Exam</Link>)
         actionList.push(<Link to={"exams/" + name} key="_ProctorExam" className="btn btn-primary m-1">Proctor Exam</Link>)
-    } else {
+    } else if (beforeExamTime) {
+        actionList.push(<span>Remaining {now.to(start, true)}</span>)
+    } else if (inExamTime) {
         actionList.push(<Link to={"exams/" + name} key="_TakeExam" className="btn btn-primary m-1">Take Exam</Link>);
+    } else if (afterExamTime) {
+        actionList.push(<Link to={"examResults/" + name} key="_ExamResults" className="btn btn-success m-1">Exam Results (NotDone)</Link>)
     }
 
     return (
