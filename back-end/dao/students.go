@@ -41,12 +41,14 @@ type Questions_Student struct {
 	Tag               string                       `json:"question_tag" bson:"question_tag"`               // tag of the question, would return tag name
 	SubQuestions      []Sub_Question_Blank_Student `json:"sub_questions" bson:"sub_questions"`             // detail of sub_questions
 	SubQuestionNumber int                          `json:"sub_question_number" bson:"sub_question_number"` // number of sub_questions
+	Score             float64                      `json:"score" bson:"score"`                             // score of question
 }
 
 type Sub_Question_Blank_Student struct {
 	Description string   `json:"description" bson:"description"` // sub question's content
 	Choices     []Choice `json:"choices" bson:"choices"`         // required for "choices" type sub question
 	Blanks      []Blanks `json:"blanks" bson:"blanks"`           // detail of blanks of sub question, based on grader
+	Score       float64  `json:"score" bson:"score"`             // score of sub question
 }
 
 type Answers_Upload struct {
@@ -97,7 +99,7 @@ func (student *Assessment_Student) ToRealQuestions() []Questions_Student {
 	assessment, _ := ReadExam(student.Course, student.Assessment)
 	for i, id := range student.Questions {
 		autoexam, _ := ReadQuestionById(id)
-		question := autoexam.ToQuestionsStudent()
+		question := autoexam.ToQuestionsStudent(assessment.Settings[i].Max_score, assessment.Settings[i].Scores)
 		question.Title = assessment.Settings[i].Title
 		questions_student = append(questions_student, question)
 	}

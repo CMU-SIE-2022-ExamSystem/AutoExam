@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
@@ -26,7 +27,7 @@ type PythonFile struct {
 	BaseCourse   string   `grom:"type:varchar(255)"`
 	Valid        bool     `gorm:"type:bool"`
 	Blanks       []Blanks `gorm:"constraint:OnUpdate:CASCADE,,OnDelete:CASCADE,foreignKey:PythonFileID"`
-	Uploaded     bool     `gorm:"type:bool"`
+	Uploaded     bool     `gorm:"type:bool,default:false"`
 }
 
 // @Description grader model info
@@ -43,6 +44,7 @@ type Blanks struct {
 	ID           uint   `json:"-" gorm:"primaryKey"`
 	PythonFileID uint   `json:"-"`
 	Type         string `json:"type" binding:"required,oneof=string code"`
+	Multiple     bool   `json:"multiple" gorm:"multiple"`
 }
 
 func insert(instance PythonFile) error {
@@ -262,15 +264,28 @@ func GetUploadStatus(question_type, course string) bool {
 
 func GetBasicGraderDict() map[string]Grader_API {
 	grader_dict := make(map[string]Grader_API)
-	var blanks []Blanks
-	blanks = append(blanks, Blanks{Type: "string"})
+	var single_blanks []Blanks
+	single_blanks = append(single_blanks, Blanks{Type: "string", Multiple: false})
+
+	var multiple_blanks []Blanks
+	multiple_blanks = append(multiple_blanks, Blanks{Type: "string", Multiple: true})
 	for _, grader := range global.Settings.Basic_Grader {
-		grader_dict[grader] = Grader_API{
-			Name:         grader,
-			Blanks:       blanks,
-			BlanksNumber: 1,
-			Valid:        true,
-			Uploaded:     true,
+		if strings.Contains(grader, "multiple") && strings.Contains(grader, "choice") {
+			grader_dict[grader] = Grader_API{
+				Name:         grader,
+				Blanks:       multiple_blanks,
+				BlanksNumber: 1,
+				Valid:        true,
+				Uploaded:     true,
+			}
+		} else {
+			grader_dict[grader] = Grader_API{
+				Name:         grader,
+				Blanks:       single_blanks,
+				BlanksNumber: 1,
+				Valid:        true,
+				Uploaded:     true,
+			}
 		}
 	}
 	return grader_dict

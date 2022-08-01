@@ -45,8 +45,8 @@ func UserRefreshHandler(c *gin.Context) {
 }
 
 func UserRefreshByEmailHandler(c *gin.Context, email string) string {
-	user := models.User{Email: email}
-	global.DB.Find(&user)
+	user := models.User{}
+	global.DB.Where("email = ?", email).Find(&user)
 	refresh := user.Refresh_token
 
 	auth := global.Settings.Autolabinfo

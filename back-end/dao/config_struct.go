@@ -89,6 +89,11 @@ type Draft struct {
 	Draft bool `yaml:"draft" json:"draft" bson:"draft"`
 }
 
+type Statistic struct {
+	Number  int     `json:"number" bson:"number"`
+	Highest float64 `json:"highest" bson:"highest"`
+}
+
 var (
 	Assessment_Catergories []string = []string{"Exam", "Quiz"}
 )

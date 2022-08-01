@@ -29,6 +29,8 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/answers", jwt.JWTAuth(), controller.ReadAnswersAssessments_Handler)
 		CourseRouter.PUT("/:course_name/assessments/:assessment_name/answers", jwt.JWTAuth(), controller.UploadAnswersAssessments_Handler)
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/answers/struct", jwt.JWTAuth(), controller.ReadAnswersStructAssessments_Handler)
+		CourseRouter.GET("/:course_name/assessments/:assessment_name/statistic", jwt.JWTAuth(), controller.ReadStatisticAssessments_Handler)
+		CourseRouter.POST("/:course_name/assessments/:assessment_name/statistic", jwt.JWTAuth(), controller.CreateStatisticAssessments_Handler)
 
 		// modify assessment's draft
 		CourseRouter.PUT("/:course_name/assessments/:assessment_name/draft", jwt.JWTAuth(), controller.DraftAssessment_Handler)

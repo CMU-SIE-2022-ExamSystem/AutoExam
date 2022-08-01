@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -468,7 +469,7 @@ func GenerateAssessments_Handler(c *gin.Context) {
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/statistic [get]
 // @Security ApiKeyAuth
-func GetStatisticAssessments_Handler(c *gin.Context) {
+func ReadStatisticAssessments_Handler(c *gin.Context) {
 	course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
 
@@ -491,13 +492,21 @@ func GetStatisticAssessments_Handler(c *gin.Context) {
 // @Router /courses/{course_name}/assessments/{assessment_name}/statistic [post]
 // @Security ApiKeyAuth
 func CreateStatisticAssessments_Handler(c *gin.Context) {
+
 	jwt.Check_authlevel_Instructor(c)
-	// course_name, assessment_name := course.GetCourseAssessment(c)
+	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
-	// users, _ := course.CourseUserData(c)
-	// for _, user := range users {
-	// token := jwt.UserRefreshByEmailHandler(c, user.Email)
-	// }
+
+	// method 1 access every student's score by refresh token in db
+	users, _ := course.CourseUserData(c)
+	for _, user := range users {
+		token := jwt.UserRefreshByEmailHandler(c, user.Email)
+		body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
+		instance, _ := utils.Assessments_submissionscheck_trans(string(body))
+		fmt.Println(instance)
+	}
+
+	// method 2 only use score in student's db
 
 	response.SuccessResponse(c, nil)
 }

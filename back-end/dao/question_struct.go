@@ -98,10 +98,10 @@ func (question *Questions_Create_Validate) ToAutoExamQuestions() AutoExam_Questi
 	return instance
 }
 
-func (autoexam *Questions) ToQuestionsStudent() Questions_Student {
+func (autoexam *Questions) ToQuestionsStudent(score float64, sub_scores []float64) Questions_Student {
 	var sub_question []Sub_Question_Blank_Student
-	for _, quest := range autoexam.SubQuestions {
-		sub_question = append(sub_question, quest.ToSubQuestionsBlankStudent())
+	for i, quest := range autoexam.SubQuestions {
+		sub_question = append(sub_question, quest.ToSubQuestionsBlankStudent(sub_scores[i]))
 	}
 
 	questions := Questions_Student{
@@ -111,15 +111,17 @@ func (autoexam *Questions) ToQuestionsStudent() Questions_Student {
 		Tag:               autoexam.Tag,
 		SubQuestions:      sub_question,
 		SubQuestionNumber: autoexam.SubQuestionNumber,
+		Score:             score,
 	}
 	return questions
 }
 
-func (autoexam *Sub_Question_Blank) ToSubQuestionsBlankStudent() Sub_Question_Blank_Student {
+func (autoexam *Sub_Question_Blank) ToSubQuestionsBlankStudent(score float64) Sub_Question_Blank_Student {
 	student := Sub_Question_Blank_Student{
 		Description: autoexam.Description,
 		Choices:     autoexam.Choices,
 		Blanks:      autoexam.Blanks,
+		Score:       score,
 	}
 	return student
 }
