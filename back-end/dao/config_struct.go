@@ -20,18 +20,24 @@ type AutoExam_Assessments struct {
 	Draft          bool       `json:"draft" bson:"draft"`                     // whether the assessment could be used for student
 	Generated      int        `json:"generated" bson:"generated"`             // whether assessment is generated for all student in the course. 0: not generated, 1: already generated, -1: generated error
 	GeneratedError string     `json:"generated_error" bson:"generated_error"` // error message for an error happened when generatings all student's exam
-}
+} // @name Assessments
+
+type AutoExam_Assessments_Student struct {
+	Description string `yaml:"description" json:"description" bson:"description"`                                                                                 // description of assessment
+	Start_at    string `yaml:"start_at" json:"start_at" bson:"start_at" default:"2022-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"` // start time of assessment
+	End_at      string `yaml:"end_at" json:"end_at" bson:"end_at" default:"2023-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`       // end time of assessment
+} // @name Assessments
 
 type AutoExam_Assessments_Create struct {
 	Name          string `yaml:"name" json:"name" bson:"name" binding:"required"`
 	Category_name string `yaml:"category_name" json:"category_name" bson:"category_name" default:"Exam" binding:"required,oneof=Exam Quiz"`
-}
+} // @name Assessments
 
 // @Description assessment update structure
 type AutoExam_Assessments_Update struct {
 	General  General    `yaml:"general" json:"general"`   // general details of the assessment
 	Settings []Settings `yaml:"settings" json:"settings"` // questions settings of the assessment
-}
+} // @name Assessments
 
 type AutoExam_Assessments_Update_Validate struct {
 	BaseCourse string
@@ -190,6 +196,15 @@ func (assessment *AutoExam_Assessments) ToAssessments() models.Assessments {
 		Autolab:          false,
 		AutoExam:         true,
 		Draft:            assessment.Draft,
+	}
+	return ass
+}
+
+func (assessment *AutoExam_Assessments) ToAssessmentsStudent() AutoExam_Assessments_Student {
+	ass := AutoExam_Assessments_Student{
+		Description: assessment.General.Description,
+		Start_at:    assessment.General.Start_at,
+		End_at:      assessment.General.End_at,
 	}
 	return ass
 }

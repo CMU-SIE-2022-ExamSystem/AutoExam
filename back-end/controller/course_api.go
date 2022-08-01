@@ -22,22 +22,6 @@ const (
 	Student_Model = "student"
 )
 
-// Exam_Handler godoc
-// @Summary get exam question
-// @Schemes
-// @Description get exam question
-// @Tags exam
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.Response "desc"
-// @Param		course_name			path	string	true	"Course Name"
-// @Param		assessment_name		path	string	true	"Assessment name"
-// @Security ApiKeyAuth
-// @Router /courses/{course_name}/assessments/{assessment_name}/exam [get]
-func Exam_Handler(c *gin.Context) {
-	response.SuccessResponse(c, dao.GetQuestions())
-}
-
 // Usercourses_Handler godoc
 // @Summary get user course information
 // @Schemes
@@ -171,9 +155,9 @@ func CreateAssessment_Handler(c *gin.Context) {
 }
 
 // ReadAssessment_Handler godoc
-// @Summary read an exam configuration
+// @Summary read an exam configuration. student would only get start_at, end_at desciprition while ta or instructor can retrieve all details
 // @Schemes
-// @Description read an exam configuration
+// @Description read an exam configuration. student would only get start_at, end_at desciprition while ta or instructor can retrieve all details
 // @Tags exam
 // @Accept json
 // @Produce json
@@ -181,19 +165,24 @@ func CreateAssessment_Handler(c *gin.Context) {
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Success 200 {object} response.Response{data=dao.AutoExam_Assessments} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
-// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Failure 500 {object} response.DBesponse{error=response.MongoDBReadError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name} [get]
 func ReadAssessment_Handler(c *gin.Context) {
-	jwt.Check_authlevel_Instructor(c)
 
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
 
 	assessment := read_assessment(c, course_name, assessment_name)
-	response.SuccessResponse(c, assessment)
+
+	auth_level := jwt.Get_authlevel_DB(c)
+	if auth_level == "student" {
+		response.SuccessResponse(c, assessment.ToAssessmentsStudent())
+	} else {
+		response.SuccessResponse(c, assessment)
+	}
+
 }
 
 // UpdateAssessment_Handler godoc
@@ -354,7 +343,7 @@ func DownloadAssessments_Handler(c *gin.Context) {
 // @Router /courses/{course_name}/assessments/{assessment_name}/question [get]
 // @Security ApiKeyAuth
 func QuestionAssessments_Handler(c *gin.Context) {
-	// TODO should check time
+	// TODO should check time check whether is question are all ready
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
 	email := jwt.GetEmail(c)
@@ -368,7 +357,7 @@ func QuestionAssessments_Handler(c *gin.Context) {
 	response.SuccessResponse(c, student.ToRealQuestions())
 }
 
-// GetAnswersAssessments_Handler godoc
+// ReadAnswersAssessments_Handler godoc
 // @Summary get answers based on the user
 // @Schemes
 // @Description get answers based on the user
@@ -382,7 +371,7 @@ func QuestionAssessments_Handler(c *gin.Context) {
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers [get]
 // @Security ApiKeyAuth
-func GetAnswersAssessments_Handler(c *gin.Context) {
+func ReadAnswersAssessments_Handler(c *gin.Context) {
 	student := read_assessment_student(c)
 	response.SuccessResponse(c, student.Answers)
 }
@@ -433,7 +422,7 @@ func UploadAnswersAssessments_Handler(c *gin.Context) {
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers/struct [get]
 // @Security ApiKeyAuth
-func GetAnswersStructAssessments_Handler(c *gin.Context) {
+func ReadAnswersStructAssessments_Handler(c *gin.Context) {
 	// TODO should check time
 	student := read_assessment_student(c)
 	response.SuccessResponse(c, student.ToAnwerStruct())
@@ -461,6 +450,55 @@ func GenerateAssessments_Handler(c *gin.Context) {
 
 	generate_assessment_student(c)
 	// TODO que system for back process
+	response.SuccessResponse(c, nil)
+}
+
+// GetStatisticAssessments_Handler godoc
+// @Summary get the assessment's score statistic result
+// @Schemes
+// @Description get the assessment's score statistic result
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Success 200  "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Router /courses/{course_name}/assessments/{assessment_name}/statistic [get]
+// @Security ApiKeyAuth
+func GetStatisticAssessments_Handler(c *gin.Context) {
+	course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
+
+	response.SuccessResponse(c, nil)
+}
+
+// CreateStatisticAssessments_Handler godoc
+// @Summary read all students' assessment's score and generate statistic result
+// @Schemes
+// @Description read all students' assessment's score and generate statistic result
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Success 200  "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Router /courses/{course_name}/assessments/{assessment_name}/statistic [post]
+// @Security ApiKeyAuth
+func CreateStatisticAssessments_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+	// course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
+	// users, _ := course.CourseUserData(c)
+	// for _, user := range users {
+	// token := jwt.UserRefreshByEmailHandler(c, user.Email)
+	// }
+
 	response.SuccessResponse(c, nil)
 }
 
