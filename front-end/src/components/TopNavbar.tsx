@@ -31,7 +31,7 @@ const TopNavbar = ({brand, brandLink} : Props) => {
                         <Nav>
                             {globalState.token &&
                             <NavDropdown title={username} id="top-navbar-dropdown">
-                                <NavDropdown.Item href="#">Logout</NavDropdown.Item>
+                                <NavDropdown.Item href="/logout">Logout</NavDropdown.Item>
                             </NavDropdown>
                             }
                         </Nav>

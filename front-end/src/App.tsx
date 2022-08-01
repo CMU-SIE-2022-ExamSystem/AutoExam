@@ -14,6 +14,7 @@ import QuestionBank from "./routes/course/questionBanks/QuestionBank";
 import ExamConfig from "./routes/course/config/ExamConfig";
 import {ExamConfigStateProvider} from "./routes/course/config/ExamConfigStates";
 import ExamResults from "./routes/course/results/ExamResults";
+import Logout from "./routes/auth/Logout";
 
 const App = () => {
     return (
@@ -21,6 +22,7 @@ const App = () => {
             <GlobalStateProvider>
                 <Routes>
                     <Route path='/' element={<Index/>}/>
+                    <Route path="logout" element={<Logout/>} />
                     <Route path="oauth" element={<AuthRedirect/>}/>
                     <Route path="oauth-callback" element={<AuthCallback/>}/>
                     <Route path="dashboard" element={
