@@ -20,6 +20,7 @@ type AutoExam_Assessments struct {
 	Draft          bool       `json:"draft" bson:"draft"`                     // whether the assessment could be used for student
 	Generated      int        `json:"generated" bson:"generated"`             // whether assessment is generated for all student in the course. 0: not generated, 1: already generated, -1: generated error
 	GeneratedError string     `json:"generated_error" bson:"generated_error"` // error message for an error happened when generatings all student's exam
+	Statistic      Statistic  `json:"-" bson:"statistic"`                     // statistic result
 } // @name Assessments
 
 type AutoExam_Assessments_Student struct {
@@ -92,6 +93,8 @@ type Draft struct {
 type Statistic struct {
 	Number  int     `json:"number" bson:"number"`
 	Highest float64 `json:"highest" bson:"highest"`
+	Lowest  float64 `json:"lowest" bson:"lowest"`
+	Mean    float64 `json:"mean" bson:"mean"`
 }
 
 var (

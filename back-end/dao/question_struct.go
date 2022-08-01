@@ -13,7 +13,7 @@ type Choice struct {
 type Sub_Question_Blank struct {
 	Grader      string     `json:"grader" bson:"grader"`           // sub question's grader
 	Description string     `json:"description" bson:"description"` // sub question's content
-	Choices     []Choice   `json:"choices" bson:"choices"`         // required for "choices" type sub question
+	Choices     [][]Choice `json:"choices" bson:"choices"`         // required for "choices" type sub question
 	Solutions   [][]string `json:"solutions" bson:"solutions"`     // solutions of the sub question, the design for 2D slices is that the first dimension would be capable of multiple blanks while the second dimension would be used when if multiple solutions are all correct\n example: [["A", "B"], ["C"]]
 	Blanks      []Blanks   `json:"blanks" bson:"blanks"`           // detail of blanks of sub question, based on grader
 }

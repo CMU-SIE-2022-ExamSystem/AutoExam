@@ -45,10 +45,10 @@ type Questions_Student struct {
 }
 
 type Sub_Question_Blank_Student struct {
-	Description string   `json:"description" bson:"description"` // sub question's content
-	Choices     []Choice `json:"choices" bson:"choices"`         // required for "choices" type sub question
-	Blanks      []Blanks `json:"blanks" bson:"blanks"`           // detail of blanks of sub question, based on grader
-	Score       float64  `json:"score" bson:"score"`             // score of sub question
+	Description string     `json:"description" bson:"description"` // sub question's content
+	Choices     [][]Choice `json:"choices" bson:"choices"`         // required for "choices" type sub question
+	Blanks      []Blanks   `json:"blanks" bson:"blanks"`           // detail of blanks of sub question, based on grader
+	Score       float64    `json:"score" bson:"score"`             // score of sub question
 }
 
 type Answers_Upload struct {

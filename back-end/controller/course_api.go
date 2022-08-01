@@ -496,14 +496,19 @@ func CreateStatisticAssessments_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
-
+	var statistic dao.Statistic
+	// var score []float64
 	// method 1 access every student's score by refresh token in db
 	users, _ := course.CourseUserData(c)
 	for _, user := range users {
 		token := jwt.UserRefreshByEmailHandler(c, user.Email)
 		body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
-		instance, _ := utils.Assessments_submissionscheck_trans(string(body))
-		fmt.Println(instance)
+		instance, flag := utils.Assessments_submissionscheck_trans(string(body))
+		if flag {
+			statistic.Number += 1
+			fmt.Println(instance)
+			// score = append(score, instance[0].Scores)
+		}
 	}
 
 	// method 2 only use score in student's db
