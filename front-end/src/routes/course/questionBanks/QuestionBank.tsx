@@ -160,10 +160,13 @@ const QuestionsByTag = ({questions}: {questions: questionDataType[] | undefined}
     return (
         <Row>
             <Col sm={10}>
-                {questions !== undefined &&
+                {!!questions &&
                     questions.map((question) => {
                         return <CollapseQuestion questionData={question} key={question.id}/>
                     })
+                }
+                {!questions &&
+                    "There are no questions under this tag."
                 }
             </Col>
         </Row>
@@ -187,11 +190,8 @@ function QuestionBank () {
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         console.log(result.data.data);
         setTags(result.data.data);
+        return result.data.data;
     }, [globalState.token, params.course_name]);
-
-    useEffect(() => {
-        getTags().catch();
-    }, [getTags]);
 
     const addNewTag = async (name: string) => {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/tags");
@@ -248,18 +248,20 @@ function QuestionBank () {
     const [questionsByTag, setQuestionsByTag] = useState<questionDataType[]>();
     const [addQuestionShow, setAddQuestionShow] = useState(false);
 
-    const getQuestionsByTag = useCallback(async () => {
+    const getQuestionsByTag = useCallback(async (tags: tagProps[]) => {
         const id = [...tags].filter((tag) => tag.name === params.tag)[0].id;
         const url = getBackendApiUrl("/courses/" + params.course_name + "/questions?tag_id=" + id);
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         console.log(result.data.data);
         setQuestionsByTag(result.data.data);
-    }, [globalState.token, params.course_name, params.tag, tags])
+    }, [globalState.token, params.course_name, params.tag])
 
     useEffect(() => {
-        getQuestionsByTag().catch();
-    }, [getQuestionsByTag]);
+        getTags()
+            .then(tags => getQuestionsByTag(tags))
+            .catch();
+    }, [getTags, getQuestionsByTag]);
 
     return (
         <AppLayout>
@@ -268,17 +270,17 @@ function QuestionBank () {
             </Row>
             <Tab.Container id="questionBank" defaultActiveKey={params.tag || tags[0].name}>
                 <Row>
-                    <Col xs={2} className="d-flex flex-column bg-light vh-100 sticky-top text-start">
+                    <Col xs={2} className="d-flex flex-column bg-light vh-100 sticky-top text-start p-3">
                         <Nav variant="pills" className="my-3">
-                            {params.tag !== "null" &&
+                            {
                                 tags.map((tag) => (
                                     <Row className="d-flex flex-row align-items-center vw-100" key={tag.id}>
-                                        <Col xs={8}>
+                                        <Col xs={8} className="text-start p-1">
                                             <Nav.Item onClick={() => setTag(tag)}>
                                                 <Nav.Link eventKey={tag.name} href={tag.name}>{tag.name}</Nav.Link>
                                             </Nav.Item>
                                         </Col>
-                                        <Col xs={4} className="text-end">
+                                        <Col xs={4} className="text-end p-1">
                                             <i className="bi-pencil-square" style={{cursor: "pointer"}} onClick={() => {setTag(tag); setEditTagShow(true);}}/>
                                             <i className="bi-trash mx-2" style={{cursor: "pointer"}} onClick={() => {setTag(tag); setDeleteTagShow(true);}}/>
                                         </Col>
@@ -286,7 +288,7 @@ function QuestionBank () {
                                 ))
                             }
                         </Nav>
-                        <i className="bi-plus-square ms-3" style={{cursor: "pointer"}} onClick={() => setAddTagShow(true)}/>
+                        <span style={{cursor: "pointer"}} onClick={() => setAddTagShow(true)}><i className="bi-plus-square mx-3"/> Add new tags</span>
                     </Col>
                     {params.tag !== "null" &&
                         <Col xs={10}>
@@ -295,7 +297,7 @@ function QuestionBank () {
                             </Row>
                             <Tab.Content className="text-start mx-4">
                                 {tags.map((tag) => {
-                                    if (questionsByTag !== null)
+                                    //if (questionsByTag !== null)
                                     return (
                                         <Tab.Pane eventKey={tag.name}>
                                             <QuestionsByTag questions={questionsByTag} key={tag.id}/>

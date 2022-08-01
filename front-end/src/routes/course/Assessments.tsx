@@ -206,19 +206,6 @@ function Assessments() {
             });
     }
 
-    const [tags, setTags] = useState<tagProps[]>([]);
-  
-    const getTags = useCallback(async () => {
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/tags");
-        const token = globalState.token;
-        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        if (result.data.data) setTags(result.data.data);
-    }, [globalState.token, params.course_name]);
-
-    useEffect(() => {
-        getTags().catch();
-    }, [getTags]);
-
     const assessmentTable = Table(examList, courseInfo);
     return (
         <AppLayout>
@@ -229,7 +216,7 @@ function Assessments() {
                 {courseInfo?.auth_level === "instructor" &&
                     <div className="text-end pe-5">
                         <Button variant="info" className="me-3 text-white" onClick={() => {setShowModal(true);}}>New Exam</Button>
-                        <Link to={"questionBank/" + (tags.length > 0 ? tags[0].name : "null")}><Button variant="primary">Question Bank</Button></Link>
+                        <Link to={"questionBank/null"}><Button variant="primary">Question Bank</Button></Link>
                     </div>
                 }
                 <Row>
