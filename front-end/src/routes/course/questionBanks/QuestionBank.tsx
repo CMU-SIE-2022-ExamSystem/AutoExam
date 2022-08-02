@@ -8,9 +8,7 @@ import {useGlobalState} from "../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from 'axios';
 import CollapseQuestion from '../../../components/CollapseQuestion';
-import HTMLEditor from "../../../components/HTMLEditor";
-import AddSingleBlank from '../../../components/questionTemplate/AddSingleBlank';
-import AddChoice from '../../../components/questionTemplate/AddChoice';
+import AddQuestionModal from './components/AddQuestionModal';
 
 interface tagProps {
     id: string;
@@ -86,72 +84,6 @@ const DeleteTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessag
                 <Button variant="secondary" onClick={() => {onClose(); clearMessage()}}>Cancel</Button>
                 <Button variant="primary" type="submit" className="ms-2" onClick={() => onSubmit(tag.id)}>Confirm</Button>
             </Modal.Footer>
-        </Modal>
-    );
-}
-
-const AddQuestionModal = ({tag, show, onClose} : {tag: string, show: boolean, onClose: () => void}) => {
-    const [description, setDescription]= useState<string>("");
-
-    const updateDescription = (newDescription: string) => {
-        setDescription(newDescription);
-    }
-
-    const [type, setType] = useState<string>();
-    const [subqList, setSubqList] = useState<string[]>([]);
-    
-    const subquestions = (subqList as string[]).map((subqType) => {
-        if (subqType === "single-blank") return (<AddSingleBlank/>);
-        if (subqType === "single-choice") return (<AddChoice/>);
-        if (subqType === "multiple-choice") return (<AddChoice/>);
-        // if (subqType === "customized") return (<AddCustomizedQuestion/>);
-        return(<></>);
-    });
-
-    return (
-        <Modal show={show} onHide={onClose} size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>Add new Question</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Form>
-                    <Form.Label>Tag: {tag}</Form.Label>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Title </Form.Label>
-                        <Form.Control type="text" placeholder="Title" required/>
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                        <Form.Label>Description</Form.Label>
-                            <div>
-                                {<HTMLEditor init={description} update={updateDescription}/>}
-                                {/* <button onClick={log}>Log editor content</button> */}
-                            </div>
-                    </Form.Group>
-
-                    <div>{subquestions}</div>
-
-                    <InputGroup className="mb-3">
-                        <Form.Select value={type} onChange={(e) => setType(e.target.value)}>
-                            <option>Subquestion Type</option>
-                            <option value="single-blank">Single Blank</option>
-                            <option value="single-choice">Single Choice</option>
-                            <option value="multiple-choice">Multiple Choice</option>
-                            <option value="customized">Customized</option>
-                        </Form.Select>
-                        <Button variant="primary"
-                            onClick={() => {setSubqList((prev: string[]) => ([...prev, type] as string[]))}}>
-                            Add Subquestion
-                        </Button>
-                    </InputGroup>
-
-                    <div className="text-end">
-                        <Button variant="secondary" onClick={onClose}>Close</Button>
-                        <Button variant="primary" type="submit" className="ms-2">Add</Button>
-                    </div>
-                </Form>
-            </Modal.Body>
         </Modal>
     );
 }
@@ -297,10 +229,10 @@ function QuestionBank () {
                             </Row>
                             <Tab.Content className="text-start mx-4">
                                 {tags.map((tag) => {
-                                    //if (questionsByTag !== null)
+                                    if (tag.name === params.tag)
                                     return (
-                                        <Tab.Pane eventKey={tag.name}>
-                                            <QuestionsByTag questions={questionsByTag} key={tag.id}/>
+                                        <Tab.Pane eventKey={tag.name} key={tag.id}>
+                                            <QuestionsByTag questions={questionsByTag}/>
                                         </Tab.Pane>);
                                 })}
                             </Tab.Content>
