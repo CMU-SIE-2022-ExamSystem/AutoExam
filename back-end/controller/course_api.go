@@ -72,7 +72,19 @@ func Usercoursesinfo_Handler(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments [get]
 func Assessments_Handler(c *gin.Context) {
+	user_email := jwt.GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+	course_name := course.GetCourse(c)
+
 	assessments := course.GetFilteredAssessments(c)
+	for i := range assessments {
+		student, err := dao.ReadStudent(course_name, assessments[i].Name, user.Email)
+		if err == nil {
+			assessments[i].Submitted = student.Submitted
+			assessments[i].Can_submit = student.Can_submit
+		}
+	}
 	response.SuccessResponse(c, assessments)
 }
 
@@ -171,7 +183,9 @@ func CreateAssessment_Handler(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name} [get]
 func ReadAssessment_Handler(c *gin.Context) {
-
+	user_email := jwt.GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
 
@@ -179,7 +193,11 @@ func ReadAssessment_Handler(c *gin.Context) {
 
 	auth_level := jwt.Get_authlevel_DB(c)
 	if auth_level == "student" {
-		response.SuccessResponse(c, assessment.ToAssessmentsStudent())
+		student, err := dao.ReadStudent(course_name, assessment_name, user.Email)
+		if err != nil {
+			response.ErrMongoDBReadResponse(c, "student")
+		}
+		response.SuccessResponse(c, assessment.ToAssessmentsStudent(student))
 	} else {
 		response.SuccessResponse(c, assessment)
 	}
@@ -597,6 +615,9 @@ func Usersubmit_Handler(c *gin.Context) {
 		if flag {
 			body := autolab.AutolabSubmitHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submit", answertar_path+"answer.tar")
 			autolab_resp := utils.User_submit_trans(string(body))
+			student.Submitted = true
+			student.Can_submit = course.CheckSubmission(c)
+			dao.CreateOrUpdateStudent(student)
 			response.SuccessResponse(c, autolab_resp)
 			// if autolab_resp.Version == 0 {
 			// 	response.ErrorResponseWithStatus(c, response.Error{Type: "Autolab", Message: "You are only allowed to submit once!"}, http.StatusForbidden)

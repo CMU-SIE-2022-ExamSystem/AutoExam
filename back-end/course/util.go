@@ -127,6 +127,8 @@ func get_assessments(c *gin.Context, course string) []models.Assessments {
 			autolab_assessments[index].End_at = autoexam.End_at
 			autolab_assessments[index].AutoExam = true
 			autolab_assessments[index].Draft = autoexam.Draft
+			autolab_assessments[index].Submitted = false
+			autolab_assessments[index].Can_submit = true
 		} else {
 			autolab_assessments = append(autolab_assessments, autoexam)
 		}

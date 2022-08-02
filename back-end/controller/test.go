@@ -193,13 +193,3 @@ func Answertar_Test(c *gin.Context) {
 		response.ErrFileNotValidResponse(c)
 	}
 }
-
-// func SubmissionsCheck_Test(c *gin.Context) {
-// 	max := 2
-// 	flag := course.CheckSubmission(c, max)
-// 	if flag {
-// 		color.Yellow("True")
-// 	} else {
-// 		color.Yellow("False")
-// 	}
-// }

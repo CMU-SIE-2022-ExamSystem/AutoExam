@@ -27,6 +27,7 @@ type AutoExam_Assessments_Student struct {
 	Description string `yaml:"description" json:"description" bson:"description"`                                                                                 // description of assessment
 	Start_at    string `yaml:"start_at" json:"start_at" bson:"start_at" default:"2022-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"` // start time of assessment
 	End_at      string `yaml:"end_at" json:"end_at" bson:"end_at" default:"2023-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`       // end time of assessment
+	Can_submit  bool   `yaml:"can_submit" json:"can_submit" bson:"can_submit"`
 } // @name Assessments
 
 type AutoExam_Assessments_Create struct {
@@ -210,15 +211,18 @@ func (assessment *AutoExam_Assessments) ToAssessments() models.Assessments {
 		Autolab:          false,
 		AutoExam:         true,
 		Draft:            assessment.Draft,
+		Submitted:        false,
+		Can_submit:       true,
 	}
 	return ass
 }
 
-func (assessment *AutoExam_Assessments) ToAssessmentsStudent() AutoExam_Assessments_Student {
+func (assessment *AutoExam_Assessments) ToAssessmentsStudent(student Assessment_Student) AutoExam_Assessments_Student {
 	ass := AutoExam_Assessments_Student{
 		Description: assessment.General.Description,
 		Start_at:    assessment.General.Start_at,
 		End_at:      assessment.General.End_at,
+		Can_submit:  student.Can_submit,
 	}
 	return ass
 }
@@ -273,6 +277,8 @@ func (assessment *AutoExam_Assessments) GenerateAssessmentStudent(email, course_
 		Questions:  questions,
 		Problems:   problems,
 		Solutions:  solutions,
+		Submitted:  false,
+		Can_submit: true,
 	}
 
 	return student
