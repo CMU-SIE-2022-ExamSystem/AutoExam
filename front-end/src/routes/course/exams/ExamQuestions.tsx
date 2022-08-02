@@ -60,9 +60,28 @@ const ConfirmModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () =
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="primary" onClick={onSubmit}>Submit</Button>
                 <Button variant="danger" onClick={onClose}>Back</Button>
+                <Button variant="primary" onClick={onSubmit}>Submit</Button>
             </Modal.Footer>
+        </Modal>
+    );
+}
+
+const FileDownloadModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () => void, onClose: () => void }) => {
+    return (
+        <Modal show={show} onHide={onClose}>
+            <Modal.Header>
+                <Modal.Title>Error</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+                <p>There has been a network issue when you are uploading your exam. Don't be worry, your answers have been recorded.</p>
+                <p>Send the file to your instructor or TA immediately.</p>
+            </Modal.Body>
+
+            <Modal.Footer>
+                <Button variant="primary" onClick={onSubmit}>Confirm</Button>
+           </Modal.Footer>
         </Modal>
     );
 }
@@ -123,9 +142,9 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
                 const choices = subQuestion.choices[i];
 
                 if (choices !== null) {
-                    answerObject[questionId] = getMCAnswer(choices, questionId);
+                    answerObject[questionId] = [getMCAnswer(choices, questionId)];
                 } else {
-                    answerObject[questionId] = getBlanksAnswer(subQuestion.blanks[i], questionId);
+                    answerObject[questionId] = [getBlanksAnswer(subQuestion.blanks[i], questionId)];
                 }
             }
 
@@ -134,7 +153,9 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
 
         result[questionKey] = subResult;
     })
-    return result;
+    return {
+        answers: result
+    };
 }
 
 
@@ -157,14 +178,12 @@ const ExamQuestions = () => {
             .then(result => {
                 const questionList: questionDataType[] = result.data.data;
                 setQuestionList(questionList);
-                console.log(questionList);
                 let subQuestionArray = questionList.flatMap((question, index) =>
                     question.sub_questions.map((subQuestion, subIndex) => ({
                         key: "Q" + (index + 1) + "_sub" + (subIndex + 1),
                         blanks: subQuestion.blanks,
                     })));
                 let idList: string[] = [];
-                console.log(subQuestionArray);
                 for (let i = 0; i < subQuestionArray.length; i++) {
                     let {key, blanks} = subQuestionArray[i];
                     if (blanks && blanks.length > 0) {
@@ -173,20 +192,22 @@ const ExamQuestions = () => {
                         }
                     }
                 }
-                console.log(idList);
                 setIdList(idList);
+                return idList;
+            })
+            .then(idList => {
+                // Recover
+
             })
             .catch(badExam => {
                 console.error(badExam);
             });
     }, []);
 
-    //questionList = require('./questions_new.json').data;
-
-
     const [timeoutShow, setTimeoutShow] = useState(false);
     const [ackShow, setAckShow] = useState(false);
     const [confirmShow, setConfirmShow] = useState(false);
+    const [fileDownloadShow, setFileDownloadShow] = useState<boolean>(false);
 
     const [inTest, setInTest] = useState(true);
 
@@ -229,48 +250,68 @@ const ExamQuestions = () => {
         })
     }
 
-    const submitExam = (examAnswer: object) => {
-        const examUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/answers`);
+    const autoSaveExam = (examAnswer: object) => {
+        const saveUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/answers`);
         const token = globalState.token;
-        const data = {
-            answer: examAnswer
-        };
-        return axios.put(examUrl, data,{headers: {Authorization: "Bearer " + token}})
+        return axios.put(saveUrl, examAnswer,{headers: {Authorization: "Bearer " + token}})
+    }
+
+    const submitExam = () => {
+        const submitUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/submit`);
+        const token = globalState.token;
+        return axios.post(submitUrl, {}, {headers: {Authorization: "Bearer " + token}});
     }
 
     const manualSubmitExam = () => {
-        setConfirmShow(false);
-        setAckShow(true);
-        setInTest(false);
         const studentAnswer = prepareAnswer(questionList);
-        console.log(studentAnswer);
-        //downloadFile(params.exam_id! + ".json", JSON.stringify(studentAnswer));
-        /*submitExam(studentAnswer)
-            .then(response => {
-
+        autoSaveExam(studentAnswer)
+            .then(_ => {
+                submitExam().then(_ => {
+                    setConfirmShow(false);
+                    setAckShow(true);
+                    setInTest(false);
+                })
             })
             .catch(badExam => {
-
-            })*/
+                console.error(badExam);
+                downloadFile(globalState.name + "_" + params.exam_id! + ".json", JSON.stringify(studentAnswer));
+                setFileDownloadShow(true);
+            })
 
         removeAllLocalStorage();
     }
 
     const timeoutSubmitExam = () => {
-        setTimeoutShow(true);
-        setInTest(false);
         const studentAnswer = prepareAnswer(questionList);
-        console.log(studentAnswer);
-        //downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
-        /*submitExam(studentAnswer)
-            .then(response => {
-
+        autoSaveExam(studentAnswer)
+            .then(_ => {
+                submitExam().then(_ => {
+                    setTimeoutShow(true);
+                    setInTest(false);
+                })
             })
             .catch(badExam => {
-
-            })*/
+                console.error(badExam);
+                downloadFile(globalState.name + "_" + params.exam_id! + ".json", JSON.stringify(studentAnswer));
+                setFileDownloadShow(true);
+            })
 
         removeAllLocalStorage();
+    }
+
+    useEffect(() => {
+        const intervalTimeMS = 60 * 1000;
+        const interval = setInterval(() => {
+            const studentAnswer = prepareAnswer(questionList);
+            autoSaveExam(studentAnswer).catch();
+        }, intervalTimeMS);
+
+        return () => clearInterval(interval);
+    }, [])
+
+    const ejectFromExam = () => {
+        removeAllLocalStorage();
+        navigate('/courses/' + courseName);
     }
 
     return (
@@ -289,14 +330,18 @@ const ExamQuestions = () => {
                     <CountdownTimer targetTime={targetTime} active={inTest} callback={timeoutSubmitExam} />
                     <div><Button variant="primary" className="my-4 w-50" onClick={() => setConfirmShow(true)}>Submit</Button></div>
                     {process.env.NODE_ENV === 'development' &&
-                        <div><Button variant="warning" className="my-4 w-50" onClick={() => {console.log(prepareAnswer(questionList));}}>Log Answers</Button></div>
+                        <div>
+                            <Button variant="warning" className="my-4 w-50" onClick={() => {console.log(prepareAnswer(questionList));}}>Log Answers</Button>
+                            <Button variant="outline-success" className="my-4 w-50" onClick={() => {autoSaveExam(prepareAnswer(questionList)).catch();}}>Manual Save</Button>
+                        </div>
                     }
                 </Col>
             </Row>
 
-            <TimeoutModal onClose={() => {}} show={timeoutShow} toClose={() => setTimeoutShow(false)} />
-            <AcknowledgeModal onClose={() => {}} show={ackShow} toClose={() => setAckShow(false)} />
+            <TimeoutModal onClose={ejectFromExam} show={timeoutShow} toClose={() => setTimeoutShow(false)} />
+            <AcknowledgeModal onClose={ejectFromExam} show={ackShow} toClose={() => setAckShow(false)} />
             <ConfirmModal show={confirmShow} onSubmit={manualSubmitExam} onClose={() => setConfirmShow(false)} />
+            <FileDownloadModal show={fileDownloadShow} onClose={ejectFromExam} onSubmit={() => setFileDownloadShow(false)} />
         </AppLayout>
     );
 }
