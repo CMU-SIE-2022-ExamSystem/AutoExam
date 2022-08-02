@@ -14,7 +14,7 @@ import moment from "moment";
 
 const TimeoutModal = ({show, toClose, onClose} :{ show: boolean, toClose: () => void, onClose: () => void }) => {
     return (
-        <Modal show={show} onHide={onClose}>
+        <Modal show={show} onExit={onClose}>
             <Modal.Header>
                 <Modal.Title>Test over</Modal.Title>
             </Modal.Header>
@@ -32,7 +32,7 @@ const TimeoutModal = ({show, toClose, onClose} :{ show: boolean, toClose: () => 
 
 const AcknowledgeModal = ({show, toClose, onClose} :{ show: boolean, toClose: () => void, onClose: () => void }) => {
     return (
-        <Modal show={show} onHide={onClose}>
+        <Modal show={show} onExit={onClose}>
             <Modal.Header>
                 <Modal.Title>Submitted</Modal.Title>
             </Modal.Header>
@@ -211,7 +211,7 @@ const ExamQuestions = () => {
 
     const [inTest, setInTest] = useState(true);
 
-    const [targetTime, setTargetTime] = useState(new Date(Date.now() + 1000 * 100).toString());
+    const [targetTime, setTargetTime] = useState(new Date(Date.now() + 1000 * 3600).toString());
     const [description, setDescription] = useState<string>("");
 
     const getTestGeneralInfo = useCallback(() => {
@@ -259,7 +259,7 @@ const ExamQuestions = () => {
     const submitExam = () => {
         const submitUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/submit`);
         const token = globalState.token;
-        return axios.post(submitUrl, {}, {headers: {Authorization: "Bearer " + token}});
+        return axios.get(submitUrl, {headers: {Authorization: "Bearer " + token}});
     }
 
     const manualSubmitExam = () => {

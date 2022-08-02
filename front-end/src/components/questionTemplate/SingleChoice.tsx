@@ -15,7 +15,7 @@ const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, stora
             defaultChecked={value.includes(choice.choice_id)}
             onChange={(event) => {
                 const newValue = choice.choice_id;
-                console.log(newValue);
+                //console.log(newValue);
                 event.target.checked ? setValue(newValue) : setValue("");
             }} />
     )
