@@ -6,8 +6,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/fatih/color"
+	"github.com/gin-gonic/gin"
 	"gopkg.in/yaml.v3"
 )
 
@@ -76,4 +82,22 @@ func PrepareAnswer(student dao.Assessment_Student, path string) error {
 
 	_, err = fmt.Fprint(file, string(data))
 	return err
+}
+
+func CheckSubmission(c *gin.Context, max int) bool {
+	user_email := jwt.GetEmail(c)
+	user := models.User{ID: user_email.ID}
+	global.DB.Find(&user)
+	token := user.Access_token
+
+	course_name, assessment_name := GetCourseAssessment(c)
+
+	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
+
+	autolab_resp := utils.Assessments_submissions_trans(string(body))
+	if len(autolab_resp) != 0 {
+		return autolab_resp[0].Version < max
+	} else {
+		return false
+	}
 }
