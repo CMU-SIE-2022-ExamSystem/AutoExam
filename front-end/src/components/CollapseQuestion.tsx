@@ -3,8 +3,6 @@ import {useState} from 'react';
 import {Card, Collapse} from 'react-bootstrap';
 import SingleChoice from './questionTemplate/SingleChoice';
 import MultipleChoice from './questionTemplate/MultipleChoice';
-import SingleBlank from './questionTemplate/SingleBlank';
-import MultipleBlank from './questionTemplate/MultipleBlank';
 import {subQuestionDataType} from "./questionTemplate/subQuestionDataType";
 import questionDataType from "./questionTemplate/questionDataType";
 
@@ -26,12 +24,11 @@ const CollapseQuestion = ({questionData} : {questionData: questionDataType}) => 
                 <Card.Header
                     style={{cursor: "pointer"}}
                     onClick={() => setOpen(!open)}
-                    aria-controls={`Q${questionData.id}`}
                     aria-expanded={open}>
                     {"Question Title"}
                 </Card.Header>
                 <Collapse in={open}>
-                    <div id={`Q${questionData.id}`}>
+                    <div>
                     <Card.Body>
                         <div dangerouslySetInnerHTML={{__html: questionData.description}}/>
                         {/* {subQuestions} */}

@@ -5,11 +5,12 @@ import AppLayout from "../../../components/AppLayout";
 import Question from "../../../components/Question";
 import CountdownTimer from "../../../components/CountdownTimer";
 import questionDataType from "../../../components/questionTemplate/questionDataType";
-import {choiceDataType} from '../../../components/questionTemplate/subQuestionDataType';
+import {blankDataType, choiceDataType} from '../../../components/questionTemplate/subQuestionDataType';
 import downloadFile from "../../../utils/downloadFile";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";
+import moment from "moment";
 
 const TimeoutModal = ({show, toClose, onClose} :{ show: boolean, toClose: () => void, onClose: () => void }) => {
     return (
@@ -72,12 +73,11 @@ interface instructionType {
 }
 
 const Instructions = ({info}: {info: instructionType}) => {
-
     return (
         <div>
             <h1 className="my-3">{info.title}</h1>
             <h2 className="text-start my-4"><strong>Instructions</strong></h2>
-            <p className="text-start">Some detailed instructions.</p>
+            <p className="text-start">{info.instructions}</p>
         </div>
     );
 }
@@ -89,33 +89,16 @@ interface LooseObject {
 const prepareAnswer = (qList: questionDataType[]) : object => {
     let result: LooseObject = {};
 
-    function getMultipleBlankAnswer(choices: choiceDataType[], subQuestionKey: string) {
-        let returnObject: LooseObject = {};
-        choices.forEach((choice) => {
-            let choiceId = subQuestionKey + '_sub' + choice.choice_id;
-            let element = document.getElementById(choiceId);
-            if (element !== null) {
-                returnObject[choiceId] = (element as HTMLInputElement).value;
-            } else {
-                returnObject[choiceId] = "";
-            }
-        })
-        return returnObject;
-    }
-
-    function getSingleBlankAnswer(subQuestionKey: string) {
-        let returnObject: LooseObject = {};
-        let element = document.getElementById(subQuestionKey);
+    function getBlanksAnswer(blanks: blankDataType, questionId: string) {
+        let element = document.getElementById(questionId);
         if (element !== null) {
-            returnObject[subQuestionKey] = (element as HTMLInputElement).value;
+            return (element as HTMLInputElement).value;
         } else {
-            returnObject[subQuestionKey] = "";
+            console.error(`questionId: ${questionId} not found`);
         }
-        return returnObject;
     }
 
-    function getSingleChoiceAnswer(choices: choiceDataType[], subQuestionKey: string) {
-        let returnObject: LooseObject = {};
+    function getMCAnswer(choices: choiceDataType[], subQuestionKey: string) {
         let answerList : string[] = [];
         choices.forEach((choice) => {
             let choiceId = subQuestionKey + '_choice' + choice.choice_id;
@@ -125,50 +108,27 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
                 if (answer) answerList.push(choice.choice_id);
             }
         })
-        returnObject[subQuestionKey] = answerList.join("");
-        return returnObject;
+        return answerList.join("");
     }
 
-    function getMultipleChoiceAnswer(choices: choiceDataType[], subQuestionKey: string) {
-        let returnObject: LooseObject = {};
-        let answerList : string[] = [];
-        choices.forEach((choice) => {
-            let choiceId = subQuestionKey + '_choice' + choice.choice_id;
-            let element = document.getElementById(choiceId);
-            if (element !== null) {
-                let answer = (element as HTMLInputElement).checked;
-                if (answer) answerList.push(choice.choice_id);
-            }
-        })
-        returnObject[subQuestionKey] = answerList.join("");
-        return returnObject;
-    }
-
-    qList.forEach((question: questionDataType) => {
-        const questionKey = "Q" + question.id;
+    qList.forEach((question: questionDataType, qIdx) => {
+        const questionKey = "Q" + (qIdx + 1);
         let subResult: LooseObject = {};
-        question.sub_questions.forEach((subQuestion) => {
-            const subQuestionKey = questionKey + "_sub" + subQuestion.question_id;
-            let answerObject: object = {};
+        question.sub_questions.forEach((subQuestion, subQuestionIndex) => {
+            const subQuestionKey = questionKey + "_sub" + (subQuestionIndex + 1);
+            let answerObject: LooseObject = {};
 
-            switch (subQuestion.question_type) {
-                case "multiple-blank":
-                    answerObject = getMultipleBlankAnswer(subQuestion.choices, subQuestionKey);
-                    break;
-                case "single-blank":
-                    answerObject = getSingleBlankAnswer(subQuestionKey);
-                    break;
-                case "single-choice":
-                    answerObject = getSingleChoiceAnswer(subQuestion.choices, subQuestionKey);
-                    break;
-                case "multiple-choice":
-                    answerObject = getMultipleChoiceAnswer(subQuestion.choices, subQuestionKey);
-                    break;
+            for (let i = 0; i < subQuestion.blanks.length; i++) {
+                const questionId = subQuestionKey + "_sub" + (i + 1);
+                const choices = subQuestion.choices[i];
+
+                if (choices !== null) {
+                    answerObject[questionId] = getMCAnswer(choices, questionId);
+                } else {
+                    answerObject[questionId] = getBlanksAnswer(subQuestion.blanks[i], questionId);
+                }
             }
 
-            // Object.defineProperty(subResult, subQuestionKey, {
-            //     value: answerObject
-            // })
             subResult[subQuestionKey] = answerObject;
         })
 
@@ -180,44 +140,49 @@ const prepareAnswer = (qList: questionDataType[]) : object => {
 
 const ExamQuestions = () => {
     let params = useParams();
-    const {globalState} = useGlobalState();
+    const {globalState, updateGlobalState} = useGlobalState();
     const navigate = useNavigate();
     const courseName = params.course_name, examId = params.exam_id;
     const [questionList, setQuestionList] = useState<questionDataType[]>([]);
+    const [idList, setIdList] = useState<string[]>([]);
 
     const getQuestionList = useCallback(async () => {
-        const examUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/exam`);
+        const examUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/question`);
         const token = globalState.token;
-        axios.get(examUrl, {headers: {Authorization: "Bearer " + token}})
-            .then(result => {
-                setQuestionList(result.data.data);
-            })
-            .catch(badExam => {
-                console.error(badExam);
-            });
+        return axios.get(examUrl, {headers: {Authorization: "Bearer " + token}});
     }, [globalState.token]);
 
     useEffect(() => {
         getQuestionList()
-            .catch();
+            .then(result => {
+                const questionList: questionDataType[] = result.data.data;
+                setQuestionList(questionList);
+                console.log(questionList);
+                let subQuestionArray = questionList.flatMap((question, index) =>
+                    question.sub_questions.map((subQuestion, subIndex) => ({
+                        key: "Q" + (index + 1) + "_sub" + (subIndex + 1),
+                        blanks: subQuestion.blanks,
+                    })));
+                let idList: string[] = [];
+                console.log(subQuestionArray);
+                for (let i = 0; i < subQuestionArray.length; i++) {
+                    let {key, blanks} = subQuestionArray[i];
+                    if (blanks && blanks.length > 0) {
+                        for (let j = 1; j <= blanks.length; j++) {
+                            idList.push(key + "_sub" + j);
+                        }
+                    }
+                }
+                console.log(idList);
+                setIdList(idList);
+            })
+            .catch(badExam => {
+                console.error(badExam);
+            });
     }, []);
 
     //questionList = require('./questions_new.json').data;
-    let subQuestionArray = questionList.flatMap((question) =>
-        question.sub_questions.map(subQuestion => ["Q" + question.id + "_sub" + subQuestion.question_id, subQuestion.question_type, subQuestion.choices]));
-    let idList: string[] = [];
-    for (let i = 0; i < subQuestionArray.length; i++) {
-        if (subQuestionArray[i][1] === "single-blank" || subQuestionArray[i][1] === "single-choice" || subQuestionArray[i][1] === "multiple-choice") {
-            idList.push(subQuestionArray[i][0].toString());
-            continue;
-        }
-        
-        // multiple-blank
-        for (let j = 0; j < subQuestionArray[i][2].length; j++) {
-            idList.push(subQuestionArray[i][0].toString() + "_sub" + (subQuestionArray[i][2][j] as choiceDataType).choice_id);
-        }
-    }
-    // console.log(idList);
+
 
     const [timeoutShow, setTimeoutShow] = useState(false);
     const [ackShow, setAckShow] = useState(false);
@@ -225,19 +190,37 @@ const ExamQuestions = () => {
 
     const [inTest, setInTest] = useState(true);
 
-    /*const {value: targetTime, removeValue: removeTargetTime} = usePersistState(new Date(Date.now() + 1000 * 100).toString(), "targetTime");
+    const [targetTime, setTargetTime] = useState(new Date(Date.now() + 1000 * 100).toString());
+    const [description, setDescription] = useState<string>("");
+
+    const getTestGeneralInfo = useCallback(() => {
+        const examUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}`);
+        const token = globalState.token;
+        return axios.get(examUrl, {headers: {Authorization: "Bearer " + token}});
+    }, []);
+
     useEffect(() => {
-        return () => {removeTargetTime()}
-    }, [removeTargetTime])*/
-    const [targetTime] = useState(new Date(Date.now() + 1000 * 100).toString());
+        getTestGeneralInfo()
+            .then(result => {
+                const testInfo: any = result.data.data;
+                let nowMoment = moment();
+                if (moment(testInfo.start_at).diff(nowMoment) > 0 || nowMoment.diff(moment(testInfo.end_at)) > 0) {
+                    updateGlobalState({alert: {show: true, content: `Exam '${examId}' is not ready.`, variant: 'danger'}});
+                    navigate('/courses/' + courseName);
+                    return;
+                }
+                setDescription(testInfo.description);
+                setTargetTime(new Date(testInfo.end_at).toString());
+            })
+    }, [getTestGeneralInfo]);
 
     let instructionsInfo : instructionType = {
         title: params.exam_id!,
-        instructions: "",
+        instructions: description,
     }
 
-    const questions = questionList.map((question) => {
-        return <Question key={`Q${question.id}`} questionData={question} />
+    const questions = questionList.map((question, index) => {
+        return <Question key={`Q${index+1}`} questionData={question} questionId={index + 1}/>
     })
 
     const removeAllLocalStorage = () => {
@@ -261,16 +244,14 @@ const ExamQuestions = () => {
         setInTest(false);
         const studentAnswer = prepareAnswer(questionList);
         console.log(studentAnswer);
-        console.log(JSON.stringify(studentAnswer));
         //downloadFile(params.exam_id! + ".json", JSON.stringify(studentAnswer));
-
-        submitExam(studentAnswer)
+        /*submitExam(studentAnswer)
             .then(response => {
 
             })
             .catch(badExam => {
 
-            })
+            })*/
 
         removeAllLocalStorage();
     }
@@ -281,14 +262,13 @@ const ExamQuestions = () => {
         const studentAnswer = prepareAnswer(questionList);
         console.log(studentAnswer);
         //downloadFile(params.exam_id!, JSON.stringify(studentAnswer));
-
-        submitExam(studentAnswer)
+        /*submitExam(studentAnswer)
             .then(response => {
 
             })
             .catch(badExam => {
 
-            })
+            })*/
 
         removeAllLocalStorage();
     }
@@ -308,6 +288,9 @@ const ExamQuestions = () => {
                 <Col xs={3} className="p-3">
                     <CountdownTimer targetTime={targetTime} active={inTest} callback={timeoutSubmitExam} />
                     <div><Button variant="primary" className="my-4 w-50" onClick={() => setConfirmShow(true)}>Submit</Button></div>
+                    {process.env.NODE_ENV === 'development' &&
+                        <div><Button variant="warning" className="my-4 w-50" onClick={() => {console.log(prepareAnswer(questionList));}}>Log Answers</Button></div>
+                    }
                 </Col>
             </Row>
 

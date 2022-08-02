@@ -3,9 +3,14 @@ export interface choiceDataType {
     content: string;
 }
 
+export interface blankDataType {
+    type: 'string' | 'code';
+    multiple: boolean;
+}
+
 export interface subQuestionDataType {
-    question_type: "single-choice" | "multiple-choice" | "single-blank" | "multiple-blank";
-    question_id: number;
+    blanks: blankDataType[];
     description: string;
-    choices: choiceDataType[];
-};
+    choices: (choiceDataType[] | null)[];
+    score: number;
+}

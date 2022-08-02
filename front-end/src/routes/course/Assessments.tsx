@@ -16,6 +16,9 @@ interface assessmentProps {
     end_at: string;
     category_name: string;
     grading_deadline?: string;
+    autoexam: boolean;
+    autolab: boolean;
+    draft: boolean;
 }
 
 interface ICourseInfo {
@@ -33,7 +36,7 @@ interface tagProps {
     name: string;
 }
 
-const AssessmentRow = ({name, display_name, start_at, due_at, permission}: extAssessmentProps) => {
+const AssessmentRow = ({name, display_name, start_at, due_at, permission, draft}: extAssessmentProps) => {
     let now = moment();
     let start = moment(start_at);
     let end = moment(due_at);
@@ -56,9 +59,14 @@ const AssessmentRow = ({name, display_name, start_at, due_at, permission}: extAs
         actionList.push(<Link to={"examResults/" + name} key="_ExamResults" className="btn btn-success m-1">Exam Results (NotDone)</Link>)
     }
 
+    let trClassName = "align-middle";
+    if (draft) {
+        trClassName += " bg-light";
+    }
+
     return (
-        <tr className="align-middle">
-            <th scope="row" className="text-center">{display_name}</th>
+        <tr className={trClassName}>
+            <th scope="row" className="text-center">{display_name + (draft ? " (Draft)" : "")}</th>
             <td>{startTime}</td>
             <td>{dueTime}</td>
             <td>{actionList}</td>

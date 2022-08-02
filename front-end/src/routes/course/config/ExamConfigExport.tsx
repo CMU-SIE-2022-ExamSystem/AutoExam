@@ -47,7 +47,7 @@ const RemoveModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () =>
 }
 
 const ExamConfigExport = () => {
-    let {examConfigState} = useConfigStates();
+    let {examConfigState, setExamConfigState} = useConfigStates();
     const [publishModalShow, setPublishModalShow] = useState<boolean>(false);
     const publishedText = !!(examConfigState?.draft) ? "No" : "Yes";
 
@@ -67,6 +67,19 @@ const ExamConfigExport = () => {
     }
     const publishOnSubmit = () => {
         setPublishModalShow(false);
+        const url = getBackendApiUrl("/courses/" + courseName + "/assessments/" + examId + "/draft");
+        const token = globalState.token;
+        axios.put(url, {draft: false}, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                const newState = Object.assign({}, examConfigState, {draft: false});
+                setExamConfigState(newState);
+            })
+            .catch(onFailure => {
+                setAlertVariant("danger");
+                setAlertContent(onFailure.toString().substring(0, 50))
+                console.error(onFailure);
+                setAlertShow(true);
+            })
     }
     const [removeModalShow, setRemoveModalShow] = useState<boolean>(false);
     const removeOnClick = () => {

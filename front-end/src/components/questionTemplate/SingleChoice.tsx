@@ -2,6 +2,7 @@ import { Form } from 'react-bootstrap';
 import QuestionLayout from "./QuestionLayout";
 import { choiceDataType, subQuestionDataType } from "./subQuestionDataType";
 import usePersistState from "../../utils/usePersistState";
+import React from "react";
 
 const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
     const {value, setValue} = usePersistState("", storageKey);
@@ -20,10 +21,10 @@ const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, stora
     )
 }
 
-const SingleChoice = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
-    const radios = data.choices.map((choice) => {
-        let key = `Q${headerId}_sub${data.question_id}_choice${choice.choice_id}`;
-        let storageKey = `Q${headerId}_sub${data.question_id}`;
+const SingleChoice = ({data, storageKey, displayIdx} : {data: choiceDataType[], storageKey: string, displayIdx: number}) => {
+    const radios = data.map((choice) => {
+        if (!choice) return (<>Bad Question</>);
+        let key = `${storageKey}_choice${choice.choice_id}`;
         return (
             <OneInSingleChoice
                 choice={choice}
@@ -33,9 +34,10 @@ const SingleChoice = ({data, headerId} : {data: subQuestionDataType, headerId: s
     });
 
     return (
-        <QuestionLayout questionId={data.question_id.toString()} description={data.description}>
+        <div id={storageKey}>
+            {/*<Form.Label>({displayIdx}).</Form.Label>*/}
             {radios}
-        </QuestionLayout>
+        </div>
     );
 }
 

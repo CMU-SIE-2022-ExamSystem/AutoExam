@@ -162,7 +162,7 @@ const QuestionsByTag = ({questions}: {questions: questionDataType[] | undefined}
             <Col sm={10}>
                 {!!questions &&
                     questions.map((question) => {
-                        return <CollapseQuestion questionData={question} key={question.id}/>
+                        return <CollapseQuestion questionData={question} key={question.description}/>
                     })
                 }
                 {!questions &&

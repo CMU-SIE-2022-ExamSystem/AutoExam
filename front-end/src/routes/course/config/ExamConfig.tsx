@@ -94,7 +94,7 @@ function ExamConfig() {
 
     const submitHandler = () => {
         postConfig()
-            .then(_ => {})
+            .then(_ => {navigate('/courses/' + courseName)})
             .catch();
     }
 

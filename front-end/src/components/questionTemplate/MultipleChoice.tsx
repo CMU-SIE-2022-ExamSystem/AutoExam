@@ -1,7 +1,7 @@
 import React from 'react';
-import { Form } from 'react-bootstrap';
+import {Form} from 'react-bootstrap';
 import QuestionLayout from "./QuestionLayout";
-import { choiceDataType, subQuestionDataType } from "./subQuestionDataType";
+import {choiceDataType, subQuestionDataType} from "./subQuestionDataType";
 import usePersistState from "../../utils/usePersistState";
 
 const OneInMultipleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
@@ -28,10 +28,10 @@ const OneInMultipleChoice = ({choice, storageKey} : {choice: choiceDataType, sto
     )
 }
 
-const MultipleChoice = ({data, headerId} : {data: subQuestionDataType, headerId: string}) => {
-    const checkboxes = data.choices.map((choice: any) => {
-        let key = `Q${headerId}_sub${data.question_id}_choice${choice.choiceId}`;
-        let storageKey = `Q${headerId}_sub${data.question_id}`;
+const MultipleChoice = ({data, storageKey, displayIdx} : {data: choiceDataType[], storageKey: string, displayIdx: number}) => {
+    if (!data) return (<>Bad choices field</>);
+    const checkboxes = data.map((choice: any) => {
+        let key = `${storageKey}_choice${choice.choiceId}`;
         return (
             <OneInMultipleChoice
                 choice={choice}
@@ -41,9 +41,10 @@ const MultipleChoice = ({data, headerId} : {data: subQuestionDataType, headerId:
     });
 
     return (
-        <QuestionLayout questionId={data.question_id.toString()} description={data.description}>
+        <div id={storageKey}>
+            {/*<Form.Label>({displayIdx}).</Form.Label>*/}
             {checkboxes}
-        </QuestionLayout>
+        </div>
     );
 }
 
