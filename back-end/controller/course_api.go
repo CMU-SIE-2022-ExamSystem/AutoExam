@@ -553,10 +553,11 @@ func CreateStatisticAssessments_Handler(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} response.Response{data=models.Submit} "desc"
 // @Failure 500 {object} response.DBesponse{error=response.MongoDBReadError} "mongo error"
+// @Failure 403 "reached the maximum number"
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Security ApiKeyAuth
-// @Router /courses/{course_name}/assessments/{assessment_name}/submit [get]
+// @Router /courses/{course_name}/assessments/{assessment_name}/submit [post]
 func Usersubmit_Handler(c *gin.Context) {
 	user_email := jwt.GetEmail(c)
 	user := models.User{ID: user_email.ID}
@@ -566,42 +567,45 @@ func Usersubmit_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	answertar_path := utils.Find_assessment_folder(c, strconv.Itoa(int(user.ID)), course_name, assessment_name)
 
-	student, err := dao.ReadStudent(course_name, assessment_name, user.Email)
-	if err != nil {
-		response.ErrMongoDBReadResponse(c, "student")
-	}
-
-	flag := course.CreateAnswerFolder(answertar_path)
-	if !flag {
-		response.ErrFileNotValidResponse(c)
-	}
-
-	err = course.PrepareSolution(student, answertar_path)
-	if err != nil {
-		response.ErrFileNotValidResponse(c)
-	}
-	err = course.PrepareConfig(student, answertar_path)
-	if err != nil {
-		response.ErrFileNotValidResponse(c)
-	}
-	err = course.PrepareAnswer(student, answertar_path)
-	if err != nil {
-		response.ErrFileNotValidResponse(c)
-	}
-
-	flag = utils.MakeAnswertar(answertar_path)
-	if flag {
-		body := autolab.AutolabSubmitHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submit", answertar_path+"answer.tar")
-		// fmt.Println(string(body))
-		autolab_resp := utils.User_submit_trans(string(body))
-		response.SuccessResponse(c, autolab_resp)
-		// if autolab_resp.Version == 0 {
-		// 	response.ErrorResponseWithStatus(c, response.Error{Type: "Autolab", Message: "You are only allowed to submit once!"}, http.StatusForbidden)
-		// } else {
-		// 	response.SuccessResponse(c, autolab_resp)
-		// }
+	if !course.CheckSubmission(c) {
+		response.ErrorResponseWithStatus(c, response.Error{Type: "Autolab", Message: "You have reached the maximum number of submissions!"}, http.StatusForbidden)
 	} else {
-		response.ErrFileNotValidResponse(c)
+		student, err := dao.ReadStudent(course_name, assessment_name, user.Email)
+		if err != nil {
+			response.ErrMongoDBReadResponse(c, "student")
+		}
+
+		flag := course.CreateAnswerFolder(answertar_path)
+		if !flag {
+			response.ErrFileNotValidResponse(c)
+		}
+
+		err = course.PrepareSolution(student, answertar_path)
+		if err != nil {
+			response.ErrFileNotValidResponse(c)
+		}
+		err = course.PrepareConfig(student, answertar_path)
+		if err != nil {
+			response.ErrFileNotValidResponse(c)
+		}
+		err = course.PrepareAnswer(student, answertar_path)
+		if err != nil {
+			response.ErrFileNotValidResponse(c)
+		}
+
+		flag = utils.MakeAnswertar(answertar_path)
+		if flag {
+			body := autolab.AutolabSubmitHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submit", answertar_path+"answer.tar")
+			autolab_resp := utils.User_submit_trans(string(body))
+			response.SuccessResponse(c, autolab_resp)
+			// if autolab_resp.Version == 0 {
+			// 	response.ErrorResponseWithStatus(c, response.Error{Type: "Autolab", Message: "You are only allowed to submit once!"}, http.StatusForbidden)
+			// } else {
+			// 	response.SuccessResponse(c, autolab_resp)
+			// }
+		} else {
+			response.ErrFileNotValidResponse(c)
+		}
 	}
 }
 

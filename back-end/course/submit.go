@@ -84,13 +84,18 @@ func PrepareAnswer(student dao.Assessment_Student, path string) error {
 	return err
 }
 
-func CheckSubmission(c *gin.Context, max int) bool {
+func CheckSubmission(c *gin.Context) bool {
 	user_email := jwt.GetEmail(c)
 	user := models.User{ID: user_email.ID}
 	global.DB.Find(&user)
 	token := user.Access_token
 
 	course_name, assessment_name := GetCourseAssessment(c)
+	assessment, _ := dao.ReadExam(course_name, assessment_name)
+	max := assessment.General.MaxSubmissions
+	if max == -1 {
+		return true
+	}
 
 	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
 
@@ -98,6 +103,6 @@ func CheckSubmission(c *gin.Context, max int) bool {
 	if len(autolab_resp) != 0 {
 		return autolab_resp[0].Version < max
 	} else {
-		return false
+		return true
 	}
 }

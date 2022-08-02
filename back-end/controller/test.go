@@ -10,14 +10,12 @@ import (
 	"syscall"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
@@ -196,12 +194,12 @@ func Answertar_Test(c *gin.Context) {
 	}
 }
 
-func SubmissionsCheck_Test(c *gin.Context) {
-	max := 2
-	flag := course.CheckSubmission(c, max)
-	if flag {
-		color.Yellow("True")
-	} else {
-		color.Yellow("False")
-	}
-}
+// func SubmissionsCheck_Test(c *gin.Context) {
+// 	max := 2
+// 	flag := course.CheckSubmission(c, max)
+// 	if flag {
+// 		color.Yellow("True")
+// 	} else {
+// 		color.Yellow("False")
+// 	}
+// }
