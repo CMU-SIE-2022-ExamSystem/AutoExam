@@ -24,22 +24,27 @@ func ErrAssessmentModifyNotSafeResponse(c *gin.Context, assessment_name string) 
 }
 
 func ErrAssessmentNotInAutolabResponse(c *gin.Context, course, assessment string) {
-	err := Error{Type: Course, Message: ReplaceMessageCourseAssessmentName(&AssessmentNotInAutolabError{}, course, assessment)}
+	err := Error{Type: Assessment, Message: ReplaceMessageCourseAssessmentName(&AssessmentNotInAutolabError{}, course, assessment)}
 	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
 }
 
 func ErrAssessmentNameNotValidResponse(c *gin.Context, status int, message string) {
-	err := Error{Type: Course, Message: message}
+	err := Error{Type: Assessment, Message: message}
 	ErrorResponseWithStatus(c, err, status)
 }
 
 func ErrAssessmentNoSettingsResponse(c *gin.Context, assessment string) {
-	err := Error{Type: Course, Message: ReplaceMessageAssessmentName(&AssessmentNoSettingsbError{}, assessment)}
+	err := Error{Type: Assessment, Message: ReplaceMessageAssessmentName(&AssessmentNoSettingsError{}, assessment)}
 	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
 }
 
+func ErrAssessmentBeforeStartAtResponse(c *gin.Context, assessment string) {
+	err := Error{Type: Assessment, Message: ReplaceMessageAssessmentName(&AssessmentBeforeStartAtError{}, assessment)}
+	ErrorResponseWithStatus(c, err, http.StatusForbidden)
+}
+
 func ErrAssessmentInternaldResponse(c *gin.Context, message string) {
-	err := Error{Type: Course, Message: message}
+	err := Error{Type: Assessment, Message: message}
 	ErrorInternalResponse(c, err)
 }
 
@@ -69,7 +74,12 @@ type AssessmentNotInAutolabError struct {
 	Message string `json:"message" example:"There is no this assessment 'assessment_name' in such course 'course_name' on autolab, please download this assessment and uploaded the tar file to the specific course 'course_name' on autolab"`
 }
 
-type AssessmentNoSettingsbError struct {
+type AssessmentNoSettingsError struct {
 	Type    string `json:"type" example:"Assessment"`
 	Message string `json:"message" example:"This assessment name 'assessment_name' does not have any settings for the configuration of the exam or quiz"`
+}
+
+type AssessmentBeforeStartAtError struct {
+	Type    string `json:"type" example:"Assessment"`
+	Message string `json:"message" example:"It's too early to take this assessment name 'assessment_name' now. Please try again later."`
 }

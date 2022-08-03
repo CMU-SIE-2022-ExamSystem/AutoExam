@@ -53,7 +53,7 @@ type Sub_Question_Blank_Student struct {
 
 type Answers_Upload struct {
 	Answers Student_Questions `json:"answers"`
-} //@name Answer
+} //@name Answers
 
 type Answers_Upload_Validate struct {
 	Student Assessment_Student

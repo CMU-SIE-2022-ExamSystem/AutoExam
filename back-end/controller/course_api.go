@@ -16,7 +16,6 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/validate"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
@@ -175,7 +174,7 @@ func ReadAssessment_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
 
-	assessment := read_assessment(c, course_name, assessment_name)
+	assessment := course.GetAssessment(c, course_name, assessment_name)
 
 	auth_level := jwt.Get_authlevel_DB(c)
 	if auth_level == "student" {
@@ -290,7 +289,7 @@ func DraftAssessment_Handler(c *gin.Context) {
 		}
 	}
 
-	assessment := read_assessment(c, course_name, assessment_name)
+	assessment := course.GetAssessment(c, course_name, assessment_name)
 	assessment.Draft = body.Draft
 
 	err := dao.UpdateExam(course_name, assessment_name, assessment)
@@ -313,7 +312,7 @@ func DraftAssessment_Handler(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/assessments/{assessment_name}/download [get]
 // @Success 200 {object} response.Response{data=dao.Draft} "success"
-// @Failure 400 {object} response.BadRequestResponse{error=response.AssessmentNoSettingsbError} "no settings or no base course"
+// @Failure 400 {object} response.BadRequestResponse{error=response.AssessmentNoSettingsError} "no settings or no base course"
 // @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
 // @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
 func DownloadAssessments_Handler(c *gin.Context) {
@@ -321,7 +320,7 @@ func DownloadAssessments_Handler(c *gin.Context) {
 
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	_, base_course := course.GetCourseBaseCourse(c)
-	assessment := read_assessment(c, course_name, assessment_name)
+	assessment := course.GetAssessment(c, course_name, assessment_name)
 	if len(assessment.Settings) == 0 {
 		response.ErrAssessmentNoSettingsResponse(c, assessment_name)
 	}
@@ -338,23 +337,15 @@ func DownloadAssessments_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
-// @Success 200  "success"
+// @Success 200 {object} response.Response{data=[]dao.Questions_Student} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
-// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Failure 404 {object} response.NotValidResponse{error=response.StudentNotValidError} "not valid question, assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/question [get]
 // @Security ApiKeyAuth
 func QuestionAssessments_Handler(c *gin.Context) {
-	// TODO should check time check whether is question are all ready
-	course_name, assessment_name := course.GetCourseAssessment(c)
-	course.GetCourseBaseCourse(c)
-	email := jwt.GetEmail(c)
-	student, err := dao.ReadStudent(course_name, assessment_name, email.Email)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			// TODO response for no student instance
-		}
-		response.ErrMongoDBReadResponse(c, Student_Model)
-	}
+	course.CheckAssessmentTime(c)
+	student := course.GetAssessmentStudent(c)
+
 	response.SuccessResponse(c, student.ToRealQuestions())
 }
 
@@ -369,11 +360,12 @@ func QuestionAssessments_Handler(c *gin.Context) {
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Success 200 {object} response.Response{data=dao.Student_Questions} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
-// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Failure 404 {object} response.NotValidResponse{error=response.StudentNotValidError} "not valid question, assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers [get]
 // @Security ApiKeyAuth
 func ReadAnswersAssessments_Handler(c *gin.Context) {
-	student := read_assessment_student(c)
+	course.CheckAssessmentTime(c)
+	student := course.GetAssessmentStudent(c)
 	response.SuccessResponse(c, student.Answers)
 }
 
@@ -389,12 +381,12 @@ func ReadAnswersAssessments_Handler(c *gin.Context) {
 // @Param data body dao.Answers_Upload true "body data"
 // @Success 200 {object} response.Response{data=dao.Student_Questions} "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
-// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Failure 404 {object} response.NotValidResponse{error=response.StudentNotValidError} "not valid question, assessment or course"
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers [put]
 // @Security ApiKeyAuth
 func UploadAnswersAssessments_Handler(c *gin.Context) {
-	// TODO should check time
-	student := read_assessment_student(c)
+	course.CheckAssessmentTime(c)
+	student := course.GetAssessmentStudent(c)
 
 	var body dao.Answers_Upload_Validate
 	body.Student = student
@@ -424,8 +416,8 @@ func UploadAnswersAssessments_Handler(c *gin.Context) {
 // @Router /courses/{course_name}/assessments/{assessment_name}/answers/struct [get]
 // @Security ApiKeyAuth
 func ReadAnswersStructAssessments_Handler(c *gin.Context) {
-	// TODO should check time
-	student := read_assessment_student(c)
+	course.CheckAssessmentTime(c)
+	student := course.GetAssessmentStudent(c)
 	response.SuccessResponse(c, student.ToAnwerStruct())
 }
 
@@ -449,7 +441,7 @@ func GenerateAssessments_Handler(c *gin.Context) {
 	course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
 
-	generate_assessment_student(c)
+	course.GenerateAssessmentStudent(c)
 	// TODO que system for back process
 	response.SuccessResponse(c, nil)
 }
@@ -472,7 +464,7 @@ func GenerateAssessments_Handler(c *gin.Context) {
 func ReadStatisticAssessments_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
-	assessment := read_assessment(c, course_name, assessment_name)
+	assessment := course.GetAssessment(c, course_name, assessment_name)
 
 	response.SuccessResponse(c, assessment.Statistic)
 }
@@ -498,7 +490,7 @@ func CreateStatisticAssessments_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
-	assessment := read_assessment(c, course_name, assessment_name)
+	assessment := course.GetAssessment(c, course_name, assessment_name)
 
 	var data dao.Statistic_Create
 	validate.ValidateJson(c, &data)
@@ -640,55 +632,4 @@ func CheckSubmission_Handler(c *gin.Context) {
 	} else {
 		response.ErrorResponseWithStatus(c, "This user has no submission records.", http.StatusNotFound)
 	}
-}
-
-func read_assessment(c *gin.Context, course_name, assessment_name string) dao.AutoExam_Assessments {
-	// read certain assessment
-	assessment, err := dao.ReadExam(course_name, assessment_name)
-
-	// check mongo error
-	if err != nil {
-		response.ErrMongoDBReadResponse(c, Student_Model)
-	}
-	return assessment
-}
-
-func generate_assessment_student(c *gin.Context) {
-	course_name, assessment_name := course.GetCourseAssessment(c)
-	course.GetCourseBaseCourse(c)
-
-	assessment := read_assessment(c, course_name, assessment_name)
-	users, _ := course.CourseUserData(c)
-	var err error
-	for _, user := range users {
-		student := assessment.GenerateAssessmentStudent(user.Email, course_name, assessment_name)
-		_, err = dao.CreateOrUpdateStudent(student)
-		if err != nil {
-			assessment.Generated = -1
-			assessment.GeneratedError = "There is an error happen when generating " + student.Email + "'s exam with error message: " + err.Error()
-		}
-	}
-	if err == nil {
-		assessment.Generated = 1
-		assessment.GeneratedError = ""
-	}
-
-	dao.UpdateExam(course_name, assessment_name, assessment)
-}
-
-func read_assessment_student(c *gin.Context) dao.Assessment_Student {
-	course_name, assessment_name := course.GetCourseAssessment(c)
-	course.GetCourseBaseCourse(c)
-
-	email := jwt.GetEmail(c)
-	student, err := dao.ReadStudent(course_name, assessment_name, email.Email)
-
-	// check mongo error
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			// TODO response for no student instance
-		}
-		response.ErrMongoDBReadResponse(c, Student_Model)
-	}
-	return student
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
@@ -123,5 +124,25 @@ func copy_autograders(path, base_course, assessment_name string) {
 			dao.Storegrader(grader, base_course)
 		}
 		utils.Copy_file(file_name, db_path, path)
+	}
+}
+
+func GetAssessment(c *gin.Context, course_name, assessment_name string) dao.AutoExam_Assessments {
+	// read certain assessment
+	assessment, err := dao.ReadExam(course_name, assessment_name)
+
+	// check mongo error
+	if err != nil {
+		response.ErrMongoDBReadResponse(c, Student_Model)
+	}
+	return assessment
+}
+
+func CheckAssessmentTime(c *gin.Context) {
+	course_name, assessment_name := GetCourseAssessment(c)
+	assessment := GetAssessment(c, course_name, assessment_name)
+	now := time.Now()
+	if !now.After(dao.Time_str_convert(assessment.General.Start_at)) {
+		response.ErrAssessmentBeforeStartAtResponse(c, assessment_name)
 	}
 }

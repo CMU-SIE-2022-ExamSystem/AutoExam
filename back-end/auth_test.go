@@ -118,10 +118,10 @@ func TestCreateTokenTA(t *testing.T) {
 
 func TestCreateTokenStudent(t *testing.T) {
 	token, err := CreateStudentToken()
-	// fmt.Println("==============")
-	// fmt.Println("student")
-	// fmt.Println(token)
-	// fmt.Println("==============")
+	fmt.Println("==============")
+	fmt.Println("student")
+	fmt.Println(token)
+	fmt.Println("==============")
 	assert.Nil(t, err)
 
 	server := initialize.SetupServer()
