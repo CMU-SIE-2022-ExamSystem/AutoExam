@@ -2,20 +2,19 @@ import React from 'react';
 import {Form} from 'react-bootstrap';
 import {choiceDataType} from "../subQuestionDataType";
 
-const OneInMultipleChoice = ({choice, storageKey, value} : {choice: choiceDataType, storageKey: string, value: string}) => {
+const OneInMultipleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
     const id = storageKey + "_choice" + choice.choice_id;
     return (
         <Form.Check type='checkbox'
             name={storageKey}
             id={id}
             label={choice.content}
-            defaultChecked={value.includes(choice.choice_id)}
             readOnly
         />
     )
 }
 
-const MultipleChoiceReadOnly = ({data, storageKey, value} : {data: choiceDataType[], storageKey: string, value: string}) => {
+const MultipleChoiceReadOnly = ({data, storageKey} : {data: choiceDataType[], storageKey: string}) => {
     if (!data) return (<>Bad choices field</>);
     const checkboxes = data.map((choice: any) => {
         let key = `${storageKey}_choice${choice.choiceId}`;
@@ -24,7 +23,6 @@ const MultipleChoiceReadOnly = ({data, storageKey, value} : {data: choiceDataTyp
                 choice={choice}
                 key={key}
                 storageKey={storageKey}
-                value={value}
             />
         )
     });

@@ -19,6 +19,23 @@ interface examResultsType {
     total_score: number,
 }
 
+
+interface blankAnswerType {
+    [key: string]: string[]
+}
+
+interface subQuestionAnswerType {
+    [key: string]: blankAnswerType
+}
+
+interface questionAnswersType {
+    [key: string]: subQuestionAnswerType
+}
+
+interface answerType {
+    [key: string]: questionAnswersType
+}
+
 const ResultPage = ({questions, answers} : {questions: questionDataType[], answers: examResultsType}) => {
     const date = moment(answers.created_at).format("MM/DD/YYYY, HH:mm:ss Z");
     const answerMetaData = (
@@ -31,6 +48,7 @@ const ResultPage = ({questions, answers} : {questions: questionDataType[], answe
             </Card.Body>
         </Card>
     );
+
     return (
         <div>
             {answerMetaData}
@@ -49,16 +67,22 @@ const ExamResultQuestions = () => {
 
     const [questionList, setQuestionList] = useState<questionDataType[]>([]);
     const [examResults, setExamResults] = useState<examResultsType[]>([]);
+    const [examAnswer, setExamAnswer] = useState<answerType>({});
 
     const getQuestionList = useCallback(() => {
         const questionUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/question`);
         const token = globalState.token;
         return axios.get(questionUrl, {headers: {Authorization: "Bearer " + token}});
     }, [globalState.token]);
-    const getAnswer = useCallback(() => {
-        const answerUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/submissions`);
+    const getAnswers = useCallback(() => {
+        const answersUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/answers`);
         const token = globalState.token;
-        return axios.get(answerUrl, {headers: {Authorization: "Bearer " + token}});
+        return axios.get(answersUrl, {headers: {Authorization: "Bearer " + token}});
+    }, []);
+    const getSubmission = useCallback(() => {
+        const submissionUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/submissions`);
+        const token = globalState.token;
+        return axios.get(submissionUrl, {headers: {Authorization: "Bearer " + token}});
     }, []);
 
     useEffect(() => {
@@ -67,17 +91,20 @@ const ExamResultQuestions = () => {
                 const questionList: questionDataType[] = result.data.data;
                 setQuestionList(questionList);
             })
-            .then(_ => {
-                getAnswer()
-                    .then(result => {
-                        const answer: examResultsType[] = result.data.data;
-                        setExamResults(answer);
-                    });
+            .then(_ => getAnswers())
+            .then(result => {
+                const examAnswers = result.data.data;
+
+            })
+            .then(_ => getSubmission())
+            .then(result => {
+                const examResults: examResultsType[] = result.data.data;
+                setExamResults(examResults);
             })
             .catch(badExam => {
                 console.error(badExam);
             });
-    }, [getQuestionList, getAnswer]);
+    }, [getQuestionList, getAnswers, getSubmission]);
 
     const activeResult = examResults ? examResults.at(0) : undefined;
 
