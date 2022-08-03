@@ -44,6 +44,8 @@ type Assessments struct {
 	Autolab          bool   `json:"autolab"`
 	AutoExam         bool   `json:"autoexam"`
 	Draft            bool   `json:"draft"`
+	Submitted        bool   `json:"submitted"`
+	Can_submit       bool   `json:"can_submit"`
 }
 
 type Submissions struct {
@@ -89,6 +91,8 @@ func (autolab *Autolab_Assessments) ToAssessments() Assessments {
 		Grading_deadline: autolab.Grading_deadline,
 		Autolab:          true,
 		AutoExam:         false,
+		Submitted:        false,
+		Can_submit:       true,
 	}
 	return assessment
 }

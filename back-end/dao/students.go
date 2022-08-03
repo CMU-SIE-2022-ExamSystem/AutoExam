@@ -21,6 +21,8 @@ type Assessment_Student struct {
 	Problems   []Student_Problems `json:"problems" bson:"problems"`
 	Answers    Student_Questions  `json:"answers" bson:"answers"`
 	Solutions  Student_Questions  `json:"solutions" bson:"solutions"`
+	Submitted  bool               `json:"submitted" bson:"submitted"`
+	Can_submit bool               `json:"can_submit" bson:"can_submit"`
 }
 
 type Student_Questions map[string]Student_Sub_Questions
