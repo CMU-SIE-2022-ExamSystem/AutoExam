@@ -20,7 +20,6 @@ func TestRouter(Router *gin.RouterGroup) {
 		TestRouter.GET("/:course_name/check", jwt.JWTAuth(), jwt.Check_authlevel_API)
 		TestRouter.GET("/:course_name/checkDB", jwt.JWTAuth(), jwt.Check_authlevel_DB)
 		// TestRouter.GET("/f/:course/:assessment/:user_id/", controller.FolderTest)
-		TestRouter.POST("/:course_name/:assessment_name/config", controller.Examconfig_Handler)
 		TestRouter.GET("/exam", jwt.JWTAuth(), controller.Test_exam)
 		TestRouter.GET("autograder/:question_type", controller.Autograder_Test)
 		TestRouter.GET("answertar", controller.Answertar_Test)

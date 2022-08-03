@@ -240,6 +240,9 @@ func (assessment *AutoExam_Assessments) GenerateAssessmentStudent(email, course_
 	var questions []string
 	var problems []Student_Problems
 	solutions := make(Student_Questions)
+	var err error
+	var err_message string
+	// generate question id
 	for i, ass := range assessment.Settings {
 		// get specified question_id id
 		var question_id string
@@ -249,14 +252,20 @@ func (assessment *AutoExam_Assessments) GenerateAssessmentStudent(email, course_
 			r1 := rand.New(s1)
 			question_id = ass.Id[r1.Intn(number)]
 		} else { // not limit id
-			ids := GetAllQuestionIDBySubQuestionNumber(assessment.BaseCourse, ass.Tag, ass.SubQuestionNumber)
+			ids, err := GetAllQuestionIDBySubQuestionNumber(assessment.BaseCourse, ass.Tag, ass.SubQuestionNumber)
+			if err != nil {
+				err_message = err.Error()
+			}
 			number := len(ids)
 			s1 := rand.NewSource(time.Now().UnixNano())
 			r1 := rand.New(s1)
 			question_id = ids[r1.Intn(number)]
 		}
-
-		question, _ := ReadQuestionById(question_id)
+		var question Questions
+		question, err = ReadQuestionById(question_id)
+		if err != nil {
+			err_message = err.Error()
+		}
 
 		sub_solutions := make(Student_Sub_Questions)
 		for j, sub_quest := range question.SubQuestions {
@@ -278,16 +287,29 @@ func (assessment *AutoExam_Assessments) GenerateAssessmentStudent(email, course_
 		questions = append(questions, question_id)
 		solutions["Q"+strconv.Itoa(i+1)] = sub_solutions
 	}
-
-	student := Assessment_Student{
-		Email:      email,
-		Course:     course_name,
-		Assessment: assessment_name,
-		Questions:  questions,
-		Problems:   problems,
-		Solutions:  solutions,
-		Submitted:  false,
-		Can_submit: true,
+	var student Assessment_Student
+	if err == nil {
+		student = Assessment_Student{
+			Email:      email,
+			Course:     course_name,
+			Assessment: assessment_name,
+			Questions:  questions,
+			Problems:   problems,
+			Solutions:  solutions,
+			Submitted:  false,
+			Can_submit: true,
+			Generated:  1,
+		}
+	} else {
+		student = Assessment_Student{
+			Email:          email,
+			Course:         course_name,
+			Assessment:     assessment_name,
+			Submitted:      false,
+			Can_submit:     true,
+			Generated:      -1,
+			GeneratedError: err_message,
+		}
 	}
 
 	return student

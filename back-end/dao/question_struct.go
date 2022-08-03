@@ -26,6 +26,7 @@ type AutoExam_Questions struct {
 	Tag               string               `json:"question_tag" bson:"question_tag"`
 	SubQuestions      []Sub_Question_Blank `json:"sub_questions" bson:"sub_questions"`
 	SubQuestionNumber int                  `json:"sub_question_number" bson:"sub_question_number"`
+	Hidden            bool                 `json:"hidden" bson:"hidden"`
 }
 
 type AutoExam_Questions_Create struct {

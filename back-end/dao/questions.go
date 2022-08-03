@@ -9,17 +9,23 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
 	Que_Collection_Name string = "question_bank"
 )
 
-func ReadAllQuestions(base_course string) ([]Questions, error) {
+func ReadAllQuestions(base_course string, hidden bool) ([]Questions, error) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
-	filter := bson.D{{Key: "base_course", Value: base_course}}
+	var filter primitive.D
+	if hidden {
+		filter = bson.D{{Key: "base_course", Value: base_course}}
+	} else {
+		filter = bson.D{{Key: "base_course", Value: base_course}, {Key: "hidden", Value: false}}
+	}
 
 	cursor, err := collection.Find(context.TODO(), filter)
 
@@ -46,15 +52,33 @@ func ReadQuestionById(id string) (Questions, error) {
 	return tags.ToQuestions(), err
 }
 
-func ReadAllQuestionsByTag(base_course, tag_id string) ([]Questions, error) {
+func ReadOrgQuestionById(id string) (AutoExam_Questions, error) {
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
+
+	objectid, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.D{{Key: "_id", Value: objectid}}
+
+	var question AutoExam_Questions
+	err := collection.FindOne(context.TODO(), filter).Decode(&question)
+	return question, err
+}
+
+func ReadAllQuestionsByTag(base_course, tag_id string, hidden bool) ([]Questions, error) {
 	if tag_id == "" {
-		return ReadAllQuestions(base_course)
+		return ReadAllQuestions(base_course, hidden)
 	}
 
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
-	filter := bson.D{{Key: "question_tag", Value: tag_id}}
+	var filter primitive.D
+	if hidden {
+		filter = bson.D{{Key: "question_tag", Value: tag_id}}
+	} else {
+		filter = bson.D{{Key: "question_tag", Value: tag_id}, {Key: "hidden", Value: false}}
+	}
 
 	cursor, err := collection.Find(context.TODO(), filter)
 
@@ -108,15 +132,44 @@ func UpdateQuestions(id string, question AutoExam_Questions_Create) error {
 	return err
 }
 
-func DeleteQuestionById(id string) error {
+// create or update Question
+func CreateOrUpdateQuestions(question AutoExam_Questions) (AutoExam_Questions, error) {
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	filter := bson.D{{Key: "_id", Value: question.ObjectID}}
+	opts := options.Replace().SetUpsert(true)
+	data, err := bson.Marshal(question)
+	if err != nil {
+		return AutoExam_Questions{}, err
+	}
+	_, err = collection.ReplaceOne(ctx, filter, data, opts)
+	if err != nil {
+		return AutoExam_Questions{}, err
+	}
+	return ReadOrgQuestionById(question.ToQuestions().Id)
+}
+
+func DeleteQuestionById(id string, hard bool) error {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
 
 	objectid, _ := primitive.ObjectIDFromHex(id)
 	filter := bson.D{{Key: "_id", Value: objectid}}
-	_, err := collection.DeleteOne(context.TODO(), filter)
-
+	var err error
+	if hard {
+		_, err = collection.DeleteOne(context.TODO(), filter)
+	} else {
+		var question AutoExam_Questions
+		question, _ = ReadOrgQuestionById(id)
+		question.Hidden = true
+		_, err = CreateOrUpdateQuestions(question)
+	}
 	return err
 }
 
@@ -140,22 +193,23 @@ func ValidateQuestionById(course, id string) (bool, error) {
 	return false, err
 }
 
-// TODO finish it after assessment is done
-// return true for safe delete
+// return true for safe delete or update
 func ValidateQuestionUsedById(id string) (bool, error) {
-	// client := global.Mongo
-	//get the collection instance
-	// collection := client.Database("auto_exam").Collection(Que_Collection_Name)
-	// filter := bson.D{{Key: "questionTag", Value: id}}
-	// var questions AutoExam_Questions
-	// err := collection.FindOne(context.TODO(), filter).Decode(&questions)
-	// if err != nil {
-	// 	// ErrNoDocuments means that the filter did not match any documents in the collection
-	// 	if err == mongo.ErrNoDocuments {
-	// 		return true, nil
-	// 	}
-	// 	return false, err
-	// }
+
+	client := global.Mongo
+	// get the collection instance
+	collection := client.Database("auto_exam").Collection(Student_Collection_Name)
+	filter := bson.D{{Key: "questions", Value: id}}
+
+	var student Assessment_Student
+	err := collection.FindOne(context.TODO(), filter).Decode(&student)
+	if err != nil {
+		// ErrNoDocuments means that the filter did not match any documents in the collection
+		if err == mongo.ErrNoDocuments {
+			return true, nil
+		}
+		return false, err
+	}
 	return false, nil
 }
 
@@ -176,20 +230,27 @@ func GetAllSubQuestionNumber(base_course, tag_id string) ([]int, []string) {
 	return numbers, numbers_text
 }
 
-func GetAllQuestionIDBySubQuestionNumber(base_course, tag_id string, sub_question_number int) []string {
+// only show not hidden
+func GetAllQuestionIDBySubQuestionNumber(base_course, tag_id string, sub_question_number int) ([]string, error) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
-	filter := bson.D{{Key: "base_course", Value: base_course}, {Key: "question_tag", Value: tag_id}, {Key: "sub_question_number", Value: sub_question_number}}
+	filter := bson.D{{Key: "base_course", Value: base_course}, {Key: "question_tag", Value: tag_id}, {Key: "sub_question_number", Value: sub_question_number}, {Key: "hidden", Value: false}}
 
-	cursor, _ := collection.Find(context.TODO(), filter)
+	cursor, err := collection.Find(context.TODO(), filter)
+	if err != nil {
+		return []string{}, err
+	}
 
 	var id []string
 
 	for cursor.Next(context.TODO()) {
 		var autoexam AutoExam_Questions
-		cursor.Decode(&autoexam)
+		err := cursor.Decode(&autoexam)
+		if err != nil {
+			return []string{}, err
+		}
 		id = append(id, autoexam.ToQuestions().Id)
 	}
-	return id
+	return id, err
 }

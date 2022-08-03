@@ -15,11 +15,16 @@ var (
 func ErrQuestionNotValidResponse(c *gin.Context, course, question string) {
 	var temp QuestionNotValidError
 	err := Error{Type: Question, Message: ReplaceMessageCourseQuestionName(&temp, course, question)}
-	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+	ErrorResponseWithStatus(c, err, http.StatusNotFound)
 }
 
 func ErrQuestionModifyNotSafeResponse(c *gin.Context, question_id string) {
 	err := Error{Type: Question, Message: ReplaceMessageQuestionName(&QuestionModifyNotSafeError{}, question_id)}
+	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+}
+
+func ErrQuestionDeleteNotSafeResponse(c *gin.Context, question_id string) {
+	err := Error{Type: Question, Message: ReplaceMessageQuestionName(&QuestionDeleteNotSafeError{}, question_id)}
 	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
 }
 
@@ -41,15 +46,20 @@ func ReplaceMessageCourseQuestionName(str interface{}, course_name, question_id 
 
 type QuestionNotValidError struct {
 	Type    string `json:"type" example:"Question"`
-	Message string `json:"message" example:"There is no this question 'question_id' in such base course 'course_name'"`
+	Message string `json:"message" example:"There is no this question id 'question_id' in such base course 'course_name'"`
 }
 
 type QuestionModifyNotSafeError struct {
 	Type    string `json:"type" example:"Question"`
-	Message string `json:"message" example:"This question name 'question_id' is already used in some exams. It would be dangerous to modify this question"`
+	Message string `json:"message" example:"This question id 'question_id' is already used in some exams. It would be dangerous to modify this question"`
+}
+
+type QuestionDeleteNotSafeError struct {
+	Type    string `json:"type" example:"Question"`
+	Message string `json:"message" example:"This question id 'question_id' is already used in some exams. Therefore, it cannot be deleted!"`
 }
 
 type QuestionNoUploadError struct {
 	Type    string `json:"type" example:"Question"`
-	Message string `json:"message" example:"There is no file uploaded to this question 'question_id'"`
+	Message string `json:"message" example:"There is no file uploaded to this question id 'question_id'"`
 }

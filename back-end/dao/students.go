@@ -14,15 +14,18 @@ const (
 )
 
 type Assessment_Student struct {
-	Email      string             `json:"email" bson:"email"`
-	Assessment string             `json:"assessment" bson:"assessment"`
-	Course     string             `json:"course" bson:"course"`
-	Questions  []string           `json:"questions" bson:"questions"`
-	Problems   []Student_Problems `json:"problems" bson:"problems"`
-	Answers    Student_Questions  `json:"answers" bson:"answers"`
-	Solutions  Student_Questions  `json:"solutions" bson:"solutions"`
-	Submitted  bool               `json:"submitted" bson:"submitted"`
-	Can_submit bool               `json:"can_submit" bson:"can_submit"`
+	Email          string             `json:"email" bson:"email"`
+	Assessment     string             `json:"assessment" bson:"assessment"`
+	Course         string             `json:"course" bson:"course"`
+	Questions      []string           `json:"questions" bson:"questions"`
+	Problems       []Student_Problems `json:"problems" bson:"problems"`
+	Answers        Student_Questions  `json:"answers" bson:"answers"`
+	Solutions      Student_Questions  `json:"solutions" bson:"solutions"`
+	Submitted      bool               `json:"submitted" bson:"submitted"`
+	Can_submit     bool               `json:"can_submit" bson:"can_submit"`
+	SubmitNumber   int                `json:"submit_number" bson:"submit_number"`
+	Generated      int                `json:"-" bson:"generated"`       // whether assessment of student is generated in the course. 0: not generated, 1: already generated, -1: generated error
+	GeneratedError string             `json:"-" bson:"generated_error"` // error message for an error happened when generatings this student's exam
 }
 
 type Student_Questions map[string]Student_Sub_Questions
@@ -62,7 +65,14 @@ type Answers_Upload_Validate struct {
 	Answers Student_Questions `json:"answers" binding:"required"`
 }
 
-// create student
+type Student_Status struct {
+	Email          string `json:"email" bson:"email"`
+	SubmitNumber   int    `json:"submit_number" bson:"submit_number"`
+	Generated      int    `json:"generated" bson:"generated"`             // whether assessment of student is generated in the course. 0: not generated, 1: already generated, -1: generated error
+	GeneratedError string `json:"generated_error" bson:"generated_error"` // error message for an error happened when generatings this student's exam
+}
+
+// create or update student
 func CreateOrUpdateStudent(student Assessment_Student) (Assessment_Student, error) {
 	client := global.Mongo
 	//get the collection instance
@@ -84,7 +94,7 @@ func CreateOrUpdateStudent(student Assessment_Student) (Assessment_Student, erro
 	return ReadStudent(student.Course, student.Assessment, student.Email)
 }
 
-// read student by course, assessment, id
+// read student by course, assessment, email
 func ReadStudent(course, assessment, email string) (Assessment_Student, error) {
 	client := global.Mongo
 	//get the collection instance
@@ -94,6 +104,44 @@ func ReadStudent(course, assessment, email string) (Assessment_Student, error) {
 	var student Assessment_Student
 	err := collection.FindOne(context.TODO(), filter).Decode(&student)
 	return student, err
+}
+
+// read all student by course, assessment
+func ReadAllStudents(course, assessment string) ([]Assessment_Student, error) {
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Student_Collection_Name)
+
+	filter := bson.D{{Key: "course", Value: course}, {Key: "assessment", Value: assessment}}
+
+	cursor, err := collection.Find(context.TODO(), filter)
+
+	var students []Assessment_Student
+	for cursor.Next(context.TODO()) {
+		var student Assessment_Student
+		cursor.Decode(&student)
+		students = append(students, student)
+	}
+	return students, err
+}
+
+// read all student by course, assessment
+func ReadAllStudentsStatus(course, assessment string) ([]Student_Status, error) {
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Student_Collection_Name)
+
+	filter := bson.D{{Key: "course", Value: course}, {Key: "assessment", Value: assessment}}
+
+	cursor, err := collection.Find(context.TODO(), filter)
+
+	var status []Student_Status
+	for cursor.Next(context.TODO()) {
+		var student Assessment_Student
+		cursor.Decode(&student)
+		status = append(status, student.ToStatus())
+	}
+	return status, err
 }
 
 func (student *Assessment_Student) ToRealQuestions() []Questions_Student {
@@ -121,4 +169,14 @@ func (student *Assessment_Student) ToAnwerStruct() Student_Questions {
 		}
 	}
 	return solutions
+}
+
+func (student *Assessment_Student) ToStatus() Student_Status {
+	status := Student_Status{
+		Email:          student.Email,
+		SubmitNumber:   student.SubmitNumber,
+		Generated:      student.Generated,
+		GeneratedError: student.GeneratedError,
+	}
+	return status
 }

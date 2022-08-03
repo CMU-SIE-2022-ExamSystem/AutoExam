@@ -361,6 +361,7 @@ func DownloadAssessments_Handler(c *gin.Context) {
 // @Router /courses/{course_name}/assessments/{assessment_name}/question [get]
 // @Security ApiKeyAuth
 func QuestionAssessments_Handler(c *gin.Context) {
+	// valid student
 	course.CheckAssessmentTime(c)
 	student := course.GetAssessmentStudent(c)
 
@@ -464,7 +465,7 @@ func GenerateAssessments_Handler(c *gin.Context) {
 	response.SuccessResponse(c, nil)
 }
 
-// GetStatisticAssessments_Handler godoc
+// ReadStatisticAssessments_Handler godoc
 // @Summary get the assessment's score statistic result
 // @Schemes
 // @Description get the assessment's score statistic result
@@ -504,7 +505,6 @@ func ReadStatisticAssessments_Handler(c *gin.Context) {
 // @Router /courses/{course_name}/assessments/{assessment_name}/statistic [post]
 // @Security ApiKeyAuth
 func CreateStatisticAssessments_Handler(c *gin.Context) {
-	// TODO should check with greg to get the latest or the best score
 	jwt.Check_authlevel_Instructor(c)
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
@@ -554,6 +554,29 @@ func CreateStatisticAssessments_Handler(c *gin.Context) {
 	response.SuccessResponse(c, statistic)
 }
 
+// ReadStatusAssessments_Handler godoc
+// @Summary get all students' assessment status
+// @Schemes
+// @Description get all students' assessment status
+// @Tags exam
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Success 200 {object} response.Response{data=[]dao.Student_Status} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.AssessmentNotValidError} "not valid of assessment or course"
+// @Router /courses/{course_name}/assessments/{assessment_name}/status [get]
+// @Security ApiKeyAuth
+func ReadStatusAssessments_Handler(c *gin.Context) {
+	course_name, assessment_name := course.GetCourseAssessment(c)
+	course.GetCourseBaseCourse(c)
+	status, _ := dao.ReadAllStudentsStatus(course_name, assessment_name)
+
+	response.SuccessResponse(c, status)
+}
+
 // Usersubmit_Handler godoc
 // @Summary submit answer
 // @Schemes
@@ -577,7 +600,7 @@ func Usersubmit_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	answertar_path := utils.Find_assessment_folder(c, strconv.Itoa(int(user.ID)), course_name, assessment_name)
 
-	if !course.CheckSubmission(c) {
+	if status, _ := course.CheckSubmission(c); !status {
 		response.ErrorResponseWithStatus(c, response.Error{Type: "Autolab", Message: "You have reached the maximum number of submissions!"}, http.StatusForbidden)
 	} else {
 		student, err := dao.ReadStudent(course_name, assessment_name, user.Email)
@@ -608,7 +631,7 @@ func Usersubmit_Handler(c *gin.Context) {
 			body := autolab.AutolabSubmitHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submit", answertar_path+"answer.tar")
 			autolab_resp := utils.User_submit_trans(string(body))
 			student.Submitted = true
-			student.Can_submit = course.CheckSubmission(c)
+			student.Can_submit, student.SubmitNumber = course.CheckSubmission(c)
 			dao.CreateOrUpdateStudent(student)
 			response.SuccessResponse(c, autolab_resp)
 			// if autolab_resp.Version == 0 {

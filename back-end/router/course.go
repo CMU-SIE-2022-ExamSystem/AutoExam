@@ -31,6 +31,7 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/answers/struct", jwt.JWTAuth(), controller.ReadAnswersStructAssessments_Handler)
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/statistic", jwt.JWTAuth(), controller.ReadStatisticAssessments_Handler)
 		CourseRouter.POST("/:course_name/assessments/:assessment_name/statistic", jwt.JWTAuth(), controller.CreateStatisticAssessments_Handler)
+		CourseRouter.GET("/:course_name/assessments/:assessment_name/status", jwt.JWTAuth(), controller.ReadStatusAssessments_Handler)
 
 		// modify assessment's draft
 		CourseRouter.PUT("/:course_name/assessments/:assessment_name/draft", jwt.JWTAuth(), controller.DraftAssessment_Handler)
@@ -47,6 +48,7 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.POST("/:course_name/questions", jwt.JWTAuth(), controller.CreateQuestion_Handler)
 		CourseRouter.GET("/:course_name/questions/:question_id/", jwt.JWTAuth(), controller.ReadQuestion_Handler)
 		CourseRouter.PUT("/:course_name/questions/:question_id/", jwt.JWTAuth(), controller.UpdateQuestion_Handler)
+		CourseRouter.PUT("/:course_name/questions/:question_id/force", jwt.JWTAuth(), controller.UpdateForceQuestion_Handler)
 		CourseRouter.DELETE("/:course_name/questions/:question_id/", jwt.JWTAuth(), controller.DeleteQuestion_Handler)
 
 		// graders CRUD

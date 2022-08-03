@@ -28,14 +28,13 @@ func GetAssessmentStudent(c *gin.Context) dao.Assessment_Student {
 	}
 
 	// check question is ready
-	if student.Questions == nil || len(student.Questions) == 0 {
+	if student.Generated == -1 || student.Questions == nil || len(student.Questions) == 0 {
 		response.ErrStudentNotValidResponse(c, assessment_name, email.Email)
 	}
 	return student
 }
 
 func GenerateAssessmentStudent(c *gin.Context) {
-	// TODO let student has it's own generated and error
 	course_name, assessment_name := GetCourseAssessment(c)
 	GetCourseBaseCourse(c)
 
