@@ -3,14 +3,15 @@ import {useState} from 'react';
 import {Card, Collapse} from 'react-bootstrap';
 import {subQuestionDataType} from "./questionTemplate/subQuestionDataType";
 import questionDataType from "./questionTemplate/questionDataType";
+import BlankWithSolution from './questionTemplate/BlankWithSolution';
+import ChoiceWithSolution from './questionTemplate/ChoiceWithSolution';
 
 const CollapseQuestion = ({question} : {question: questionDataType}) => {
     const [open, setOpen] = useState(false);
 
     const subQuestions = question.sub_questions.map((subQuestion: subQuestionDataType, index) => {
-        // if (subQuestion.grader === "multiple-choice") return (<MultipleChoice key={key} data={subQuestion} headerId={question.id.toString()} />);
-        // if (subQuestion.grader === "multiple-blank") return (<MultipleBlank key={key} data={subQuestion} headerId={question.id.toString()} />);
-        // if (subQuestion.grader === "multiple-blank") return (<MultipleBlank key={key} data={subQuestion} headerId={question.id.toString()} />);
+        if (subQuestion.grader === "single_blank") return (<BlankWithSolution key={index + 1} index = {index + 1} subQuestion={subQuestion}/>);
+        if (subQuestion.grader === "single_choice" || subQuestion.grader === "multiple_choice") return (<ChoiceWithSolution key={index + 1} index = {index + 1} subQuestion={subQuestion}/>);
         return (<></>);
     });
 
@@ -21,7 +22,7 @@ const CollapseQuestion = ({question} : {question: questionDataType}) => {
                     style={{cursor: "pointer"}}
                     onClick={() => setOpen(!open)}
                     aria-expanded={open}>
-                    {"Question Title"}
+                    {question.title}
                 </Card.Header>
                 <Collapse in={open}>
                     <div>

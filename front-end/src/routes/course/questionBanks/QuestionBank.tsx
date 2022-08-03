@@ -278,7 +278,7 @@ function QuestionBank () {
                     clearMessage={() => setTagError("")}/>
                 
                 <AddQuestionModal
-                    tag={(tag as tagProps)}
+                    tag={([...tags].filter((tag) => tag.name === params.tag)[0] as tagProps)}
                     show={addQuestionShow}
                     onAdd={addNewQuestion}
                     onClose={() => setAddQuestionShow(false)}/>

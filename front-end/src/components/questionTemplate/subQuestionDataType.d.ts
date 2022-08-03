@@ -13,4 +13,6 @@ export interface subQuestionDataType {
     description: string;
     choices: (choiceDataType[] | null)[];
     score: number;
+    grader: string;
+    solutions: (string[])[];
 }
