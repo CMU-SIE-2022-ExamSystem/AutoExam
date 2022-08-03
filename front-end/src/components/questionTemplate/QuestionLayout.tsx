@@ -5,7 +5,8 @@ const QuestionLayout = ({questionId, displayIdx, description, score, children}: 
     const scoreBadge = (<Badge bg="success ms-1">{score} points</Badge>);
     return (
         <Form.Group key={questionId} id={questionId} className="border-top py-4">
-            <Form.Label>{displayIdx + '. ' + description} {scoreBadge}</Form.Label>
+            <Form.Label>{displayIdx + '. '} {scoreBadge}</Form.Label>
+            <div dangerouslySetInnerHTML={{__html: description}} />
             {children}
         </Form.Group>
     );

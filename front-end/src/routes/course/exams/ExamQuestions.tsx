@@ -264,7 +264,7 @@ const ExamQuestions = () => {
     const submitExam = () => {
         const submitUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/submit`);
         const token = globalState.token;
-        return axios.get(submitUrl, {headers: {Authorization: "Bearer " + token}});
+        return axios.post(submitUrl, {},{headers: {Authorization: "Bearer " + token}});
     }
 
     const manualSubmitExam = () => {
