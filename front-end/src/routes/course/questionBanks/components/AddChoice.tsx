@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
 
-const AddChoice = ({id, onDelete}: {id: number, onDelete: (id: number) => void}) => {
+const AddChoice = ({type, id, onDelete}: {type: string, id: number, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");
 
     const [idx, setIdx] = useState(0);
@@ -11,13 +11,13 @@ const AddChoice = ({id, onDelete}: {id: number, onDelete: (id: number) => void})
         setChoiceList(choiceList.filter((choice) => choice !== idx));
     }
 
-    const choices = choiceList.map((idx) => {
+    const choices = choiceList.map((idx, index) => {
         return (
             <Row className="d-flex flex-row align-items-center" key={idx}>
                 <Col>
                     <InputGroup className="my-2">
-                        <InputGroup.Checkbox/>
-                        <Form.Control/>
+                        <InputGroup.Checkbox name={"sub" + id + "_choices"}/>
+                        <Form.Control id={"sub" + id + "_choice" + index}/>
                     </InputGroup>
                 </Col>
                 <Col xs={1}>
@@ -31,17 +31,17 @@ const AddChoice = ({id, onDelete}: {id: number, onDelete: (id: number) => void})
     return (
         <>
         <Form.Group>
-            <Form.Label><h5>Subquestion (Multiple Choice)</h5></Form.Label>
+            <Form.Label><h5>Subquestion ({type === "single_choice" ? "Single Choice" : "Multiple Choice"})</h5></Form.Label>
         </Form.Group>
 
         <Form.Group className="mb-3">
             <Form.Label>Description</Form.Label>
-            <Form.Control onChange={(e) => setDescription(e.target.value)}/>
+            <Form.Control id={"sub" + id + "_description"} onChange={(e) => setDescription(e.target.value)}/>
         </Form.Group>
 
         <Form.Group className="mb-3">
             <Form.Label>Choices</Form.Label><br/>
-            <Form.Text>choose all possible answers</Form.Text>
+            <Form.Text>{type === "single_choice" ? "choose all possible answers" : "choose all correct answers"}</Form.Text>
         </Form.Group>
 
         <div>{choices}</div>

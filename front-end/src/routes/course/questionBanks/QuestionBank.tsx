@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Button, Col, Form, InputGroup, Modal, Nav, Row, Tab} from 'react-bootstrap';
+import {Button, Col, Form, Modal, Nav, Row, Tab} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../../components/TopNavbar";
 import AppLayout from "../../../components/AppLayout";
@@ -93,8 +93,8 @@ const QuestionsByTag = ({questions}: {questions: questionDataType[] | undefined}
         <Row>
             <Col sm={10}>
                 {!!questions &&
-                    questions.map((question) => {
-                        return <CollapseQuestion questionData={question} key={question.description}/>
+                    questions.map((question, index) => {
+                        return <CollapseQuestion question={question} key={index}/>
                     })
                 }
                 {!questions &&
@@ -195,6 +195,23 @@ function QuestionBank () {
             .catch();
     }, [getTags, getQuestionsByTag]);
 
+    const addNewQuestion = async (questionData: object) => {
+        console.log(questionData);
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions");
+        const token = globalState.token;
+        axios.post(url, questionData, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                setAddQuestionShow(false);
+                getTags()
+                    .then(tags => getQuestionsByTag(tags));
+            })
+            .catch((error: any) => {
+                console.log(error);
+                let response = error.response.data;
+                console.log(response);
+            });
+    }
+
     return (
         <AppLayout>
             <Row>
@@ -260,8 +277,10 @@ function QuestionBank () {
                     onSubmit={(id) => deleteTag(id)}
                     clearMessage={() => setTagError("")}/>
                 
-                <AddQuestionModal tag={(params.tag as string)}
+                <AddQuestionModal
+                    tag={(tag as tagProps)}
                     show={addQuestionShow}
+                    onAdd={addNewQuestion}
                     onClose={() => setAddQuestionShow(false)}/>
             </Tab.Container>
         </AppLayout>

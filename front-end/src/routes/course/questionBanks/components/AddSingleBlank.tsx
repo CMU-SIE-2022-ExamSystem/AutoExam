@@ -3,7 +3,7 @@ import { Button, Form } from 'react-bootstrap';
 
 const AddSingleBlank = ({id, onDelete}: {id: number, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");
-    const [answer, setAnswer] = useState("");
+    const [solution, setSolution] = useState("");
 
     return (
         <>
@@ -13,12 +13,12 @@ const AddSingleBlank = ({id, onDelete}: {id: number, onDelete: (id: number) => v
 
         <Form.Group className="mb-3">
             <Form.Label>Description</Form.Label>
-            <Form.Control onChange={(e) => setDescription(e.target.value)}/>
+            <Form.Control id={"sub" + id + "_description"} onChange={(e) => setDescription(e.target.value)}/>
         </Form.Group>
 
         <Form.Group className="mb-3">
-            <Form.Label>Answer</Form.Label>
-            <Form.Control onChange={(e) => setAnswer(e.target.value)}/>
+            <Form.Label>Solution</Form.Label>
+            <Form.Control id={"sub" + id + "_solution"} onChange={(e) => setSolution(e.target.value)}/>
         </Form.Group>
 
         <div className="mb-3 text-end">
