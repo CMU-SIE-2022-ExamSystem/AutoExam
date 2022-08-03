@@ -96,7 +96,7 @@ const Instructions = ({info}: {info: instructionType}) => {
         <div>
             <h1 className="my-3">{info.title}</h1>
             <h2 className="text-start my-4"><strong>Instructions</strong></h2>
-            <p className="text-start">{info.instructions}</p>
+            <div className="text-start" dangerouslySetInnerHTML={{__html: info.instructions}} />
         </div>
     );
 }
@@ -167,7 +167,7 @@ const ExamQuestions = () => {
     const [questionList, setQuestionList] = useState<questionDataType[]>([]);
     const [idList, setIdList] = useState<string[]>([]);
 
-    const getQuestionList = useCallback(async () => {
+    const getQuestionList = useCallback(() => {
         const examUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/question`);
         const token = globalState.token;
         return axios.get(examUrl, {headers: {Authorization: "Bearer " + token}});
@@ -226,7 +226,12 @@ const ExamQuestions = () => {
                 const testInfo: any = result.data.data;
                 let nowMoment = moment();
                 if (moment(testInfo.start_at).diff(nowMoment) > 0 || nowMoment.diff(moment(testInfo.end_at)) > 0) {
-                    updateGlobalState({alert: {show: true, content: `Exam '${examId}' is not ready.`, variant: 'danger'}});
+                    updateGlobalState({alert: {show: true, content: `'${examId}' is not ready.`, variant: 'danger'}});
+                    navigate('/courses/' + courseName);
+                    return;
+                }
+                if (!testInfo.can_submit) {
+                    updateGlobalState({alert: {show: true, content: `You have used all attempts of '${examId}'.`, variant: 'danger'}});
                     navigate('/courses/' + courseName);
                     return;
                 }

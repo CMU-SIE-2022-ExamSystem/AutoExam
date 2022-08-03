@@ -19,6 +19,8 @@ interface assessmentProps {
     autoexam: boolean;
     autolab: boolean;
     draft: boolean;
+    submitted: boolean;
+    can_submit: boolean;
 }
 
 interface ICourseInfo {
@@ -36,7 +38,7 @@ interface tagProps {
     name: string;
 }
 
-const AssessmentRow = ({name, display_name, start_at, due_at, permission, draft}: extAssessmentProps) => {
+const AssessmentRow = ({name, display_name, start_at, due_at, permission, draft, submitted, can_submit}: extAssessmentProps) => {
     let now = moment();
     let start = moment(start_at);
     let end = moment(due_at);
@@ -50,13 +52,19 @@ const AssessmentRow = ({name, display_name, start_at, due_at, permission, draft}
     let actionList = [];
     if (permission) {
         actionList.push(<Link to={"examConfig/" + name} key="_EditExam" className="btn btn-success m-1">Edit Exam</Link>)
-        actionList.push(<Link to={"exams/" + name} key="_ProctorExam" className="btn btn-primary m-1">Proctor Exam</Link>)
-    } else if (beforeExamTime) {
-        actionList.push(<span>Remaining {now.to(start, true)}</span>)
-    } else if (inExamTime) {
-        actionList.push(<Link to={"exams/" + name} key="_TakeExam" className="btn btn-primary m-1">Take Exam</Link>);
-    } else if (afterExamTime) {
-        actionList.push(<Link to={"examResults/" + name} key="_ExamResults" className="btn btn-success m-1">Exam Results (NotDone)</Link>)
+        //actionList.push(<Link to={"exams/" + name} key="_ProctorExam" className="btn btn-primary m-1">Proctor Exam</Link>)
+    } else {
+        if (beforeExamTime) {
+            actionList.push(<span>Remaining {now.to(start, true)}</span>)
+        } else if (inExamTime && can_submit) {
+            actionList.push(<Link to={"exams/" + name} key="_TakeExam" className="btn btn-primary m-1">Take Exam</Link>);
+        }
+        if (afterExamTime && !submitted) {
+            actionList.push(<span>No Submissions</span>);
+        }
+        if (submitted) {
+            actionList.push(<Link to={"examResults/" + name} key="_ExamResults" className="btn btn-success m-1">Exam Results</Link>);
+        }
     }
 
     let trClassName = "align-middle";
