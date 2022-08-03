@@ -19,7 +19,7 @@ const CodeInput = ({storageKey, displayIdx} : {storageKey: string, displayIdx: n
                 onChange={(evn) => setValue(evn.target.value)}
                 padding={10}
                 style={{
-                    height: "480px",
+                    height: "200px",
                     fontSize: 12,
                     backgroundColor: "#f5f5f5",
                     fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',

@@ -5,6 +5,7 @@ import {Col, Nav, Row, Tab} from "react-bootstrap";
 import TopNavbar from "../../../components/TopNavbar";
 import AppLayout from "../../../components/AppLayout";
 import ExamResultStats from "./ExamResultStats";
+import ExamResultQuestions from "./ExamResultQuestions";
 
 const ExamResults = () => {
 
@@ -21,9 +22,9 @@ const ExamResults = () => {
                 <TopNavbar brand={courseName} brandLink={"/courses/"+courseName}/>
             </Row>
             <Tab.Container id="TabContainer" defaultActiveKey="statistics">
-                <Row>
-                    <Col xs={12}>
-                        <Nav variant="pills" className="flex-row justify-content-evenly">
+                <Row className="mt-3">
+                    <Col xs={{span: "8", offset: "2"}}>
+                        <Nav justify variant="tabs" className="flex-row">
                             <Nav.Item>
                                 <Nav.Link eventKey="statistics" href="#">
                                     Statistics
@@ -36,13 +37,13 @@ const ExamResults = () => {
                             </Nav.Item>
                         </Nav>
                     </Col>
-                    <Col xs={12}>
+                    <Col xs={12} className={"mt-2"}>
                         <Tab.Content>
                             <Tab.Pane eventKey="statistics">
                                 <ExamResultStats />
                             </Tab.Pane>
                             <Tab.Pane eventKey="questions">
-                                Questions
+                                <ExamResultQuestions />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>
