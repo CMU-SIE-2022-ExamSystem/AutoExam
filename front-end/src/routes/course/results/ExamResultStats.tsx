@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
-import {Col, Nav, Row, Tab} from "react-bootstrap";
+import {Col, Row} from "react-bootstrap";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";
 
@@ -21,11 +21,14 @@ const ExamResultStats = () => {
 
     const [stats, setStats] = useState<statsProperties | null>(null);
 
+    const courseName = params.course_name;
+    const examId = params.exam_id;
+
     const getStats = useCallback(() => {
         const statsUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/statistic`);
         const token = globalState.token;
         return axios.get(statsUrl, {headers: {Authorization: "Bearer " + token}});
-    }, [globalState.token]);
+    }, [globalState.token, courseName, examId]);
 
     useEffect(() => {
         getStats()
@@ -35,8 +38,6 @@ const ExamResultStats = () => {
             })
     }, []);
 
-    const courseName = params.course_name;
-    const examId = params.exam_id;
 
     let tbody = ((s) => {
         if (s === null) return (<tbody />);
