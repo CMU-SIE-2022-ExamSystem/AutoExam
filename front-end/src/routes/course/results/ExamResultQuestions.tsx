@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
-import {Card, Col, Nav, Row, Tab} from "react-bootstrap";
+import {Card, Col, Nav, Row, Tab, Table} from "react-bootstrap";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";
 import moment from "moment";
@@ -15,25 +15,22 @@ interface examResultsType {
     filename: string;
     created_at: string;
     scores: LooseObject,
+    max_score: LooseObject,
     total_score: number,
 }
 
 const ResultPage = ({answers} : {answers: examResultsType}) => {
     const date = moment(answers.created_at).format("MM/DD/YYYY, HH:mm:ss Z");
-    const answerMetaData = (
-        <Card className="mt-2 text-start">
-            <Card.Header>Metadata</Card.Header>
-            <Card.Body>
-                <Card.Text>Version: {answers.version}</Card.Text>
-                <Card.Text>Created at: {date}</Card.Text>
-                <Card.Text>Total Score: {answers.total_score}</Card.Text>
-            </Card.Body>
-        </Card>
-    );
 
-    const questionTr = answers.scores.entries().map((item: [string, string]) => {
-        let [key, value] = item;
-        return <tr><td>{key}</td><td>{item}</td></tr>
+    const scoreKeys = Object.keys(answers.scores);
+
+    let totalMaxScore = 0;
+
+    const questionTr = scoreKeys.map((key) => {
+        let myScore = answers.scores[key];
+        let maxScore = answers.max_score[key];
+        totalMaxScore += maxScore;
+        return <tr key={key}><td>{key}</td><td>{myScore} / {maxScore}</td></tr>
     });
 
     const studentScoreTbody = (
@@ -46,18 +43,33 @@ const ResultPage = ({answers} : {answers: examResultsType}) => {
         <Card className="mt-2 text-start">
             <Card.Header>Score details</Card.Header>
             <Card.Body>
-                <table>
-                    <thead>
-                    <tr>
-                        <th scope="col">Question</th>
-                        <th scope="col">Score</th>
-                    </tr>
-                    </thead>
-                    {studentScoreTbody}
-                </table>
+                <Row>
+                    <Col md={{span: '8', offset: '2'}}>
+                        <Table striped bordered>
+                            <thead>
+                            <tr>
+                                <th scope="col">Question</th>
+                                <th scope="col">Score</th>
+                            </tr>
+                            </thead>
+                            {studentScoreTbody}
+                        </Table>
+                    </Col>
+                </Row>
             </Card.Body>
         </Card>
     )
+
+    const answerMetaData = (
+        <Card className="mt-2 text-start">
+            <Card.Header>Metadata</Card.Header>
+            <Card.Body>
+                <Card.Text>Version: {answers.version}</Card.Text>
+                <Card.Text>Submitted at: {date}</Card.Text>
+                <Card.Text>Total Score: {answers.total_score} / {totalMaxScore}</Card.Text>
+            </Card.Body>
+        </Card>
+    );
 
     return (
         <div>
@@ -108,7 +120,7 @@ const ExamResultQuestions = () => {
     const navItemList = examResults.map((examResult, index) => {
         const date = moment(examResult.created_at).format("M/D/YY");
         return (
-            <Nav.Item>
+            <Nav.Item key={examResult.filename + "nav"}>
                 <Nav.Link eventKey={"attempt_" + index} href="#">
                     Attempt {examResult.version} ({date})
                 </Nav.Link>
@@ -118,7 +130,7 @@ const ExamResultQuestions = () => {
 
     const tabPanes = examResults.map((examResult, index) => {
         return (
-            <Tab.Pane eventKey={"attempt_" + index}>
+            <Tab.Pane eventKey={"attempt_" + index} key={examResult.filename + "pane"}>
                 <ResultPage answers={examResult} />
             </Tab.Pane>
         )

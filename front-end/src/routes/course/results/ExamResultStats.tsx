@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
-import {Alert, Col, Row} from "react-bootstrap";
+import {Alert, Col, Row, Table} from "react-bootstrap";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";
 
@@ -51,7 +51,7 @@ const ExamResultStats = () => {
     })(stats);
 
     let tableElement = (
-        <table className="table text-start">
+        <Table className="table text-start" striped bordered>
             <thead>
             <tr>
                 <th scope="col">Criteria</th>
@@ -59,7 +59,7 @@ const ExamResultStats = () => {
             </tr>
             </thead>
             {tbody}
-        </table>
+        </Table>
     );
 
     if (stats === null || stats.number === 0) {
