@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
-import {Col, Row} from "react-bootstrap";
+import {Alert, Col, Row} from "react-bootstrap";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";
 
@@ -48,22 +48,34 @@ const ExamResultStats = () => {
             <tr><td>Mean score</td><td>{s.mean}</td></tr>
         </tbody>
         )
-    })(stats)
+    })(stats);
+
+    let tableElement = (
+        <table className="table text-start">
+            <thead>
+            <tr>
+                <th scope="col">Criteria</th>
+                <th scope="col">Score</th>
+            </tr>
+            </thead>
+            {tbody}
+        </table>
+    );
+
+    if (stats === null || stats.number === 0) {
+        tableElement = (
+            <Alert variant="warning">
+                <i className="bi-pencil-square"/><span> The statistics are not published right now.</span>
+            </Alert>
+        )
+    }
 
     return (
         <div>
             <h1>Class Statistics</h1>
             <Row>
                 <Col sm={{span: '6', offset: '3'}}>
-                    <table className="table text-start">
-                        <thead>
-                        <tr>
-                            <th scope="col">Criteria</th>
-                            <th scope="col">Score</th>
-                        </tr>
-                        </thead>
-                        {tbody}
-                    </table>
+                    {tableElement}
                 </Col>
             </Row>
 

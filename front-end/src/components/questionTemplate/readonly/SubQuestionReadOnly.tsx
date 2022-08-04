@@ -6,7 +6,7 @@ import SingleChoiceReadOnly from "./SingleChoiceReadOnly";
 import BlankReadOnly from "./BlankReadOnly";
 import CodeReadOnly from "./CodeReadOnly";
 
-const SubQuestionReadOnly = ({data, headerId, displayIdx, value} : {data: subQuestionDataType, headerId: string, displayIdx: number, value: string[]}) => {
+const SubQuestionReadOnly = ({data, headerId, displayIdx} : {data: subQuestionDataType, headerId: string, displayIdx: number}) => {
 
     let blanks = data.blanks.map((blank, index) => {
         let choices = data.choices[index];
@@ -15,16 +15,16 @@ const SubQuestionReadOnly = ({data, headerId, displayIdx, value} : {data: subQue
         if (choices !== null) {
             // Choices type
             if (blank.multiple) {
-                return <MultipleChoiceReadOnly key={storageKey} data={choices} storageKey={storageKey} value={value[index]} />
+                return <MultipleChoiceReadOnly key={storageKey} data={choices} storageKey={storageKey}/>
             } else {
-                return <SingleChoiceReadOnly key={storageKey} data={choices} storageKey={storageKey} value={value[index]} />
+                return <SingleChoiceReadOnly key={storageKey} data={choices} storageKey={storageKey}/>
             }
         } else {
             // Blanks type, check blank string
             if (blank.type === 'string') {
-                return <BlankReadOnly key={storageKey} storageKey={storageKey} value={value[index]}/>
+                return <BlankReadOnly key={storageKey} storageKey={storageKey}/>
             } else if (blank.type === 'code') {
-                return <CodeReadOnly key={storageKey} storageKey={storageKey} value={value[index]}/>
+                return <CodeReadOnly key={storageKey} storageKey={storageKey}/>
             }
         }
         return (

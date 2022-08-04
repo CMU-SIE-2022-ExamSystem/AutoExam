@@ -2,19 +2,19 @@ import { Form } from 'react-bootstrap';
 import { choiceDataType } from "../subQuestionDataType";
 import React from "react";
 
-const OneInSingleChoice = ({choice, storageKey, value} : {choice: choiceDataType, storageKey: string, value: string}) => {
+const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
     const id = storageKey + "_choice" + choice.choice_id;
     return (
         <Form.Check type='radio'
                     name={storageKey}
                     id={id}
                     label={choice.content}
-                    defaultChecked={value.includes(choice.choice_id)}
+                    //defaultChecked={value.includes(choice.choice_id)}
                     readOnly />
     )
 }
 
-const SingleChoiceReadOnly = ({data, storageKey, value} : {data: choiceDataType[], storageKey: string, value: string}) => {
+const SingleChoiceReadOnly = ({data, storageKey} : {data: choiceDataType[], storageKey: string}) => {
     const radios = data.map((choice) => {
         if (!choice) return (<>Bad Question</>);
         let key = `${storageKey}_choice${choice.choice_id}`;
@@ -23,7 +23,6 @@ const SingleChoiceReadOnly = ({data, storageKey, value} : {data: choiceDataType[
                 choice={choice}
                 key={key}
                 storageKey={storageKey}
-                value={value}
             />
         )
     });

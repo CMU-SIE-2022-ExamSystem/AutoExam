@@ -4,12 +4,11 @@ import CodeEditor from "@uiw/react-textarea-code-editor";
 
 const listOfLanguages = ["c", "cpp", "java", "javascript", "plaintext", "python"]
 
-const CodeReadOnly = ({storageKey, value} : {storageKey: string, value: string}) => {
+const CodeReadOnly = ({storageKey} : {storageKey: string}) => {
     const [language, setLanguage] = useState("c");
     return (
         <div>
             <CodeEditor
-                value={value}
                 id={storageKey}
                 language={language}
                 className="mb-2"

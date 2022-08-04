@@ -2,12 +2,11 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {useNavigate, useParams} from "react-router-dom";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
 import {Card, Col, Nav, Row, Tab} from "react-bootstrap";
-import questionDataType from "../../../components/questionTemplate/questionDataType";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";
 import moment from "moment";
 
-interface LooseObject {
+interface LooseObject extends Object {
     [key: string]: any
 }
 
@@ -19,7 +18,7 @@ interface examResultsType {
     total_score: number,
 }
 
-const ResultPage = ({questions, answers} : {questions: questionDataType[], answers: examResultsType}) => {
+const ResultPage = ({answers} : {answers: examResultsType}) => {
     const date = moment(answers.created_at).format("MM/DD/YYYY, HH:mm:ss Z");
     const answerMetaData = (
         <Card className="mt-2 text-start">
@@ -31,9 +30,39 @@ const ResultPage = ({questions, answers} : {questions: questionDataType[], answe
             </Card.Body>
         </Card>
     );
+
+    const questionTr = answers.scores.entries().map((item: [string, string]) => {
+        let [key, value] = item;
+        return <tr><td>{key}</td><td>{item}</td></tr>
+    });
+
+    const studentScoreTbody = (
+        <tbody>
+            {questionTr}
+        </tbody>
+    )
+
+    const studentSubmission = (
+        <Card className="mt-2 text-start">
+            <Card.Header>Score details</Card.Header>
+            <Card.Body>
+                <table>
+                    <thead>
+                    <tr>
+                        <th scope="col">Question</th>
+                        <th scope="col">Score</th>
+                    </tr>
+                    </thead>
+                    {studentScoreTbody}
+                </table>
+            </Card.Body>
+        </Card>
+    )
+
     return (
         <div>
             {answerMetaData}
+            {studentSubmission}
         </div>
     );
 }
@@ -47,37 +76,24 @@ const ExamResultQuestions = () => {
     const courseName = params.course_name;
     const examId = params.exam_id;
 
-    const [questionList, setQuestionList] = useState<questionDataType[]>([]);
     const [examResults, setExamResults] = useState<examResultsType[]>([]);
 
-    const getQuestionList = useCallback(() => {
-        const questionUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/question`);
+    const getSubmission = useCallback(() => {
+        const submissionUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/submissions`);
         const token = globalState.token;
-        return axios.get(questionUrl, {headers: {Authorization: "Bearer " + token}});
-    }, [globalState.token]);
-    const getAnswer = useCallback(() => {
-        const answerUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}/submissions`);
-        const token = globalState.token;
-        return axios.get(answerUrl, {headers: {Authorization: "Bearer " + token}});
+        return axios.get(submissionUrl, {headers: {Authorization: "Bearer " + token}});
     }, []);
 
     useEffect(() => {
-        getQuestionList()
+        getSubmission()
             .then(result => {
-                const questionList: questionDataType[] = result.data.data;
-                setQuestionList(questionList);
-            })
-            .then(_ => {
-                getAnswer()
-                    .then(result => {
-                        const answer: examResultsType[] = result.data.data;
-                        setExamResults(answer);
-                    });
+                const examResults: examResultsType[] = result.data.data;
+                setExamResults(examResults);
             })
             .catch(badExam => {
                 console.error(badExam);
             });
-    }, [getQuestionList, getAnswer]);
+    }, [getSubmission]);
 
     const activeResult = examResults ? examResults.at(0) : undefined;
 
@@ -103,7 +119,7 @@ const ExamResultQuestions = () => {
     const tabPanes = examResults.map((examResult, index) => {
         return (
             <Tab.Pane eventKey={"attempt_" + index}>
-                <ResultPage questions={questionList} answers={examResult} />
+                <ResultPage answers={examResult} />
             </Tab.Pane>
         )
     });
