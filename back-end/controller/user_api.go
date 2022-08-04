@@ -76,7 +76,7 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Response{data=[]models.User_Courses} "desc"
+// @Success 200 {object} response.Response{data=[]models.User_Courses} "success"
 // @Security ApiKeyAuth
 // @Router /user/courses [get]
 func Usercourses_Handler(c *gin.Context) {

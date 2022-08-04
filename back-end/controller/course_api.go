@@ -29,7 +29,10 @@ const (
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Response{data=models.Course_Info_Front} "desc"
+// @Success 200 {object} response.Response{data=models.Course_Info_Front} "success"
+// @Failure 500 "not registered for this course"
+// @Param		course_name			path	string	true	"Course Name"
+// @Security ApiKeyAuth
 // @Router /courses/{course_name}/info [get]
 func Usercoursesinfo_Handler(c *gin.Context) {
 	user_email := jwt.GetEmail(c)
@@ -48,8 +51,8 @@ func Usercoursesinfo_Handler(c *gin.Context) {
 
 		autolab_map := utils.Map_course_info(autolab_resp)
 		course_info := autolab_map[course_name]
-
-		resp_body := models.Course_Info_Front{Name: course_info.Name, Display_name: course_info.Display_name, Auth_level: course_info.Auth_level}
+		base_course, _ := dao.ReadBaseCourseRelation(course_name)
+		resp_body := models.Course_Info_Front{Name: course_info.Name, Display_name: course_info.Display_name, Auth_level: course_info.Auth_level, Base_course: base_course}
 		response.SuccessResponse(c, resp_body)
 	} else {
 		response.ErrorInternalResponse(c, response.Error{Type: "Auth-level", Message: "User is not registered for this course."})

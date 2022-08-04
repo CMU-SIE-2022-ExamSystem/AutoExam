@@ -10,7 +10,6 @@ import (
 	"syscall"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
@@ -124,42 +123,6 @@ func Course_all_Test(c *gin.Context) {
 		response.SuccessResponse(c, autolab_resp)
 	}
 }
-
-// AuthInfo godoc
-// @Summary test
-// @Schemes
-// @Description test
-// @Tags test
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Router /test/exam [get]
-func Test_exam(c *gin.Context) {
-	user := jwt.GetEmail(c)
-	courses := dao.Get_all_courses(user.ID)
-	response.SuccessResponse(c, courses)
-}
-
-// //todo: This is for student to take exam
-// func Take_exam_Test(c *gin.Context) {
-// 	user_email := jwt.GetEmail(c)
-// 	user := models.User{ID: user_email.ID}
-// 	global.DB.Find(&user)
-// 	student_id := strconv.Itoa(int(user.ID))
-
-// 	course_name := c.Param("course_name")
-// 	assessment_name := c.Param("assessment_name")
-
-// 	data, _ := ioutil.ReadAll(c.Request.Body)
-// 	path := utils.Find_assessment_folder(c, student_id, course_name, assessment_name)
-
-// 	msg, err := dao.GradeGen(course_name, assessment_name, student_id, path, data)
-// 	if err != nil {
-// 		response.ErrDBResponse(c, msg)
-// 	} else {
-// 		response.SuccessResponse(c, "Submit Success")
-// 	}
-// }
 
 func Autograder_Test(c *gin.Context) {
 	question_type := c.Param("question_type")
