@@ -50,7 +50,7 @@ const ExamResultStats = () => {
         )
     })(stats);
 
-    let table = (
+    let tableElement = (
         <table className="table text-start">
             <thead>
             <tr>
@@ -63,7 +63,7 @@ const ExamResultStats = () => {
     );
 
     if (stats === null || stats.number === 0) {
-        table = (
+        tableElement = (
             <Alert variant="warning">
                 <i className="bi-pencil-square"/><span> The statistics are not published right now.</span>
             </Alert>
@@ -75,7 +75,7 @@ const ExamResultStats = () => {
             <h1>Class Statistics</h1>
             <Row>
                 <Col sm={{span: '6', offset: '3'}}>
-                    {table}
+                    {tableElement}
                 </Col>
             </Row>
 
