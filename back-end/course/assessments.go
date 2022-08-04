@@ -1,7 +1,6 @@
 package course
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -33,7 +32,10 @@ func Build_Assessment(c *gin.Context, course, base_course string, autoexam dao.A
 	copy_template(c, exam_path)
 	replace_template(c, exam_path, assessment_name, autoexam.General.Url)
 	modify_yml(c, exam_path, autoexam.ToDownloadAssessments())
-	copy_autograders(exam_path, base_course, assessment_name)
+	err := copy_autograders(exam_path, base_course, assessment_name)
+	if err != nil {
+		response.ErrAssessmentGenerateResponse(c, course, err.Error())
+	}
 	make_tar(c, exam_path, assessment_name)
 
 	tar_path = filepath.Join(exam_path, assessment_name+".tar")
@@ -100,12 +102,12 @@ func run_exec(c *gin.Context, prog, arg1, arg2 string) {
 	_, err := cmd.Output()
 
 	if err != nil {
-		fmt.Println(err.Error())
+		response.ErrAssessmentGenerateResponse(c, arg1, err.Error())
 		return
 	}
 }
 
-func copy_autograders(path, base_course, assessment_name string) {
+func copy_autograders(path, base_course, assessment_name string) error {
 	path = filepath.Join(path, assessment_name)
 	path = filepath.Join(path, "autograder")
 	path = filepath.Join(path, "autograders")
@@ -120,11 +122,15 @@ func copy_autograders(path, base_course, assessment_name string) {
 	for _, grader := range graders {
 		file_name := grader.Name + ".py"
 		file_path := filepath.Join(db_path, file_name)
-		if _, err := os.Stat(file_path); errors.Is(err, os.ErrNotExist) {
-			dao.Storegrader(grader, base_course)
+		if _, err := os.Stat(file_path); os.IsNotExist(err) {
+			err := dao.Storegrader(grader, base_course)
+			if err != nil {
+				return err
+			}
 		}
 		utils.Copy_file(file_name, db_path, path)
 	}
+	return nil
 }
 
 func GetAssessment(c *gin.Context, course_name, assessment_name string) dao.AutoExam_Assessments {

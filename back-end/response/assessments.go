@@ -48,9 +48,21 @@ func ErrAssessmentInternaldResponse(c *gin.Context, message string) {
 	ErrorInternalResponse(c, err)
 }
 
+func ErrAssessmentGenerateResponse(c *gin.Context, course, assessment string) {
+	var temp AssessmentNotValidError
+	err := Error{Type: Assessment, Message: ReplaceMessageCourseAssessmentName(&temp, course, assessment)}
+	ErrorResponseWithStatus(c, err, http.StatusNotFound)
+}
+
 func ReplaceMessageAssessmentName(str interface{}, assessment_name string) string {
 	field, _ := reflect.TypeOf(str).Elem().FieldByName("Message")
 	return strings.ReplaceAll(field.Tag.Get("example"), "assessment_name", assessment_name)
+}
+
+func ReplaceMessageAssessmentNameErrorMessage(str interface{}, assessment_name, error_message string) string {
+	field, _ := reflect.TypeOf(str).Elem().FieldByName("Message")
+	message := strings.ReplaceAll(field.Tag.Get("example"), "assessment_name", assessment_name)
+	return strings.ReplaceAll(message, "error_message", error_message)
 }
 
 func ReplaceMessageCourseAssessmentName(str interface{}, course_name, assessment_name string) string {
@@ -82,4 +94,9 @@ type AssessmentNoSettingsError struct {
 type AssessmentBeforeStartAtError struct {
 	Type    string `json:"type" example:"Assessment"`
 	Message string `json:"message" example:"It's too early to take this assessment name 'assessment_name' now. Please try again later."`
+}
+
+type AssessmentGenerateError struct {
+	Type    string `json:"type" example:"Assessment"`
+	Message string `json:"message" example:"There are some errors when generating assessment name 'assessment_name' with error message 'error_message'"`
 }

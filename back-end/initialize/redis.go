@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -20,21 +21,29 @@ func InitRedis() {
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.DialURL("redis://" + info.Host + ":" + strconv.Itoa(info.Port))
 			if err != nil {
+				fmt.Println("redis error")
+				fmt.Println(err)
 				return nil, err
 			}
 			return c, err
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
 			_, err := c.Do("PING")
+			fmt.Println("redis error")
+			fmt.Println(err)
 			return err
 		},
 	}
-
+	var err error
 	// initialize celery client
-	global.Redis, _ = gocelery.NewCeleryClient(
+	global.Redis, err = gocelery.NewCeleryClient(
 		gocelery.NewRedisBroker(redisPool),
 		&gocelery.RedisCeleryBackend{Pool: redisPool},
 		5, // number of workers
 	)
+	if err != nil {
+		fmt.Println("redis error")
+		fmt.Println(err)
+	}
 
 }

@@ -29,13 +29,14 @@ func GetNowFormatTodayTime() string {
 	return dateStr
 }
 
-func CreateFolder(path string) {
+func CreateFolder(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		err := os.MkdirAll(path, 0700)
+		err := os.MkdirAll(path, 0777)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+	return nil
 }
 
 func Copy_file(file, src, dest string) {

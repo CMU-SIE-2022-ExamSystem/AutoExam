@@ -31,12 +31,14 @@ func main() {
 
 	// start workers (non-blocking call)
 	global.Redis.StartWorker()
+	fmt.Println("worker start")
 
 	// loop forever to wait client request
 	select {}
 }
 
 func generate(course_name, assessment_name, email string) bool {
+	fmt.Println("generate task start")
 	assessment := get_assessments(course_name, assessment_name)
 	token := refresh_token(email)
 	users, _ := coures_user_data(course_name, token)
@@ -56,6 +58,7 @@ func generate(course_name, assessment_name, email string) bool {
 	}
 	assessment.Statistic = dao.Statistic{}
 	dao.UpdateExam(course_name, assessment_name, assessment)
+	fmt.Println("generate task finish")
 	return err == nil
 }
 

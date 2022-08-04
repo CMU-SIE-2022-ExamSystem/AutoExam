@@ -2,8 +2,10 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -172,28 +174,33 @@ func SearchAndStore_grader(c *gin.Context, question_type string, course string, 
 	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&new_data)
 	if rows.RowsAffected < 1 {
 		response.ErrDBResponse(c, "The corresponding grader of this question type can not be found.")
-		return
 	}
 	byte_array := new_data.PythonGrader
 	stored_file_name := fmt.Sprintf("%s.py", question_type)
 	write_file(stored_file_name, byte_array, file_path)
 }
 
-func Storegrader(grader Grader_API, course string) {
+func Storegrader(grader Grader_API, course string) error {
 	instance, _ := search_grader(grader.Name, course)
 	byte_array := instance.PythonGrader
 	stored_file_name := fmt.Sprintf("%s.py", instance.QuestionType)
-	write_file(stored_file_name, byte_array, filepath.Join(DBgrade_path, course))
+	path := filepath.Join(DBgrade_path, course)
+	return write_file(stored_file_name, byte_array, path)
 }
 
-func write_file(file_name string, byte_rray []byte, file_path string) {
+func write_file(file_name string, byte_rray []byte, file_path string) error {
+	if _, err := os.Stat(file_path); errors.Is(err, os.ErrNotExist) {
+		os.MkdirAll(file_path, 0777)
+	}
+
 	pathAndName := fmt.Sprintf("%s/%s", file_path, file_name)
 	err := ioutil.WriteFile(pathAndName, byte_rray, 0666)
 	if err != nil {
 		color.Yellow("write fail!")
-		return
+		return err
 	}
 	color.Yellow("write success")
+	return nil
 }
 
 func Delete_grader(question_type, course string) error {
