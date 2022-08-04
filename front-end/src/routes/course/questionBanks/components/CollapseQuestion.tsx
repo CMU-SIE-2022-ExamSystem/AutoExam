@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
 import {Button, Card, Collapse, Modal} from 'react-bootstrap';
-import {subQuestionDataType} from "./questionTemplate/subQuestionDataType";
-import questionDataType from "./questionTemplate/questionDataType";
-import BlankWithSolution from './questionTemplate/BlankWithSolution';
-import ChoiceWithSolution from './questionTemplate/ChoiceWithSolution';
+import {subQuestionDataType} from "../../../../components/questionTemplate/subQuestionDataType";
+import questionDataType from "../../../../components/questionTemplate/questionDataType";
+import BlankWithSolution from './BlankWithSolution';
+import ChoiceWithSolution from './ChoiceWithSolution';
+import CustomizedWithSolution from './CustomizedWithSolution';
 
 const EditQuestionModal = ({show, question, errorMessage, onEdit, onClose, clearMessage}: {show: boolean, question: questionDataType, errorMessage: string, onEdit: (id: string, data: object) => void, onClose: () => void, clearMessage: () => void}) => {
     return (
@@ -43,7 +44,7 @@ const CollapseQuestion = ({question, deleteShow, setDeleteShow, onDelete, editSh
     const subQuestions = question.sub_questions.map((subQuestion: subQuestionDataType, index) => {
         if (subQuestion.grader === "single_blank") return (<BlankWithSolution key={index + 1} index = {index + 1} subQuestion={subQuestion}/>);
         if (subQuestion.grader === "single_choice" || subQuestion.grader === "multiple_choice") return (<ChoiceWithSolution key={index + 1} index = {index + 1} subQuestion={subQuestion}/>);
-        return (<></>);
+        return (<CustomizedWithSolution key={index + 1} index={index + 1} subQuestion={subQuestion}/>);
     });
 
     return (
