@@ -94,7 +94,7 @@ func Assessments_Handler(c *gin.Context) {
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Response{data=models.Submissions} "success"
+// @Success 200 {object} response.Response{data=[]models.Submissions_Front} "success"
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		assessment_name		path	string	true	"Assessment name"
 // @Security ApiKeyAuth
