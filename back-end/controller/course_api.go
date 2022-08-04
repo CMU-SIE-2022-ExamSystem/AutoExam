@@ -457,12 +457,12 @@ func ReadAnswersStructAssessments_Handler(c *gin.Context) {
 // @Security ApiKeyAuth
 func GenerateAssessments_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
-	course.GetCourseAssessment(c)
+	course_name, assessment_name := course.GetCourseAssessment(c)
 	course.GetCourseBaseCourse(c)
+	token := jwt.GetEmail(c)
 
-	course.GenerateAssessmentStudent(c)
-	// TODO que system for back process
-	response.SuccessResponse(c, nil)
+	global.Redis.Delay("generate", course_name, assessment_name, token.Email)
+	response.SuccessResponse(c, "The assessment is generated in the back-end's queue system")
 }
 
 // ReadStatisticAssessments_Handler godoc

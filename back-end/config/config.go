@@ -10,6 +10,7 @@ type ServerConfig struct {
 	Autolabinfo  AutolabConfig `mapstructure:"autolab"`
 	JWTKey       JWTconfig     `mapstructure:"jwt"`
 	MongoDB      MongoDBConfig `mapstructure:"mongodb"`
+	Redis        RedisConfig   `mapstructure:"redis"`
 	Basic_Grader []string
 }
 
@@ -36,6 +37,11 @@ type JWTconfig struct {
 }
 
 type MongoDBConfig struct {
+	Host string `mapstructure:"host"`
+	Port int    `mapstructure:"port"`
+}
+
+type RedisConfig struct {
 	Host string `mapstructure:"host"`
 	Port int    `mapstructure:"port"`
 }

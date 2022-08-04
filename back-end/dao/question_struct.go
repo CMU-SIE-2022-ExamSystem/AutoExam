@@ -36,6 +36,7 @@ type AutoExam_Questions_Create struct {
 	Tag               string               `json:"question_tag" bson:"question_tag"`
 	SubQuestions      []Sub_Question_Blank `json:"sub_questions" bson:"sub_questions"`
 	SubQuestionNumber int                  `json:"sub_question_number" bson:"sub_question_number"`
+	Hidden            bool                 `json:"-" bson:"hidden"`
 }
 
 type Tags_Return struct {
@@ -50,6 +51,7 @@ type Questions struct {
 	Tag               string               `json:"question_tag" bson:"question_tag"`               // tag of the question, would return tag name
 	SubQuestions      []Sub_Question_Blank `json:"sub_questions" bson:"sub_questions"`             // detail of sub_questions
 	SubQuestionNumber int                  `json:"sub_question_number" bson:"sub_question_number"` // number of sub_questions
+	Hidden            bool                 `json:"hidden" bson:"hidden"`
 }
 
 // @Description questions model info
@@ -63,7 +65,7 @@ type Questions_Create struct {
 type Sub_Question struct {
 	Grader      string     `json:"grader" bson:"grader"`           // sub question's grader
 	Description string     `json:"description" bson:"description"` // sub question's content
-	Choices     []Choice   `json:"choices" bson:"choices"`         // required for "choices" type sub question
+	Choices     [][]Choice `json:"choices" bson:"choices"`         // required for "choices" type sub question
 	Solutions   [][]string `json:"solutions" bson:"solutions"`     // solutions of the sub question, the design for 2D slices is that the first dimension would be capable of multiple blanks while the second dimension would be used when if multiple solutions are all correct\n example: [["A", "B"], ["C"]]
 }
 
@@ -83,6 +85,7 @@ func (autoexam *AutoExam_Questions) ToQuestions() Questions {
 		Tag:               ReadTagName(autoexam.Tag),
 		SubQuestions:      autoexam.SubQuestions,
 		SubQuestionNumber: autoexam.SubQuestionNumber,
+		Hidden:            autoexam.Hidden,
 	}
 	return questions
 }

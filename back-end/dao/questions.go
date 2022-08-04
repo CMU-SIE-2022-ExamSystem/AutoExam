@@ -113,6 +113,9 @@ func CreateQuestion(question AutoExam_Questions_Create) (Questions, error) {
 }
 
 func UpdateQuestions(id string, question AutoExam_Questions_Create) error {
+	instance, _ := ReadOrgQuestionById(id)
+	question.Hidden = instance.Hidden
+
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)

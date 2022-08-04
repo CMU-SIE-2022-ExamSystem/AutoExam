@@ -217,5 +217,4 @@ func DeleteQuestion_Handler(c *gin.Context) {
 	response.NonContentResponse(c)
 }
 
-// TODO check  check update or force update
 // TODO question & tag put delete CORS

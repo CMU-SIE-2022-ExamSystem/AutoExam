@@ -30,5 +30,9 @@ jwt:
 
 mongodb:
   host: "autoexam-02.andrew.cmu.edu"
-  # host: "localhost"
   port: 27017
+
+
+redis:
+  host: "autoexam-02.andrew.cmu.edu"
+  port: 6379
