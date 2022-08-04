@@ -66,8 +66,8 @@ func CourseRouter(Router *gin.RouterGroup) {
 
 		// base relationship CRUD
 		CourseRouter.GET("/:course_name/base", jwt.JWTAuth(), controller.ReadBaseCourseRelation_Handler)
-		CourseRouter.POST("/:course_name/:base", jwt.JWTAuth(), controller.CreateBaseCourseRelation_Handler)
-		CourseRouter.PUT("/:course_name/:base", jwt.JWTAuth(), controller.UpdateBaseCourseRelation_Handler)
+		CourseRouter.POST("/:course_name/base/:base_name", jwt.JWTAuth(), controller.CreateBaseCourseRelation_Handler)
+		CourseRouter.PUT("/:course_name/base/:base_name", jwt.JWTAuth(), controller.UpdateBaseCourseRelation_Handler)
 		CourseRouter.DELETE("/:course_name/base", jwt.JWTAuth(), controller.DeleteBaseCourseRelation_Handler)
 
 		// test the uploaded grader

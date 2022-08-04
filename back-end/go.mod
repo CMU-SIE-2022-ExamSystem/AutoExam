@@ -18,6 +18,8 @@ require (
 
 require (
 	github.com/go-playground/validator/v10 v10.11.0
+	github.com/gocelery/gocelery v0.0.0-20201111034804-825d89059344
+	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/otiai10/copy v1.7.0
 	go.mongodb.org/mongo-driver v1.9.1
 	golang.org/x/exp v0.0.0-20220706164943-b4a6d9510983
@@ -41,9 +43,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
-	github.com/gocelery/gocelery v0.0.0-20201111034804-825d89059344 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
-	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
