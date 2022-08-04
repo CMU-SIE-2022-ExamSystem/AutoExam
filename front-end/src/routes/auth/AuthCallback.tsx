@@ -33,7 +33,7 @@ const AuthCallback = () => {
 
                 const data = result.data.data;
                 const myName = data.firstName + " " + data.lastName;
-                console.log(data.token);
+
                 let newState = updateGlobalState({name: myName, token: data.token});
                 sessionStorage.setItem('globalState', JSON.stringify(newState));
                 navigate("/dashboard");

@@ -11,7 +11,7 @@ interface tagProps {
     name: string;
 }
 
-const AddQuestionModal = ({tag, show, onAdd, onClose} : {tag: tagProps, show: boolean, onAdd: (questionData: object) => void, onClose: () => void}) => {
+const AddQuestionModal = ({tag, show, errorMessage, onAdd, onClose, clearMessage} : {tag: tagProps, show: boolean, errorMessage: string, onAdd: (questionData: object) => void, onClose: () => void, clearMessage: () => void}) => {
     const params = useParams();
     
     const [title, setTitle] = useState("");
@@ -120,9 +120,9 @@ const AddQuestionModal = ({tag, show, onAdd, onClose} : {tag: tagProps, show: bo
     }
 
     return (
-        <Modal show={show} onHide={onClose} size="lg">
+        <Modal show={show} onHide={() => {onClose(); clearMessage()}} size="lg">
             <Modal.Header closeButton>
-                <Modal.Title>Add new Question</Modal.Title>
+                <Modal.Title>Add New Question</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={onSubmit}>
@@ -156,8 +156,12 @@ const AddQuestionModal = ({tag, show, onAdd, onClose} : {tag: tagProps, show: bo
                         </Button>
                     </InputGroup>
 
+                    <div>
+                        <small className="text-danger">{errorMessage}</small>
+                    </div>
+
                     <div className="text-end">
-                        <Button variant="secondary" onClick={onClose}>Close</Button>
+                        <Button variant="secondary" onClick={() => {onClose(); clearMessage()}}>Close</Button>
                         <Button variant="primary" className="ms-2" type="submit">Add</Button>
                     </div>
                 </Form>

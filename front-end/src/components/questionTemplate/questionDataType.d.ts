@@ -7,4 +7,5 @@ export default interface questionDataType {
     sub_question_number: number;
     title: string;
     score: number;
+    id: string;
 };
