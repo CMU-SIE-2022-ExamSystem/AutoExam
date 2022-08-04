@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Button, Col, Form, Modal, Nav, Row, Tab} from 'react-bootstrap';
+import {Button, Col, Form, ListGroup, Modal, Nav, Row, Tab} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../../components/TopNavbar";
 import AppLayout from "../../../components/AppLayout";
@@ -7,7 +7,7 @@ import questionDataType from "../../../components/questionTemplate/questionDataT
 import {useGlobalState} from "../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from 'axios';
-import CollapseQuestion from '../../../components/CollapseQuestion';
+import CollapseQuestion from './components/CollapseQuestion';
 import AddQuestionModal from './components/AddQuestionModal';
 
 interface tagProps {
@@ -86,6 +86,53 @@ const DeleteTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessag
             </Modal.Footer>
         </Modal>
     );
+}
+
+const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean, errorMessage: string, onClose: () => void, clearMessage: () => void}) => {
+    const params = useParams();
+    const {globalState} = useGlobalState();
+    
+    const [graders, setGraders] = useState<string[]>([]);
+
+    const getGraders = useCallback(async () => {
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/list");
+        const token = globalState.token;
+        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
+        setGraders(result.data.data);
+    }, [globalState.token, params.course_name])
+
+    useEffect(() => {
+        getGraders().catch();
+    }, [getGraders])
+
+    return (
+        <Modal show={show} onHide={() => {onClose(); clearMessage()}}>
+            <Modal.Header closeButton>
+                <Modal.Title>Grader</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+                <ListGroup variant="flush">
+                    {graders.map((grader, index) => (
+                        <ListGroup.Item key={index}>
+                            <Row>
+                                <Col xs={10}>{grader}</Col>
+                                <Col xs={2}>
+                                {grader === "single_blank" || grader === "single_choice" || grader === "multiple_choice" ?
+                                    <div className="text-secondary">Basic</div> :
+                                    <>
+                                    <i className="bi-pencil-square" style={{cursor: "pointer"}}/>
+                                    <i className="bi-trash ms-2" style={{cursor: "pointer"}}/>
+                                    </>
+                                }
+                                </Col>
+                            </Row>
+                        </ListGroup.Item>
+                    ))}
+                </ListGroup>
+            </Modal.Body>
+        </Modal>
+    )
 }
 
 const QuestionsByTag = ({questions, deleteShow, setDeleteShow, onDelete, editShow, setEditShow, onEdit, error, setError}:
@@ -204,19 +251,20 @@ function QuestionBank () {
     }, [getTags, getQuestionsByTag]);
 
     const addNewQuestion = async (questionData: object) => {
+        console.log(questionData);
         const url = getBackendApiUrl("/courses/" + params.course_name + "/questions");
         const token = globalState.token;
-        axios.post(url, questionData, {headers: {Authorization: "Bearer " + token}})
-            .then(_ => {
-                setAddQuestionShow(false);
-                getTags()
-                    .then(tags => getQuestionsByTag(tags));
-            })
-            .catch((error: any) => {
-                console.log(error);
-                let response = error.response.data;
-                setQuestionError(response.error.message);
-            });
+        // axios.post(url, questionData, {headers: {Authorization: "Bearer " + token}})
+        //     .then(_ => {
+        //         setAddQuestionShow(false);
+        //         getTags()
+        //             .then(tags => getQuestionsByTag(tags));
+        //     })
+        //     .catch((error: any) => {
+        //         console.log(error);
+        //         let response = error.response.data;
+        //         setQuestionError(response.error.message);
+        //     });
     }
 
     const editQuestion = async (id: string, questionData: object) => {
@@ -252,6 +300,9 @@ function QuestionBank () {
             });
     }
 
+    const [graderShow, setGraderShow] = useState(false);
+    const [graderError, setGraderError] = useState("");
+
     return (
         <AppLayout>
             <Row>
@@ -282,6 +333,7 @@ function QuestionBank () {
                     {params.tag !== "null" &&
                         <Col xs={10}>
                             <Row className="text-end">
+                                <Link to="#"><Button variant="primary" className='me-4 mt-4' onClick={() => setGraderShow(true)}>Grader</Button></Link>
                                 <Link to="#"><Button variant="primary" className='me-4 my-4' onClick={() => setAddQuestionShow(true)}>Add Question</Button></Link>
                             </Row>
                             <Tab.Content className="text-start mx-4">
@@ -330,6 +382,13 @@ function QuestionBank () {
                     onAdd={addNewQuestion}
                     onClose={() => setAddQuestionShow(false)}
                     clearMessage={() => setQuestionError("")}
+                />
+
+                <GraderModal
+                    show={graderShow}
+                    errorMessage={graderError}
+                    onClose={() => setGraderShow(false)}
+                    clearMessage={() => setGraderError("")}
                 />
             </Tab.Container>
         </AppLayout>

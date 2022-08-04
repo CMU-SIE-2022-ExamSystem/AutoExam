@@ -1,10 +1,28 @@
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Button, Form, InputGroup, Modal} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
+import {useGlobalState} from "../../../../components/GlobalStateProvider";
+import {getBackendApiUrl} from "../../../../utils/url";
+import axios from 'axios';
 import HTMLEditor from "../../../../components/HTMLEditor";
 import AddSingleBlank from './AddSingleBlank';
 import AddChoice from './AddChoice';
 import AddCustomized from './AddCustomized';
+
+interface blankProps {
+    type: 'string' | 'code';
+    multiple: boolean;
+}
+
+interface graderProps {
+    name: string;
+    blanks: blankProps[];
+}
+
+interface subqProps {
+    id: number;
+    type: string;
+}
 
 interface tagProps {
     id: string;
@@ -13,6 +31,7 @@ interface tagProps {
 
 const AddQuestionModal = ({tag, show, errorMessage, onAdd, onClose, clearMessage} : {tag: tagProps, show: boolean, errorMessage: string, onAdd: (questionData: object) => void, onClose: () => void, clearMessage: () => void}) => {
     const params = useParams();
+    const {globalState} = useGlobalState();
     
     const [title, setTitle] = useState("");
     const [description, setDescription]= useState<string>("");
@@ -23,7 +42,7 @@ const AddQuestionModal = ({tag, show, errorMessage, onAdd, onClose, clearMessage
 
     const [type, setType] = useState("");
     const [id, setId] = useState(0);
-    const [subqList, setSubqList] = useState<any[]>([]);
+    const [subqList, setSubqList] = useState<subqProps[]>([]);
 
     const deleteSubq = (id: number) => {
         setSubqList(subqList.filter((subq) => subq.id !== id));
@@ -34,13 +53,27 @@ const AddQuestionModal = ({tag, show, errorMessage, onAdd, onClose, clearMessage
         if (type === "single_choice") return (<AddChoice key={id} type={type} id={id} onDelete={deleteSubq}/>);
         if (type === "multiple_choice") return (<AddChoice key={id} type={type} id={id} onDelete={deleteSubq}/>);
         if (type === "customized") return (<AddCustomized key={id} id={id} onDelete={deleteSubq}/>);
-        return(<></>);
+        return (<></>);
     });
+
+    const [grader, setGrader] = useState<graderProps>();
+
+    const getGrader = async (name: string) => {
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name);
+        const token = globalState.token;
+        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
+        setGrader(result.data.data)
+    }
 
     const getSubquestions = () => {
         function getSingleBlankData(type: string, id: number) {
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
-            const solutions = [(document.getElementById("sub" + id + "_solution") as HTMLInputElement).value];
+            const solutionNodeList = document.getElementsByName("sub" + id + "_solutions");
+            let solutions: string[] = []
+            solutionNodeList.forEach((solution) => {
+                solutions.push((solution as HTMLInputElement).value);
+            })
+
             const data = {
                 grader: type,
                 description: description,
@@ -55,12 +88,11 @@ const AddQuestionModal = ({tag, show, errorMessage, onAdd, onClose, clearMessage
             const choiceNodeList = document.getElementsByName("sub" + id + "_choices");
             let solutions: string[] = []
             let choices: object[] = []
-            choiceNodeList.forEach((item, index) =>{
+            choiceNodeList.forEach((item, index) => {
                 const isChecked = item as HTMLInputElement;
                 if (isChecked.checked) {
                     solutions.push(String.fromCharCode(index + 65));
                 }
-
                 const choiceId = "sub" + id + "_choice" + index;
                 const choiceContent = (document.getElementById(choiceId) as HTMLInputElement).value;
                 choices.push({choice_id: String.fromCharCode(index + 65), content: choiceContent})
@@ -80,12 +112,11 @@ const AddQuestionModal = ({tag, show, errorMessage, onAdd, onClose, clearMessage
             const choiceNodeList = document.getElementsByName("sub" + id + "_choices");
             let solutions: string = ""
             let choices: object[] = []
-            choiceNodeList.forEach((item, index) =>{
+            choiceNodeList.forEach((item, index) => {
                 const isChecked = item as HTMLInputElement;
                 if (isChecked.checked) {
                     solutions = solutions.concat(String.fromCharCode(index + 65));
                 }
-
                 const choiceId = "sub" + id + "_choice" + index;
                 const choiceContent = (document.getElementById(choiceId) as HTMLInputElement).value;
                 choices.push({choice_id: String.fromCharCode(index + 65), content: choiceContent})
@@ -100,10 +131,44 @@ const AddQuestionModal = ({tag, show, errorMessage, onAdd, onClose, clearMessage
             return data;
         }
 
+        function getCustomizedata(type: string, id: number) {
+            const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
+            const graderName = (document.getElementById("sub" + id + "_grader") as HTMLInputElement).value;
+            getGrader(graderName);
+            let choices: (object[] | null)[] = [];
+            (grader as graderProps).blanks.map((blank: blankProps, index) => {
+                if (blank.multiple) {
+                    const choiceNodeList = document.getElementsByName("sub" + id + "_sub" + index + "_choices");
+                    choiceNodeList.forEach((choice, choiceIdx) => {
+                        const choiceId = "sub" + id + "_sub" + index + "_choice" + choiceIdx;
+                        const choiceContent = (document.getElementById(choiceId) as HTMLInputElement).value;
+                        (choices[index] as object[]).push({choice_id: String.fromCharCode(index + 65), content: choiceContent})
+                    })
+                } else {
+                    choices.push(null);
+                }
+            })
+            const solutionNodeList = document.getElementsByName("sub" + id + "_solutions");
+            let solutions: string[] = []
+            solutionNodeList.forEach((solution) => {
+                solutions.push((solution as HTMLInputElement).value);
+            })
+            
+            const data = {
+                grader: graderName,
+                description: description,
+                choices: choices,
+                solutions: [solutions]
+            }
+            return data;
+        }
+
         const subqData =  subqList.map(({type, id}) => {
             if (type === "single_blank") return getSingleBlankData(type, id);
             if (type === "single_choice") return getSingleChoiceData(type, id);
             if (type === "multiple_choice") return getMultipleChoiceData(type, id);
+            if (type === "customized") return getCustomizedata(type, id);
+            return (<></>);
         });
         return subqData;
     }
