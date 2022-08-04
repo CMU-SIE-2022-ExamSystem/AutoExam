@@ -106,3 +106,15 @@ func CheckSubmission(c *gin.Context) (bool, int) {
 		return true, 0
 	}
 }
+
+func ToFront(autolab models.Submissions, maxscore map[string]float64) models.Submissions_Front {
+	submission := models.Submissions_Front{
+		Version:    autolab.Version,
+		Filename:   autolab.Filename,
+		Created_at: autolab.Created_at,
+		Scores:     autolab.Scores,
+		TotalScore: autolab.TotalScore,
+		MaxScore:   maxscore,
+	}
+	return submission
+}

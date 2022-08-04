@@ -56,6 +56,15 @@ type Submissions struct {
 	TotalScore float64            `json:"total_score"`
 }
 
+type Submissions_Front struct {
+	Version    int                `json:"version"`
+	Filename   string             `json:"filename"`
+	Created_at string             `json:"created_at"`
+	Scores     map[string]float64 `json:"scores"`
+	TotalScore float64            `json:"total_score"`
+	MaxScore   map[string]float64 `json:"max_score"`
+}
+
 type Submit struct {
 	Version  int    `json:"version"`
 	Filename string `json:"filename"`

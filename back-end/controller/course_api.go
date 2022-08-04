@@ -113,8 +113,18 @@ func Submissions_Handler(c *gin.Context) {
 	// fmt.Println(string(body))
 
 	autolab_resp := utils.Assessments_submissions_trans(string(body))
+	student, _ := dao.ReadStudent(course_name, assessment_name, user.Email)
+	maxsocre := make(map[string]float64)
+	for i := range student.Problems {
+		maxsocre[student.Problems[i].Name] = student.Problems[i].MaxScore
+	}
 
-	response.SuccessResponse(c, autolab_resp)
+	var resp []models.Submissions_Front
+	for _, submission := range autolab_resp {
+		resp = append(resp, course.ToFront(submission, maxsocre))
+	}
+
+	response.SuccessResponse(c, resp)
 }
 
 // AssessmentConfigCategories_Handler godoc
@@ -675,5 +685,143 @@ func CheckSubmission_Handler(c *gin.Context) {
 		response.SuccessResponse(c, "This user has already submitted.")
 	} else {
 		response.ErrorResponseWithStatus(c, "This user has no submission records.", http.StatusNotFound)
+	}
+}
+
+// ReadBaseCourseRelation_Handler godoc
+// @Summary get base course relationship
+// @Schemes
+// @Description read base course relationship
+// @Tags base
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Success 200 "success"
+// @Failure 500 {object} response.DBesponse{error=response.MySQLReadAllError} "mysql error"
+// @Failure 404 "not exists"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/base [get]
+func ReadBaseCourseRelation_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+	coursename := course.GetCourse(c)
+
+	if dao.ValidBaseCourseRelation(coursename) {
+		base_course, flag := dao.ReadBaseCourseRelation(coursename)
+		if flag {
+			response.SuccessResponse(c, base_course)
+		} else {
+			response.ErrMySQLReadResponse(c, BaseCourseRelation_Model)
+		}
+	} else {
+		response.ErrBasecourseRelationNotExistsResponse(c)
+	}
+
+}
+
+// CreateBaseCourseRelation_Handler godoc
+// @Summary create new base course relationship
+// @Schemes
+// @Description create new base course relationship
+// @Tags base
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		base				path	string	true	"Base Course Name"
+// @Success 200 "success"
+// @Failure 500 {object} response.DBesponse{error=response.MySQLCreateError} "mysql error"
+// @Failure 400 "not valid"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/base/{base_name} [post]
+func CreateBaseCourseRelation_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+
+	base := c.Param("base_name")
+	coursename := course.GetCourse(c)
+
+	if !dao.ValidBaseCourseRelation(coursename) {
+		flag := dao.CreateBaseCourseRelation(coursename, base)
+
+		if flag {
+			response.SuccessResponse(c, coursename+" "+base)
+		} else {
+			response.ErrMySQLCreateResponse(c, BaseCourseRelation_Model)
+		}
+	} else {
+		response.ErrBasecourseRelationRecreatedResponse(c)
+	}
+}
+
+// UpdateBaseCourseRelation_Handler godoc
+// @Summary update base course relationship
+// @Schemes
+// @Description update base course relationship
+// @Tags base
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		base				path	string	true	"Base Course Name"
+// @Success 200 "success"
+// @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
+// @Failure 400 "not valid"
+// @Failure 404 "not exists"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/base/{base_name} [put]
+func UpdateBaseCourseRelation_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+
+	base := c.Param("base_name")
+	coursename := course.GetCourse(c)
+
+	if dao.ValidBaseCourseRelation(coursename) {
+		if flag, _ := dao.ValidateAssessmentByCourse(coursename); flag {
+			err := dao.UpdateBaseCourseRelation(coursename, base)
+
+			if err != nil {
+				response.ErrMySQLUpdateResponse(c, BaseCourseRelation_Model)
+			} else {
+				response.SuccessResponse(c, coursename+" "+base)
+			}
+		} else {
+			response.ErrBasecourseRelationNotValidResponse(c)
+		}
+	} else {
+		response.ErrBasecourseRelationNotExistsResponse(c)
+	}
+
+}
+
+// DeleteBaseCourseRelation_Handler godoc
+// @Summary delete base course relationship
+// @Schemes
+// @Description delete base course relationship
+// @Tags base
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Success 204
+// @Failure 500 {object} response.DBesponse{error=response.MySQLDeleteError} "mysql error"
+// @Failure 400 "not valid"
+// @Failure 404 "not exists"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/base [delete]
+func DeleteBaseCourseRelation_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+
+	coursename := course.GetCourse(c)
+
+	if dao.ValidBaseCourseRelation(coursename) {
+		if flag, _ := dao.ValidateAssessmentByCourse(coursename); flag {
+			err := dao.DeleteBaseCourseRelation(coursename)
+
+			if err != nil {
+				response.ErrMySQLDeleteResponse(c, BaseCourse_Model)
+			} else {
+				response.NonContentResponse(c)
+			}
+		} else {
+			response.ErrBasecourseRelationNotValidResponse(c)
+		}
+	} else {
+		response.ErrBasecourseRelationNotExistsResponse(c)
 	}
 }
