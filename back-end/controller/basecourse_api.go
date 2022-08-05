@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/gin-gonic/gin"
 )
@@ -16,13 +17,13 @@ const (
 // @Summary get all base courses
 // @Schemes
 // @Description read all base courses in database
-// @Tags basecourse
+// @Tags basecourses
 // @Accept json
 // @Produce json
 // @Success 200 {object} response.Response{data=[]models.Course} "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLReadAllError} "mysql error"
 // @Security ApiKeyAuth
-// @Router /basecourse/list [get]
+// @Router /basecourses/list [get]
 func ReadAllBaseCourse_Handler(c *gin.Context) {
 	jwt.Check_Baselevel(c)
 
@@ -37,19 +38,22 @@ func ReadAllBaseCourse_Handler(c *gin.Context) {
 // @Summary create a new base course
 // @Schemes
 // @Description create a new base course
-// @Tags basecourse
+// @Tags basecourses
 // @Accept json
 // @Produce json
-// @Param		base		path	string	true	"Base Course Name"
+// @Param data body models.Basecourse true "body data"
 // @Success 200 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLCreateError} "mysql error"
 // @Failure 400 "not valid"
 // @Security ApiKeyAuth
-// @Router /basecourse/{base} [post]
+// @Router /basecourses/create [post]
 func CreateBaseCourse_Handler(c *gin.Context) {
 	jwt.Check_Baselevel(c)
 
-	name := c.Param("base")
+	body := models.Basecourse{}
+	c.BindJSON(&body)
+
+	name := body.Name
 
 	if !dao.ValidBaseCourse(name) {
 		flag := dao.CreateBaseCourse(name)
@@ -68,22 +72,26 @@ func CreateBaseCourse_Handler(c *gin.Context) {
 // @Summary update a base course name
 // @Schemes
 // @Description update a base course name
-// @Tags basecourse
+// @Tags basecourses
 // @Accept json
 // @Produce json
-// @Param		base		path	string	true	"Base Course Name"
-// @Param		new			path	string	true	"New Course Name"
+// @Param		base_name		path	string	true	"Base Course Name"
+// @Param data body models.Basecourse true "body data"
 // @Success 200 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
 // @Failure 400 "not valid"
 // @Failure 404 "not exists"
 // @Security ApiKeyAuth
-// @Router /basecourse/{base}/{new} [put]
+// @Router /basecourses/{base_name} [put]
 func UpdateBaseCourse_Handler(c *gin.Context) {
 	jwt.Check_Baselevel(c)
 
-	name := c.Param("base")
-	new_name := c.Param("new")
+	name := c.Param("base_name")
+
+	body := models.Basecourse{}
+	c.BindJSON(&body)
+
+	new_name := body.Name
 
 	if dao.ValidBaseCourse(name) {
 		flag, err := dao.UpdateBaseCourse(name, new_name)
@@ -106,20 +114,20 @@ func UpdateBaseCourse_Handler(c *gin.Context) {
 // @Summary delete a base course
 // @Schemes
 // @Description delete a base course
-// @Tags basecourse
+// @Tags basecourses
 // @Accept json
 // @Produce json
-// @Param		base		path	string	true	"Base Course Name"
+// @Param		base_name		path	string	true	"Base Course Name"
 // @Success 204
 // @Failure 500 {object} response.DBesponse{error=response.MySQLDeleteError} "mysql error"
 // @Failure 400 "not valid"
 // @Failure 404 "not exists"
 // @Security ApiKeyAuth
-// @Router /basecourse/{base} [delete]
+// @Router /basecourses/{base_name} [delete]
 func DeleteBaseCourse_Handler(c *gin.Context) {
 	jwt.Check_Baselevel(c)
 
-	name := c.Param("base")
+	name := c.Param("base_name")
 
 	if dao.ValidBaseCourse(name) {
 		flag, err := dao.DeleteBaseCourse(name)

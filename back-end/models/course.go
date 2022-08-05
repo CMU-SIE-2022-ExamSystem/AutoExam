@@ -20,3 +20,7 @@ type Base_Course_Relationship struct {
 func (Course) TableName() string {
 	return "course"
 }
+
+type Basecourse struct {
+	Name string `json:"name"`
+}

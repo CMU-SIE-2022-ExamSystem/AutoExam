@@ -729,7 +729,7 @@ func ReadBaseCourseRelation_Handler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
-// @Param		base				path	string	true	"Base Course Name"
+// @Param		base_name			path	string	true	"Base Course Name"
 // @Success 200 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLCreateError} "mysql error"
 // @Failure 400 "not valid"
@@ -762,7 +762,7 @@ func CreateBaseCourseRelation_Handler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
-// @Param		base				path	string	true	"Base Course Name"
+// @Param		base_name			path	string	true	"Base Course Name"
 // @Success 200 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
 // @Failure 400 "not valid"
