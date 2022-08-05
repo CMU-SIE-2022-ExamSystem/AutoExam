@@ -127,6 +127,16 @@ func GetUser(c *gin.Context) models.User {
 	return user
 }
 
+func ReadUserByEmail(c *gin.Context, email string) models.User {
+	user := models.User{}
+	rows := global.DB.Where("email = ?", email).Find(&user)
+	if rows.RowsAffected < 1 {
+		response.ErrMySQLReadResponse(c, "student")
+	}
+	return user
+
+}
+
 func Get_authlevel_DB(c *gin.Context) (auth_level string) {
 	course_name := GetCourse(c)
 	user_email := GetEmail(c)
