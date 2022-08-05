@@ -9,6 +9,7 @@ import {getBackendApiUrl} from "../../../utils/url";
 import axios from 'axios';
 import CollapseQuestion from './components/CollapseQuestion';
 import AddQuestionModal from './components/AddQuestionModal';
+import EditQuestionModal from './components/EditQuestionModal';
 
 interface tagProps {
     id: string;
@@ -84,16 +85,6 @@ const DeleteTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessag
                 <Button variant="secondary" onClick={() => {onClose(); clearMessage()}}>Cancel</Button>
                 <Button variant="primary" type="submit" className="ms-2" onClick={() => onSubmit(tag.id)}>Confirm</Button>
             </Modal.Footer>
-        </Modal>
-    );
-}
-
-const EditQuestionModal = ({show, question, errorMessage, onEdit, onClose, clearMessage}: {show: boolean, question: questionDataType, errorMessage: string, onEdit: (id: string, data: object) => void, onClose: () => void, clearMessage: () => void}) => {
-    return (
-        <Modal show={show} onHide={() => {onClose(); clearMessage()}} size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>Edit Queston</Modal.Title>
-            </Modal.Header>
         </Modal>
     );
 }
@@ -202,7 +193,7 @@ function QuestionBank () {
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         console.log(result.data.data);
-        setTags(result.data.data);
+        if (result.data.data) setTags(result.data.data);
         return result.data.data;
     }, [globalState.token, params.course_name]);
 
@@ -264,6 +255,17 @@ function QuestionBank () {
     const [deleteQuestionShow, setDeleteQuestionShow] = useState(false);
     const [questionError, setQuestionError] = useState("");
 
+    const emptyQuestion: questionDataType = {
+        description: "",
+        question_tag: "",
+        sub_questions: [],
+        sub_question_number: -1,
+        title: "",
+        score: -1,
+        id: "",
+        hidden: false
+    }
+
     const getQuestionsByTag = useCallback(async (tags: tagProps[]) => {
         const id = [...tags].filter((tag) => tag.name === params.tag)[0].id;
         const url = getBackendApiUrl("/courses/" + params.course_name + "/questions?tag_id=" + id + "&hidden=true");
@@ -292,12 +294,12 @@ function QuestionBank () {
             .catch((error: any) => {
                 console.log(error);
                 let response = error.response.data;
-                setQuestionError(response.error.message);
+                setQuestionError(response.error.message[0].message);
             });
     }
 
     const editQuestion = async (id: string, questionData: object) => {
-        console.log("edit question: " + id);
+        console.log(questionData)
         const url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
         const token = globalState.token;
         axios.put(url, questionData, {headers: {Authorization: "Bearer " + token}})
@@ -309,7 +311,7 @@ function QuestionBank () {
             .catch((error: any) => {
                 console.log(error);
                 let response = error.response.data;
-                setQuestionError(response.error.message);
+                setQuestionError(response.error.message[0].message);
             });
     }
 
@@ -330,7 +332,7 @@ function QuestionBank () {
             .catch((error: any) => {
                 console.log(error);
                 let response = error.response.data;
-                setQuestionError(response.error.message);
+                setQuestionError(response.error.message[0].message);
             });
     }
 
@@ -346,7 +348,7 @@ function QuestionBank () {
                 <Row>
                     <Col xs={2} className="d-flex flex-column bg-light vh-100 sticky-top text-start p-3">
                         <Nav variant="pills" className="my-3">
-                            {
+                            {tags !== null &&
                                 tags.map((tag) => (
                                     <Row className="d-flex flex-row align-items-center vw-100" key={tag.id}>
                                         <Col xs={8} className="text-start p-1">
@@ -362,7 +364,7 @@ function QuestionBank () {
                                 ))
                             }
                         </Nav>
-                        <span style={{cursor: "pointer"}} onClick={() => setAddTagShow(true)}><i className="bi-plus-square mx-3"/> Add new tags</span>
+                        <span style={{cursor: "pointer"}} onClick={() => setAddTagShow(true)}><i className="bi-plus-square mx-3"/>Add New Tag</span>
                     </Col>
                     {params.tag !== "null" &&
                         <Col xs={10}>
@@ -408,8 +410,8 @@ function QuestionBank () {
                 />
                 
                 <AddQuestionModal
-                    tag={([...tags].filter((tag) => tag.name === params.tag)[0] as tagProps)}
                     show={addQuestionShow}
+                    tag={[...tags].filter((tag) => tag.name === params.tag)[0] as tagProps}
                     errorMessage={questionError}
                     onAdd={addNewQuestion}
                     onClose={() => setAddQuestionShow(false)}
@@ -418,10 +420,12 @@ function QuestionBank () {
 
                 <EditQuestionModal
                     show={editQuestionShow}
+                    tag={[...tags].filter((tag) => tag.name === params.tag)[0] as tagProps}
                     question={question as questionDataType}
                     errorMessage={questionError}
                     onEdit={editQuestion}
                     onClose={() => setEditQuestionShow(false)}
+                    clearQuestion={() => setQuestion(emptyQuestion)}
                     clearMessage={() => setQuestionError("")}
                 />
 

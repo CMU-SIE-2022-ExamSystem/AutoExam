@@ -12,7 +12,7 @@ const AddSingleBlank = ({id, onDelete}: {id: number, onDelete: (id: number) => v
 
     const solutions = solutionList.map((idx, index) => {
         return (
-            <Row className="d-flex flex-row align-items-center" key={idx}>
+            <Row className="d-flex flex-row align-items-center" key={index}>
                 <Col>
                     <div className="my-2">
                         <Form.Control id={"sub" + id + "_solution" + index}

@@ -4,6 +4,7 @@ import {Button, Col, Form, Row} from 'react-bootstrap';
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
+import { choiceDataType, subQuestionDataType } from '../../../../components/questionTemplate/subQuestionDataType';
 
 interface blankProps {
     type: 'string' | 'code';
@@ -15,26 +16,51 @@ interface graderProps {
     blanks: blankProps[];
 }
 
-const Choices = ({id}: {id: string}) => {
-    const [choiceIdx, setChoiceIdx] = useState(0);
-    const [choiceList, setChoiceList] = useState<number[]>([]);
+interface solutionProps {
+    solution_idx: number;
+    solution_content: string;
+}
+
+const Choices = ({id, choicesData}: {id: string, choicesData: choiceDataType[] | null}) => {
+    interface choiceProps {
+        choice_idx: number;
+        choice_content: string;
+    }
+    
+    const [choiceIdx, setChoiceIdx] = useState<number>();
+    const [choiceList, setChoiceList] = useState<choiceProps[]>([]);
+
+    useEffect(() => {
+        choicesData !== undefined && choicesData !== null &&
+            setChoiceIdx(choicesData.length);
+        choicesData !== undefined && choicesData !== null &&
+            choicesData.map((choiceData, index) =>
+            setChoiceList((prevState) => ([
+                ...prevState,
+                {
+                    choice_idx: index,
+                    choice_content: choiceData.content
+                }
+            ]))
+        )
+    }, [choicesData])
 
     const deleteChoice = (idx: number) => {
-        setChoiceList(choiceList.filter((choice) => choice !== idx));
+        setChoiceList(choiceList.filter((choice) => choice.choice_idx !== idx));
     }
 
-    const choices = choiceList.map((idx, index) => {
+    const choices = choiceList.map((choice, index) => {
         return (
             <Row className="d-flex flex-row align-items-center" key={index}>
                 <Col>
                     <div className="my-2">
                         <Form.Control id={id + "_choice" + index}
-                            name={id + "_choices"}/>
+                            name={id + "_choices"} defaultValue={choice.choice_content}/>
                     </div>
                 </Col>
                 <Col xs={1}>
                     <i className="bi-trash" style={{cursor: "pointer"}}
-                        onClick={() => deleteChoice(idx)}/>
+                        onClick={() => deleteChoice(choice.choice_idx)}/>
                 </Col>
             </Row>
         );
@@ -44,37 +70,52 @@ const Choices = ({id}: {id: string}) => {
         <>
         {choices}
         <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, choiceIdx]); setChoiceIdx(choiceIdx + 1);}}>Add Choice</Button>
+            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, {choice_idx: choiceIdx as number, choice_content: ""}]); setChoiceIdx((choiceIdx as number) + 1);}}>Add Choice</Button>
         </div>
         </>
     );
 }
 
-const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => void}) => {
+const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: subQuestionDataType | null, onDelete: (id: number) => void}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
     
     const [description, setDescription] = useState("");
 
-    const [solutionIdx, setSolutionIdx] = useState(0);
-    const [solutionList, setSolutionList] = useState<number[]>([]);
+    const [solutionIdx, setSolutionIdx] = useState<number>();
+    const [solutionList, setSolutionList] = useState<solutionProps[]>([]);
+
+    useEffect(() => {
+        subQuestion !== null &&
+            setSolutionIdx(subQuestion.solutions[0].length);
+        subQuestion !== null &&
+            subQuestion.solutions[0].map((solution, index) =>
+                setSolutionList((prevState) => ([
+                    ...prevState,
+                    {
+                        solution_idx: index,
+                        solution_content: solution
+                    }
+                ]))
+            );
+    }, [subQuestion])
 
     const deleteSolution = (idx: number) => {
-        setSolutionList(solutionList.filter((solution) => solution !== idx));
+        setSolutionList(solutionList.filter((solution) => solution.solution_idx !== idx));
     }
 
-    const solutions = solutionList.map((idx, index) => {
+    const solutions = solutionList.map((solution, index) => {
         return (
             <Row className="d-flex flex-row align-items-center" key={index}>
                 <Col>
                     <div className="my-2">
                         <Form.Control id={"sub" + id + "_solution" + index}
-                            name={"sub" + id + "_solutions"}/>
+                            name={"sub" + id + "_solutions"} defaultValue={solution.solution_content}/>
                     </div>
                 </Col>
                 <Col xs={1}>
                     <i className="bi-trash" style={{cursor: "pointer"}}
-                        onClick={() => deleteSolution(idx)}/>
+                        onClick={() => deleteSolution(solution.solution_idx)}/>
                 </Col>
             </Row>
         );
@@ -83,6 +124,14 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
     // const [graders, setGraders] = useState<string[]>([]);
     const [graders, setGraders] = useState<graderProps[]>([]);
     const [grader, setGrader] = useState<graderProps>();
+
+    useEffect(() => {
+        subQuestion !== null &&
+            setGrader({
+                name: subQuestion.grader,
+                blanks: subQuestion.blanks,
+            })
+    }, [subQuestion])
 
     const getGraders = useCallback(async () => {
         // const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/list");
@@ -111,19 +160,19 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
 
         <Form.Group className="mb-3">
             <Form.Label>Description</Form.Label>
-            <Form.Control id={"sub" + id + "_description"} onChange={(e) => setDescription(e.target.value)}/>
+            <Form.Control id={"sub" + id + "_description"} defaultValue={subQuestion?.description} onChange={(e) => setDescription(e.target.value)}/>
         </Form.Group>
 
         <Form.Group className="mb-3">
             <Form.Label>Grader</Form.Label><br/>
             <Form.Text>Choose grader, or upload your grader by clicking "Grader" at the top right corner of the Question Bank page.</Form.Text>
-            <Form.Select id={"sub" + id + "_grader"} onChange={(e) => getGrader(e.target.value)}>
+            <Form.Select id={"sub" + id + "_grader"} value={grader?.name} onChange={(e) => getGrader(e.target.value)}>
                 <option>Grader Type</option>
-                {graders.map((grader) => {
+                {graders.map((item) => {
                     // if (grader !== "single_blank" && grader !== "single_choice" && grader !== "multiple_choice")
                     // return (<option key={grader} value={grader}>{grader}</option>)
-                    if (grader.name !== "single_blank" && grader.name !== "single_choice" && grader.name !== "multiple_choice")
-                    return (<option key={grader.name} value={grader.name}>{grader.name}</option>)
+                    if (item.name !== "single_blank" && item.name !== "single_choice" && item.name !== "multiple_choice")
+                    return (<option key={item.name} value={item.name}>{item.name}</option>)
                 })}
             </Form.Select>
         </Form.Group>
@@ -136,7 +185,7 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
                             <div key={index}>
                                 <Form.Label>{"Blank " + (index + 1) + ": multiple choice"}</Form.Label><br/>
                                 <Form.Text>Click "Add Choice" and input all choices content</Form.Text>
-                                <Choices id={"sub" + id + "_sub" + index}/>
+                                <Choices id={"sub" + id + "_sub" + index} choicesData={subQuestion?.choices !== undefined ? subQuestion?.choices[index] : null}/>
                             </div>)
                     }
 
@@ -159,7 +208,7 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
         </Form.Group>
 
         <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setSolutionList([...solutionList, solutionIdx]); setSolutionIdx(solutionIdx + 1)}}>Add Solution</Button>
+            <Button variant="primary" onClick={() => {setSolutionList([...solutionList, {solution_idx: solutionIdx as number, solution_content: ""}]); setSolutionIdx((solutionIdx as number) + 1)}}>Add Solution</Button>
             <Button variant="secondary" className="ms-2" onClick={() => onDelete(id)}>Delete Subquestion</Button>
         </div>
         <hr/>
@@ -167,4 +216,4 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
     );
 }
 
-export default AddCustomized;
+export default EditCustomized;

@@ -13,7 +13,7 @@ const AddChoice = ({type, id, onDelete}: {type: string, id: number, onDelete: (i
 
     const choices = choiceList.map((idx, index) => {
         return (
-            <Row className="d-flex flex-row align-items-center" key={idx}>
+            <Row className="d-flex flex-row align-items-center" key={index}>
                 <Col>
                     <InputGroup className="my-2">
                         <InputGroup.Checkbox name={"sub" + id + "_choices"}/>

@@ -1,13 +1,15 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Button, Form, InputGroup, Modal} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
+import {subQuestionDataType} from '../../../../components/questionTemplate/subQuestionDataType';
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
 import HTMLEditor from "../../../../components/HTMLEditor";
-import AddSingleBlank from './AddSingleBlank';
-import AddChoice from './AddChoice';
-import AddCustomized from './AddCustomized';
+import questionDataType from '../../../../components/questionTemplate/questionDataType';
+import EditSingleBlank from './EditSingleBlank';
+import EditChoice from './EditChoice';
+import EditCustomized from './EditCustomized';
 
 interface blankProps {
     type: 'string' | 'code';
@@ -22,6 +24,7 @@ interface graderProps {
 interface subqProps {
     id: number;
     type: string;
+    content: subQuestionDataType | null;
 }
 
 interface tagProps {
@@ -29,30 +32,45 @@ interface tagProps {
     name: string;
 }
 
-const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage} : {show: boolean, tag: tagProps, errorMessage: string, onAdd: (questionData: object) => void, onClose: () => void, clearMessage: () => void}) => {
+const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, clearQuestion, clearMessage}: {show: boolean, tag: tagProps, question: questionDataType, errorMessage: string, onEdit: (id: string, data: object) => void, onClose: () => void, clearQuestion: () => void, clearMessage: () => void}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
-    
+
     const [title, setTitle] = useState("");
-    const [description, setDescription]= useState("");
+    const [description, setDescription]= useState<string>("");
 
     const updateDescription = (newDescription: string) => {
         setDescription(newDescription);
     }
 
     const [type, setType] = useState("");
-    const [id, setId] = useState(0);
+    const [id, setId] = useState<number>();
     const [subqList, setSubqList] = useState<subqProps[]>([]);
+    
+    useEffect(() => {
+        question !== undefined &&
+            setId(question.sub_questions.length);
+        question !== undefined &&
+            question.sub_questions.map((subQuestion, index) =>
+                setSubqList((prevState) => ([
+                    ...prevState,
+                    {
+                        id: index,
+                        type: subQuestion.grader === "single_blank" || subQuestion.grader === "single_choice" || subQuestion.grader === "multiple_choice" ? subQuestion.grader : "customized",
+                        content: subQuestion
+                    }
+                ]))
+            );
+    }, [question]);
 
     const deleteSubq = (id: number) => {
         setSubqList(subqList.filter((subq) => subq.id !== id));
     }
     
-    const subquestions = subqList.map(({type, id}) => {
-        if (type === "single_blank") return (<AddSingleBlank key={id} id={id} onDelete={deleteSubq}/>);
-        if (type === "single_choice") return (<AddChoice key={id} type={type} id={id} onDelete={deleteSubq}/>);
-        if (type === "multiple_choice") return (<AddChoice key={id} type={type} id={id} onDelete={deleteSubq}/>);
-        if (type === "customized") return (<AddCustomized key={id} id={id} onDelete={deleteSubq}/>);
+    const subquestions = subqList.map(({type, id, content}) => {
+        if (type === "single_blank") return (<EditSingleBlank key={id} id={id} subQuestion={content} onDelete={deleteSubq}/>);
+        if (type === "single_choice" || type === "multiple_choice") return (<EditChoice key={id} type={type} id={id} subQuestion={content} onDelete={deleteSubq}/>);
+        if (type === "customized") return (<EditCustomized key={id} id={id} subQuestion={content} onDelete={deleteSubq}/>);
         return (<></>);
     });
 
@@ -62,7 +80,6 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
         const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        console.log(result.data.data)
         setGraders(result.data.data);
     }, [globalState.token, params.course_name])
 
@@ -181,13 +198,13 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
 
     const onSubmit = (e: any) => {
         e.preventDefault();
-        const question = {
+        const questionData = {
             description: description,
             question_tag: tag.id,
             title: title,
             sub_questions: getSubquestionsData()
         }
-        onAdd(question);
+        onEdit(question.id, questionData);
     }
 
     const clearState = () => {
@@ -199,27 +216,33 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
     }
 
     return (
-        <Modal show={show} onHide={() => {onClose(); clearState(); clearMessage()}} size="lg">
+        <Modal show={show} onHide={() => {onClose(); clearState(); clearQuestion(); clearMessage()}} size="lg">
             <Modal.Header closeButton>
-                <Modal.Title>Add New Question</Modal.Title>
+                <Modal.Title>Edit Queston</Modal.Title>
             </Modal.Header>
+
             <Modal.Body>
                 <Form onSubmit={onSubmit}>
                     <Form.Label>Tag: {params.tag}</Form.Label>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>Title </Form.Label>
-                        <Form.Control type="text" placeholder="Title" onChange={(e) => setTitle(e.target.value)} required/>
-                    </Form.Group>
+                    {question !== undefined &&
+                    <>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Title </Form.Label>
+                            <Form.Control type="text" required defaultValue={question.title}
+                                onChange={(e) => setTitle(e.target.value)} />
+                        </Form.Group>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>Description</Form.Label>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Description</Form.Label>
                             <div>
-                                <HTMLEditor init={description} update={updateDescription}/>
+                                <HTMLEditor init={question.description} update={updateDescription}/>
                             </div>
-                    </Form.Group>
+                        </Form.Group>
 
-                    <div>{subquestions}</div>
+                        <div>{subquestions}</div>
+                    </>
+                    }
 
                     <InputGroup className="mb-3">
                         <Form.Select onChange={(e) => setType(e.target.value)}>
@@ -230,7 +253,7 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
                             <option value="customized">Customized</option>
                         </Form.Select>
                         <Button variant="primary"
-                            onClick={() => {if (type !== "") setSubqList([...subqList, {type: type, id: id}]); setId(id + 1);}}>
+                            onClick={() => {if (type !== "") setSubqList([...subqList, {type: type, id : id as number, content: null}]); setId((id as number) + 1);}}>
                             Add Subquestion
                         </Button>
                     </InputGroup>
@@ -240,8 +263,8 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
                     </div>
 
                     <div className="text-end">
-                        <Button variant="secondary" onClick={() => {onClose(); clearState(); clearMessage()}}>Close</Button>
-                        <Button variant="primary" className="ms-2" type="submit">Add</Button>
+                        <Button variant="secondary" onClick={() => {onClose(); clearQuestion(); clearMessage()}}>Close</Button>
+                        <Button variant="primary" className="ms-2" type="submit">Confirm</Button>
                     </div>
                 </Form>
             </Modal.Body>
@@ -249,4 +272,4 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
     );
 }
 
-export default AddQuestionModal;
+export default EditQuestionModal;
