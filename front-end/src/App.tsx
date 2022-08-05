@@ -15,6 +15,7 @@ import ExamConfig from "./routes/course/config/ExamConfig";
 import {ExamConfigStateProvider} from "./routes/course/config/ExamConfigStates";
 import ExamResults from "./routes/course/results/ExamResults";
 import Logout from "./routes/auth/Logout";
+import BaseCourseManage from "./routes/course/baseCourse/BaseCourseManage";
 
 const App = () => {
     return (
@@ -29,6 +30,9 @@ const App = () => {
                         <RequireAuth>
                             <Dashboard/>
                         </RequireAuth>
+                    }/>
+                    <Route path="baseCourse" element={
+                        <RequireAuth><BaseCourseManage /></RequireAuth>
                     }/>
                     <Route path="courses/:course_name">
                         <Route index element={<RequireAuth><Assessments/></RequireAuth>}/>
