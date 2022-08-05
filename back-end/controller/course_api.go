@@ -658,6 +658,63 @@ func Usersubmit_Handler(c *gin.Context) {
 	}
 }
 
+// DownloadAnswer_Handler godoc
+// @Summary download answer
+// @Schemes
+// @Description download an answer tarball, only can be used for instructor or TA
+// @Tags courses
+// @Accept json
+// @Produce json
+// @Success 200  "success"
+// @Failure 500  "db error"
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		assessment_name		path	string	true	"Assessment name"
+// @Param data body models.Download_Answer true "body data"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/assessments/{assessment_name}/download_answer [post]
+func DownloadAnswer_Handler(c *gin.Context) {
+	jwt.Check_authlevel_Instructor(c)
+
+	course_name, assessment_name := course.GetCourseAssessment(c)
+	body := models.Download_Answer{}
+	c.BindJSON(&body)
+
+	email := body.Eamil
+	student_user := jwt.ReadUserByEmail(c, email)
+	answertar_path := utils.Find_assessment_folder(c, strconv.Itoa(int(student_user.ID)), course_name, assessment_name)
+
+	student, err := dao.ReadStudent(course_name, assessment_name, email)
+	if err != nil {
+		response.ErrMongoDBReadResponse(c, "student")
+	}
+
+	flag := course.CreateAnswerFolder(answertar_path)
+	if !flag {
+		response.ErrFileNotValidResponse(c)
+	}
+
+	err = course.PrepareSolution(student, answertar_path)
+	if err != nil {
+		response.ErrFileNotValidResponse(c)
+	}
+	err = course.PrepareConfig(student, answertar_path)
+	if err != nil {
+		response.ErrFileNotValidResponse(c)
+	}
+	err = course.PrepareAnswer(student, answertar_path)
+	if err != nil {
+		response.ErrFileNotValidResponse(c)
+	}
+
+	flag = utils.MakeAnswertar(answertar_path)
+	if flag {
+		tar_path := answertar_path + "answer.tar"
+		c.FileAttachment(tar_path, "answer.tar")
+	} else {
+		response.ErrFileNotValidResponse(c)
+	}
+}
+
 // CheckSubmission_Handler godoc
 // @Summary check assessment submission
 // @Schemes
