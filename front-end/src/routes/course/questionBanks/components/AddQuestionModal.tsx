@@ -56,14 +56,19 @@ const AddQuestionModal = ({tag, show, errorMessage, onAdd, onClose, clearMessage
         return (<></>);
     });
 
-    const [grader, setGrader] = useState<graderProps>();
+    const [graders, setGraders] = useState<graderProps[]>([]);
 
-    const getGrader = async (name: string) => {
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name);
+    const getGraders = useCallback(async () => {
+        // const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/list");
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        setGrader(result.data.data)
-    }
+        setGraders(result.data.data);
+    }, [globalState.token, params.course_name])
+
+    useEffect(() => {
+        getGraders().catch();
+    }, [getGraders])
 
     const getSubquestions = () => {
         function getSingleBlankData(type: string, id: number) {
@@ -134,15 +139,16 @@ const AddQuestionModal = ({tag, show, errorMessage, onAdd, onClose, clearMessage
         function getCustomizedata(type: string, id: number) {
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
             const graderName = (document.getElementById("sub" + id + "_grader") as HTMLInputElement).value;
-            getGrader(graderName);
+            const grader = graders.filter((grader) => grader.name === graderName)[0];
             let choices: (object[] | null)[] = [];
-            (grader as graderProps).blanks.map((blank: blankProps, index) => {
+            grader.blanks.map((blank: blankProps, index) => {
                 if (blank.multiple) {
+                    choices[index] = []
                     const choiceNodeList = document.getElementsByName("sub" + id + "_sub" + index + "_choices");
                     choiceNodeList.forEach((choice, choiceIdx) => {
                         const choiceId = "sub" + id + "_sub" + index + "_choice" + choiceIdx;
                         const choiceContent = (document.getElementById(choiceId) as HTMLInputElement).value;
-                        (choices[index] as object[]).push({choice_id: String.fromCharCode(index + 65), content: choiceContent})
+                        (choices[index] as object[]).push({choice_id: String.fromCharCode(choiceIdx + 65), content: choiceContent})
                     })
                 } else {
                     choices.push(null);
