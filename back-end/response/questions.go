@@ -51,12 +51,12 @@ type QuestionNotValidError struct {
 
 type QuestionModifyNotSafeError struct {
 	Type    string `json:"type" example:"Question"`
-	Message string `json:"message" example:"This question id 'question_id' is already used in some exams. It would be dangerous to modify this question"`
+	Message string `json:"message" example:"This question id 'question_id' is already used in some questions. It would be dangerous to modify this question"`
 }
 
 type QuestionDeleteNotSafeError struct {
 	Type    string `json:"type" example:"Question"`
-	Message string `json:"message" example:"This question id 'question_id' is already used in some exams. Therefore, it cannot be deleted!"`
+	Message string `json:"message" example:"This question id 'question_id' is already used in some questions. Therefore, it cannot be deleted!"`
 }
 
 type QuestionNoUploadError struct {

@@ -20,7 +20,7 @@ func ErrGraderReadFileResponse(c *gin.Context, err any) {
 func ErrGraderNotValidResponse(c *gin.Context, course, grader string) {
 	var temp GraderNotValidError
 	err := Error{Type: Grader, Message: ReplaceMessageCourseGraderName(&temp, course, grader)}
-	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+	ErrorResponseWithStatus(c, err, http.StatusNotFound)
 }
 
 func ErrGraderDeleteNotSafeResponse(c *gin.Context, grader_name string) {

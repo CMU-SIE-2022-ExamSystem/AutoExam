@@ -180,9 +180,9 @@ func CreateAssessment_Handler(c *gin.Context) {
 }
 
 // ReadAssessment_Handler godoc
-// @Summary read an exam configuration. student would only get start_at, end_at desciprition while ta or instructor can retrieve all details
+// @Summary read an exam configuration. student would only get some informations while ta or instructor can retrieve all details
 // @Schemes
-// @Description read an exam configuration. student would only get start_at, end_at desciprition while ta or instructor can retrieve all details
+// @Description read an exam configuration. student would only get some informationsn while ta or instructor can retrieve all details
 // @Tags exam
 // @Accept json
 // @Produce json

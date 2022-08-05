@@ -217,6 +217,4 @@ func DeleteQuestion_Handler(c *gin.Context) {
 	response.NonContentResponse(c)
 }
 
-// TODO question & tag put delete CORS
 // TODO grader install module add install module fields and add to requirements when building tar
-// TODO add zoom link to assessments

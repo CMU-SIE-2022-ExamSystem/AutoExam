@@ -22,13 +22,17 @@ const (
 // @Accept json
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
-// @Success 200 {object} response.Response{data=[]dao.Tags} "desc"
+// @Success 200 {object} response.Response{data=[]dao.Tags} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.CourseNotValidError} "not valid of course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBReadAllError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/tags [get]
 func ReadAllTag_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
-	course_name := c.Param("course_name")
-	tags, err := dao.ReadAllTags(course_name)
+	_, base_course := course.GetCourseBaseCourse(c)
+	tags, err := dao.ReadAllTags(base_course)
 	if err != nil {
 		response.ErrMongoDBReadAllResponse(c, Tag_Model)
 	}
@@ -44,16 +48,20 @@ func ReadAllTag_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param data body dao.Tags_API true "body data"
-// @Success 201 {object} response.Response{data=dao.Tags} "desc"
+// @Success 201 {object} response.Response{data=dao.Tags} "created"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.CourseNotValidError} "not valid of course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBCreateError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/tags [post]
 func CreateTag_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
-	course := course.GetCourse(c)
+	_, base_course := course.GetCourseBaseCourse(c)
 
 	var body dao.AutoExam_Tags_Create
-	body.Course = course
+	body.Course = base_course
 	validate.ValidateJson(c, &body)
 
 	// autoexam_tags := body.ToAutoExamTagsCreate(course)
@@ -82,13 +90,17 @@ func CreateTag_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name	    path	string	true	"Course Name"
 // @Param		tag_id			path	string	true	"Tag Id"
-// @Success 200 {object} response.Response{data=dao.Tags} "desc"
+// @Success 200 {object} response.Response{data=dao.Tags} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.TagNotValidError} "not valid of tag or course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBReadError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/tags/{tag_id} [get]
 func ReadTag_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
-	_, tag_id := course.GetCourseTagID(c)
+	_, tag_id := course.GetBaseCourseTagID(c)
 
 	tags, err := dao.ReadTagById(tag_id)
 	if err != nil {
@@ -107,17 +119,21 @@ func ReadTag_Handler(c *gin.Context) {
 // @Param		course_name	    path	string	true	"Course Name"
 // @Param		tag_id			path	string	true	"Tag Id"
 // @Param data body dao.Tags_API true "body data"
-// @Success 200 {object} response.Response{data=dao.Tags} "desc"
+// @Success 200 {object} response.Response{data=dao.Tags} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.TagNotValidError} "not valid of tag or course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBUpdateError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/tags/{tag_id} [put]
 func UpdateTag_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
-	course, tag_id := course.GetCourseTagID(c)
+	base_course, tag_id := course.GetBaseCourseTagID(c)
 
 	// do nothing to deal with the same name input because cannot use validate.Validate twice
 	var update dao.AutoExam_Tags_Create
-	update.Course = course
+	update.Course = base_course
 	validate.ValidateJson(c, &update)
 
 	// autoexam_tags := body.ToAutoExamTagsCreate(course)
@@ -129,7 +145,7 @@ func UpdateTag_Handler(c *gin.Context) {
 	output := dao.Tags{
 		Id:     tag_id,
 		Name:   update.Name,
-		Course: course,
+		Course: base_course,
 	}
 	response.SuccessResponse(c, output)
 }
@@ -143,17 +159,21 @@ func UpdateTag_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name	    path	string	true	"Course Name"
 // @Param		tag_id			path	string	true	"Tag Id"
-// @Success 204
+// @Success 204 "no content"
+// @Failure 400 {object} response.BadRequestResponse{error=response.TagDeleteNotSafeError} "not delete safe or no base course"
+// @Failure 403 {object} response.ForbiddenResponse{error=response.ForbiddenError} "not instructor"
+// @Failure 404 {object} response.NotValidResponse{error=response.TagNotValidError} "not valid of tag or course"
+// @Failure 500 {object} response.DBesponse{error=response.MongoDBDeleteError} "mongo error"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/tags/{tag_id} [delete]
 func DeleteTag_Handler(c *gin.Context) {
 	jwt.Check_authlevel_Instructor(c)
 
-	_, tag_id := course.GetCourseTagID(c)
+	_, tag_id := course.GetBaseCourseTagID(c)
 	if status, err := dao.ValidateTagUsedById(tag_id); err != nil {
 		response.ErrMongoDBUpdateResponse(c, Tag_Model)
 	} else if !status {
-		response.ErrTagNotSafeResponse(c, dao.ReadTagName(tag_id))
+		response.ErrTagDeleteNotSafeResponse(c, dao.ReadTagName(tag_id))
 	}
 
 	err := dao.DeleteTagById(tag_id)
