@@ -52,7 +52,7 @@ const EditTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessage}
                 <Form onSubmit={(event) => {event.preventDefault(); onSubmit(tag.id, value);}}>
                     <Form.Group className="my-4">
                         <Form.Control type="text" placeholder="New Tag Name" required autoFocus id="edit-tag-name"
-                            // defaultValue={tag.name}
+                            defaultValue={tag !== undefined ? tag.name : ""}
                             onChange={(event) => {setValue(event.target.value); clearMessage();}}/>
                     </Form.Group>
                     <div>
@@ -75,7 +75,7 @@ const DeleteTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessag
                 <Modal.Title>Delete Tag</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                Do you want to delete this tag?
+                {"Do you want to delete tag \"" + (tag !== undefined? tag.name : "") + "\"?"}
                 <div>
                     <small className="text-danger">{errorMessage}</small>
                 </div>
@@ -83,6 +83,39 @@ const DeleteTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessag
             <Modal.Footer>
                 <Button variant="secondary" onClick={() => {onClose(); clearMessage()}}>Cancel</Button>
                 <Button variant="primary" type="submit" className="ms-2" onClick={() => onSubmit(tag.id)}>Confirm</Button>
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
+const EditQuestionModal = ({show, question, errorMessage, onEdit, onClose, clearMessage}: {show: boolean, question: questionDataType, errorMessage: string, onEdit: (id: string, data: object) => void, onClose: () => void, clearMessage: () => void}) => {
+    return (
+        <Modal show={show} onHide={() => {onClose(); clearMessage()}} size="lg">
+            <Modal.Header closeButton>
+                <Modal.Title>Edit Queston</Modal.Title>
+            </Modal.Header>
+        </Modal>
+    );
+}
+
+const DeleteQuestionModal = ({show, question, errorMessage, onDelete, onClose, clearMessage}: {show: boolean, question: questionDataType, errorMessage: string, onDelete: (id: string, hard: boolean) => void, onClose: () => void, clearMessage: () => void}) => {
+    return (
+        <Modal show={show} onHide={() => {onClose(); clearMessage()}}>
+            <Modal.Header closeButton>
+                <Modal.Title>Delete Queston</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                {
+                    question !== undefined &&
+                        (question.hidden? "Do you want to delete this question permanently?" : "Do you want to delete this question?")
+                }
+                <div>
+                    <small className="text-danger">{errorMessage}</small>
+                </div>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => {onClose(); clearMessage()}}>Cancel</Button>
+                <Button variant="primary" type="submit" className="ms-2" onClick={() => onDelete(question.id, question.hidden? true : false)}>Confirm</Button>
             </Modal.Footer>
         </Modal>
     );
@@ -135,18 +168,14 @@ const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean
     )
 }
 
-const QuestionsByTag = ({questions, deleteShow, setDeleteShow, onDelete, editShow, setEditShow, onEdit, error, setError}:
-        {questions: questionDataType[] | undefined, deleteShow: boolean, setDeleteShow: any, onDelete: (id: string) => void,
-        editShow: boolean, setEditShow: any, onEdit: (id: string, data: object) => void, error: string, setError: any}) => {
+const QuestionsByTag = ({questions, setQuestion, setDeleteShow, setEditShow}: {questions: questionDataType[] | undefined, setQuestion: any, setDeleteShow: any, setEditShow: any}) => {
     return (
         <Row>
             <Col sm={10}>
                 {!!questions &&
                     questions.map((question, index) => {
                         return <CollapseQuestion question={question} key={index}
-                            deleteShow={deleteShow} setDeleteShow ={setDeleteShow} onDelete={onDelete}
-                            editShow={editShow} setEditShow={setEditShow} onEdit={onEdit}
-                            error={error} setError={setError}/>
+                            setQuestion={setQuestion} setDeleteShow ={setDeleteShow} setEditShow={setEditShow}/>
                     })
                 }
                 {!questions &&
@@ -189,13 +218,13 @@ function QuestionBank () {
                 getTags();
             })
             .catch((error: any) => {
+                console.log(error)
                 let response = error.response.data;
                 setTagError(response.error.message[0].message);
             });
     };
 
     const editTag = async (id: string, name: string) => {
-        console.log("edit tag " + id);
         const url = getBackendApiUrl("/courses/" + params.course_name + "/tags/" + id);
         const token = globalState.token;
         const data = {
@@ -209,12 +238,11 @@ function QuestionBank () {
             .catch((error: any) => {
                 let response = error.response.data;
                 console.log(error);
-                setTagError(response.error.message);
+                setTagError(response.error.message[0].message);
             })
     }
 
     const deleteTag = async (id: string) => {
-        console.log("delete tag " + id);
         const url = getBackendApiUrl("/courses/" + params.course_name + "/tags/" + id);
         const token = globalState.token;
         axios.delete(url, {headers: {Authorization: "Bearer " + token}})
@@ -230,6 +258,7 @@ function QuestionBank () {
     }
 
     const [questionsByTag, setQuestionsByTag] = useState<questionDataType[]>();
+    const [question, setQuestion] = useState<questionDataType>();
     const [addQuestionShow, setAddQuestionShow] = useState(false);
     const [editQuestionShow, setEditQuestionShow] = useState(false);
     const [deleteQuestionShow, setDeleteQuestionShow] = useState(false);
@@ -254,17 +283,17 @@ function QuestionBank () {
         console.log(questionData);
         const url = getBackendApiUrl("/courses/" + params.course_name + "/questions");
         const token = globalState.token;
-        // axios.post(url, questionData, {headers: {Authorization: "Bearer " + token}})
-        //     .then(_ => {
-        //         setAddQuestionShow(false);
-        //         getTags()
-        //             .then(tags => getQuestionsByTag(tags));
-        //     })
-        //     .catch((error: any) => {
-        //         console.log(error);
-        //         let response = error.response.data;
-        //         setQuestionError(response.error.message);
-        //     });
+        axios.post(url, questionData, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                setAddQuestionShow(false);
+                getTags()
+                    .then(tags => getQuestionsByTag(tags));
+            })
+            .catch((error: any) => {
+                console.log(error);
+                let response = error.response.data;
+                setQuestionError(response.error.message);
+            });
     }
 
     const editQuestion = async (id: string, questionData: object) => {
@@ -284,8 +313,13 @@ function QuestionBank () {
             });
     }
 
-    const deleteQuestion = async (id: string) => {
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
+    const deleteQuestion = async (id: string, hard: boolean) => {
+        let url: string = "";
+        if (hard) {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id + "?hard=true");
+        } else {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
+        }
         const token = globalState.token;
         axios.delete(url, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
@@ -341,10 +375,8 @@ function QuestionBank () {
                                     if (tag.name === params.tag)
                                     return (
                                         <Tab.Pane eventKey={tag.name} key={tag.id}>
-                                            <QuestionsByTag questions={questionsByTag}
-                                                deleteShow={deleteQuestionShow} setDeleteShow={setDeleteQuestionShow} onDelete={deleteQuestion}
-                                                editShow={editQuestionShow} setEditShow={setEditQuestionShow} onEdit={editQuestion}
-                                                error={questionError} setError={setQuestionError}/>
+                                            <QuestionsByTag questions={questionsByTag} setQuestion={setQuestion}
+                                                setDeleteShow={setDeleteQuestionShow} setEditShow={setEditQuestionShow}/>
                                         </Tab.Pane>);
                                 })}
                             </Tab.Content>
@@ -381,6 +413,24 @@ function QuestionBank () {
                     errorMessage={questionError}
                     onAdd={addNewQuestion}
                     onClose={() => setAddQuestionShow(false)}
+                    clearMessage={() => setQuestionError("")}
+                />
+
+                <EditQuestionModal
+                    show={editQuestionShow}
+                    question={question as questionDataType}
+                    errorMessage={questionError}
+                    onEdit={editQuestion}
+                    onClose={() => setEditQuestionShow(false)}
+                    clearMessage={() => setQuestionError("")}
+                />
+
+                <DeleteQuestionModal
+                    show={deleteQuestionShow}
+                    question={question as questionDataType}
+                    errorMessage={questionError}
+                    onDelete={deleteQuestion}
+                    onClose={() => setDeleteQuestionShow(false)}
                     clearMessage={() => setQuestionError("")}
                 />
 

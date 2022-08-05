@@ -89,7 +89,6 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
         const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        console.log(result.data.data)
         setGraders(result.data.data);
     }, [globalState.token, params.course_name])
 
@@ -101,7 +100,6 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
         const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name);
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        console.log(result.data.data)
         setGrader(result.data.data);
     }, [globalState.token, params.course_name])
 

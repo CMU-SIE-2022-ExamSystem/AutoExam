@@ -8,4 +8,5 @@ export default interface questionDataType {
     title: string;
     score: number;
     id: string;
+    hidden: boolean;
 };
