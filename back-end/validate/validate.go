@@ -91,19 +91,17 @@ func getErrorMsg(fe validator.FieldError) string {
 		return "The length of the solutions does not equal to the blank length " + s[1] + " of grader '" + s[0] + "' in the " + s[2] + " sub_questions"
 	case "notValidAnswer":
 		return "The type of this field should two-dimensional array of string in the " + fe.Param() + " sub_questions"
-	case "requiredChoice":
-		return "This field is required when there is any choice blank in the " + fe.Param() + " sub_questions"
 	case "notRequiredChoice":
 		return "This field is should be empty or length = 0 when there is no choice blank in the " + fe.Param() + " sub_questions"
 	case "lenChoice":
 		s := strings.Split(fe.Param(), ",")
-		return "The length of choices should be '" + s[1] + "' to match the length of grader's blanks because of the existence of choice blanks in the " + s[0] + " sub_questions"
+		return "The length of choices should be '" + s[1] + "' to match the length of grader's blanks in the " + s[0] + " sub_questions"
 	case "notValidChoiceZero":
 		s := strings.Split(fe.Param(), ",")
-		return "The " + s[1] + " choice should not be empty in the " + s[0] + " sub_questions"
+		return "The " + s[1] + " choice should not be empty or null in the " + s[0] + " sub_questions"
 	case "notValidChoiceNotZero":
 		s := strings.Split(fe.Param(), ",")
-		return "The " + s[1] + " choice should be empty in the " + s[0] + " sub_questions"
+		return "The " + s[1] + " choice should be null in the " + s[0] + " sub_questions"
 	}
 
 	fmt.Println(fe.Namespace())
