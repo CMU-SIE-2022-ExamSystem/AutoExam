@@ -9,7 +9,7 @@ interface solutionProps {
 
 const EditSingleBlank = ({id, subQuestion, onDelete}: {id: number, subQuestion: subQuestionDataType | null, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");
-    const [solutionIdx, setSolutionIdx] = useState<number>();
+    const [solutionIdx, setSolutionIdx] = useState(0);
     const [solutionList, setSolutionList] = useState<solutionProps[]>([]);
 
     useEffect(() => {
@@ -33,16 +33,12 @@ const EditSingleBlank = ({id, subQuestion, onDelete}: {id: number, subQuestion: 
 
     const solutions = solutionList.map(({solution_idx, solution_content}, index) => {
         return (
-            <Row className="d-flex flex-row align-items-center" key={index}>
+            <Row className="d-flex flex-row align-items-center my-2" key={solution_idx}>
                 <Col>
-                    <div className="my-2">
-                        <Form.Control id={"sub" + id + "_solution" + index}
-                            name={"sub" + id + "_solutions"} defaultValue={solution_content}/>
-                    </div>
+                    <Form.Control id={"sub" + id + "_solution" + index} name={"sub" + id + "_solutions"} defaultValue={solution_content}/>
                 </Col>
                 <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}}
-                        onClick={() => deleteSolution(solution_idx)}/>
+                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteSolution(solution_idx)}/>
                 </Col>
             </Row>
         );
@@ -61,7 +57,6 @@ const EditSingleBlank = ({id, subQuestion, onDelete}: {id: number, subQuestion: 
 
         <Form.Group className="mb-3">
             <Form.Label>Solution</Form.Label><br/>
-            <Form.Text>Click "Add Solution" and iuput all possible solutions.</Form.Text><br/>
             {solutions}
         </Form.Group>
 

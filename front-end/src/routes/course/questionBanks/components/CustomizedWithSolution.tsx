@@ -8,26 +8,31 @@ const CustomizedWithSolution = ({index, subQuestion}: {index: number, subQuestio
                 {index + ". " + subQuestion.description}
                 {/* {index + ". "}<div dangerouslySetInnerHTML={{__html: subQuestion.description}}/> */}
             </Form.Label>
-            <br/>
-            
-            {
-                subQuestion.blanks.map((blank, index) => {
-                    if (blank.multiple) {
-                        return (
+
+            {subQuestion.blanks.map((blank, index) => {
+                let choices = subQuestion.choices[index];
+                if (choices !== null) {
+                    return (
                         <div key={index}>
-                            <Form.Label>{"Sub " + (index + 1) + ": multiple choice"}</Form.Label>
-                            {
-                                subQuestion.choices[index]?.map((choice, choiceIdx) => 
-                                    <Form.Label key={choiceIdx}>{choice.content}</Form.Label>
-                                )
-                            }
-                        </div>)
-                    } else {
-                        return (<Form.Label key={index}>{"Blank " + (index + 1) + ": " + blank.type}</Form.Label>)
-                    }
-                })
-            }
-            <Form.Control disabled readOnly key={index} value={subQuestion.solutions[0]}/>
+                            <Form.Label>{(index + 1) + (blank.multiple === true ? ". Multiple" : ". Single") + " Choice"}</Form.Label>
+                            {choices.map((choice) => (
+                                <div key={choice.choice_id}>
+                                    <Form.Label>{choice.choice_id + ". " + choice.content}</Form.Label>
+                                    <br/>
+                                </div>
+                            ))}
+                            <Form.Control disabled readOnly value={subQuestion.solutions[index]}/>
+                        </div>
+                    );
+                } else {
+                    return (
+                        <div key={index}>
+                            <Form.Label>{(index + 1) + (blank.type === "string"? ". Blank" : ". Code")}</Form.Label>
+                            <Form.Control disabled readOnly value={subQuestion.solutions[index]}/>
+                        </div>
+                    )
+                }
+            })}
         </Form.Group>
     );
 }

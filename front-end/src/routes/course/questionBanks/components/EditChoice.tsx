@@ -8,16 +8,16 @@ interface choiceProps {
     choice_checked: boolean;
 }
 
-const EditChoice = ({type, id, subQuestion, onDelete}: {type: string, id: number, subQuestion: subQuestionDataType | null, onDelete: (id: number) => void}) => {
+const EditChoice = ({type, id, subQuestion, onDelete}: {type: string, id: number, subQuestion: subQuestionDataType | undefined | null, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");
 
-    const [choiceIdx, setChoiceIdx] = useState<number>();
+    const [choiceIdx, setChoiceIdx] = useState(0);
     const [choiceList, setChoiceList] = useState<choiceProps[]>([]);
 
     useEffect(() => {
-        subQuestion !== null &&
+        subQuestion !== undefined && subQuestion!== null && subQuestion.choices[0] !== null &&
             setChoiceIdx(subQuestion.choices[0]?.length);
-        subQuestion !== null &&
+        subQuestion !== undefined && subQuestion!== null &&
             subQuestion.choices[0]?.map((choice, index) =>
                 setChoiceList((prevState) => ([
                     ...prevState,
@@ -36,7 +36,7 @@ const EditChoice = ({type, id, subQuestion, onDelete}: {type: string, id: number
 
     const choices = choiceList.map((choice, index) => {
         return (
-            <Row className="d-flex flex-row align-items-center" key={index}>
+            <Row className="d-flex flex-row align-items-center" key={choice.choice_idx}>
                 <Col>
                     <InputGroup className="my-2">
                         <InputGroup.Checkbox name={"sub" + id + "_choices"} defaultChecked={choice.choice_checked}/>
@@ -44,8 +44,7 @@ const EditChoice = ({type, id, subQuestion, onDelete}: {type: string, id: number
                     </InputGroup>
                 </Col>
                 <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}}
-                        onClick={() => deleteChoice(choice.choice_idx)}/>
+                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteChoice(choice.choice_idx)}/>
                 </Col>
             </Row>
         );

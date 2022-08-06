@@ -37,6 +37,7 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
     const {globalState} = useGlobalState();
 
     const [title, setTitle] = useState("");
+
     const [description, setDescription]= useState<string>("");
 
     const updateDescription = (newDescription: string) => {
@@ -44,7 +45,7 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
     }
 
     const [type, setType] = useState("");
-    const [id, setId] = useState<number>();
+    const [id, setId] = useState(0);
     const [subqList, setSubqList] = useState<subqProps[]>([]);
     
     useEffect(() => {
@@ -153,7 +154,7 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
             return data;
         }
 
-        function getCustomizedata(type: string, id: number) {
+        function getCustomizedData(type: string, id: number) {
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
             const graderName = (document.getElementById("sub" + id + "_grader") as HTMLInputElement).value;
             const grader = graders.filter((grader) => grader.name === graderName)[0];
@@ -190,7 +191,7 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
             if (type === "single_blank") return getSingleBlankData(type, id);
             if (type === "single_choice") return getSingleChoiceData(type, id);
             if (type === "multiple_choice") return getMultipleChoiceData(type, id);
-            if (type === "customized") return getCustomizedata(type, id);
+            if (type === "customized") return getCustomizedData(type, id);
             return (<></>);
         });
         return subqData;
@@ -229,15 +230,12 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
                     <>
                         <Form.Group className="mb-3">
                             <Form.Label>Title </Form.Label>
-                            <Form.Control type="text" required defaultValue={question.title}
-                                onChange={(e) => setTitle(e.target.value)} />
+                            <Form.Control type="text" required defaultValue={question.title} onChange={(e) => setTitle(e.target.value)}/>
                         </Form.Group>
 
                         <Form.Group className="mb-3">
                             <Form.Label>Description</Form.Label>
-                            <div>
-                                <HTMLEditor init={question.description} update={updateDescription}/>
-                            </div>
+                            <HTMLEditor init={question.description} update={updateDescription}/>
                         </Form.Group>
 
                         <div>{subquestions}</div>
@@ -252,10 +250,7 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
                             <option value="multiple_choice">Multiple Choice</option>
                             <option value="customized">Customized</option>
                         </Form.Select>
-                        <Button variant="primary"
-                            onClick={() => {if (type !== "") setSubqList([...subqList, {type: type, id : id as number, content: null}]); setId((id as number) + 1);}}>
-                            Add Subquestion
-                        </Button>
+                        <Button variant="primary" onClick={() => {if (type !== "") setSubqList([...subqList, {type: type, id : id as number, content: null}]); setId((id as number) + 1)}}>Add Subquestion</Button>
                     </InputGroup>
 
                     <div>

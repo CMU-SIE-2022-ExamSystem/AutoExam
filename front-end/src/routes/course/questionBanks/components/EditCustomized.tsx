@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
-import {Button, Col, Form, Row} from 'react-bootstrap';
+import {Button, Col, Form, InputGroup, Row} from 'react-bootstrap';
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
@@ -8,6 +8,7 @@ import { choiceDataType, subQuestionDataType } from '../../../../components/ques
 
 interface blankProps {
     type: 'string' | 'code';
+    is_choice: boolean;
     multiple: boolean;
 }
 
@@ -21,29 +22,77 @@ interface solutionProps {
     solution_content: string;
 }
 
-const Choices = ({id, choicesData}: {id: string, choicesData: choiceDataType[] | null}) => {
-    interface choiceProps {
-        choice_idx: number;
-        choice_content: string;
+interface choiceProps {
+    choice_idx: number;
+    choice_content: string;
+    choice_checked: boolean;
+}
+
+const Blank = ({subSubId, solutionData}: {subSubId: string, solutionData: string[] | undefined}) => {
+    const [solutionIdx, setSolutionIdx] = useState(0);
+    const [solutionList, setSolutionList] = useState<solutionProps[]>([]);
+
+    useEffect(() => {
+        solutionData !== undefined &&
+            setSolutionIdx(solutionData.length);
+        solutionData !== undefined &&
+            solutionData.map((solution, index) =>
+                setSolutionList((prevState) => ([
+                    ...prevState,
+                    {
+                        solution_idx: index,
+                        solution_content: solution
+                    }
+                ]))
+            );
+    }, [solutionData])
+
+    const deleteSolution = (idx: number) => {
+        setSolutionList(solutionList.filter((solution) => solution.solution_idx !== idx));
     }
-    
-    const [choiceIdx, setChoiceIdx] = useState<number>();
+
+    const solutions = solutionList.map((solution, index) => {
+        return (
+            <Row className="d-flex flex-row align-items-center my-2" key={solution.solution_idx}>
+                <Col>
+                    <Form.Control id={subSubId + "_solution" + index} name={subSubId + "_solutions"} defaultValue={solution.solution_content}/>
+                </Col>
+                <Col xs={1}>
+                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteSolution(solution.solution_idx)}/>
+                </Col>
+            </Row>
+        );
+    })
+
+    return (
+        <div className="mb-3">
+            {solutions}
+            <div className="text-end">
+                <Button variant="primary" onClick={() => {setSolutionList([...solutionList, {solution_idx: solutionIdx as number, solution_content: ""}]); setSolutionIdx((solutionIdx as number) + 1)}}>Add Solution</Button>
+            </div>
+        </div>
+    )
+}
+
+const Choice = ({subSubId, multiple, choiceData, solutionData}: {subSubId: string, multiple: boolean, choiceData: choiceDataType[] | undefined | null, solutionData: string[] | undefined}) => {    
+    const [choiceIdx, setChoiceIdx] = useState(0);
     const [choiceList, setChoiceList] = useState<choiceProps[]>([]);
 
     useEffect(() => {
-        choicesData !== undefined && choicesData !== null &&
-            setChoiceIdx(choicesData.length);
-        choicesData !== undefined && choicesData !== null &&
-            choicesData.map((choiceData, index) =>
+        choiceData !== undefined && choiceData !== null &&
+            setChoiceIdx(choiceData.length);
+        choiceData !== undefined && choiceData !== null && solutionData !== undefined &&
+            choiceData.map((choiceData, index) =>
             setChoiceList((prevState) => ([
                 ...prevState,
                 {
                     choice_idx: index,
-                    choice_content: choiceData.content
+                    choice_content: choiceData.content,
+                    choice_checked: multiple ? solutionData[0].includes(choiceData.choice_id) : solutionData.includes(choiceData.choice_id)
                 }
             ]))
         )
-    }, [choicesData])
+    }, [choiceData, solutionData, multiple])
 
     const deleteChoice = (idx: number) => {
         setChoiceList(choiceList.filter((choice) => choice.choice_idx !== idx));
@@ -51,16 +100,15 @@ const Choices = ({id, choicesData}: {id: string, choicesData: choiceDataType[] |
 
     const choices = choiceList.map((choice, index) => {
         return (
-            <Row className="d-flex flex-row align-items-center" key={index}>
+            <Row className="d-flex flex-row align-items-center my-2" key={choice.choice_idx}>
                 <Col>
-                    <div className="my-2">
-                        <Form.Control id={id + "_choice" + index}
-                            name={id + "_choices"} defaultValue={choice.choice_content}/>
-                    </div>
+                    <InputGroup>
+                        <InputGroup.Checkbox name={subSubId + "_choices"} defaultChecked={choice.choice_checked}/>
+                        <Form.Control id={subSubId + "_choice" + index} defaultValue={choice.choice_content}/>
+                    </InputGroup>
                 </Col>
                 <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}}
-                        onClick={() => deleteChoice(choice.choice_idx)}/>
+                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteChoice(choice.choice_idx)}/>
                 </Col>
             </Row>
         );
@@ -70,7 +118,7 @@ const Choices = ({id, choicesData}: {id: string, choicesData: choiceDataType[] |
         <>
         {choices}
         <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, {choice_idx: choiceIdx as number, choice_content: ""}]); setChoiceIdx((choiceIdx as number) + 1);}}>Add Choice</Button>
+            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, {choice_idx: choiceIdx as number, choice_content: "", choice_checked: false}]); setChoiceIdx((choiceIdx as number) + 1);}}>Add Choice</Button>
         </div>
         </>
     );
@@ -81,45 +129,6 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
     const {globalState} = useGlobalState();
     
     const [description, setDescription] = useState("");
-
-    const [solutionIdx, setSolutionIdx] = useState<number>();
-    const [solutionList, setSolutionList] = useState<solutionProps[]>([]);
-
-    useEffect(() => {
-        subQuestion !== null &&
-            setSolutionIdx(subQuestion.solutions[0].length);
-        subQuestion !== null &&
-            subQuestion.solutions[0].map((solution, index) =>
-                setSolutionList((prevState) => ([
-                    ...prevState,
-                    {
-                        solution_idx: index,
-                        solution_content: solution
-                    }
-                ]))
-            );
-    }, [subQuestion])
-
-    const deleteSolution = (idx: number) => {
-        setSolutionList(solutionList.filter((solution) => solution.solution_idx !== idx));
-    }
-
-    const solutions = solutionList.map((solution, index) => {
-        return (
-            <Row className="d-flex flex-row align-items-center" key={index}>
-                <Col>
-                    <div className="my-2">
-                        <Form.Control id={"sub" + id + "_solution" + index}
-                            name={"sub" + id + "_solutions"} defaultValue={solution.solution_content}/>
-                    </div>
-                </Col>
-                <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}}
-                        onClick={() => deleteSolution(solution.solution_idx)}/>
-                </Col>
-            </Row>
-        );
-    })
 
     // const [graders, setGraders] = useState<string[]>([]);
     const [graders, setGraders] = useState<graderProps[]>([]);
@@ -166,7 +175,7 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
         <Form.Group className="mb-3">
             <Form.Label>Grader</Form.Label><br/>
             <Form.Text>Choose grader, or upload your grader by clicking "Grader" at the top right corner of the Question Bank page.</Form.Text>
-            <Form.Select id={"sub" + id + "_grader"} value={grader?.name} onChange={(e) => getGrader(e.target.value)}>
+            <Form.Select id={"sub" + id + "_grader"} value={grader?.name} onChange={(e) => {getGrader(e.target.value);}}>
                 <option>Grader Type</option>
                 {graders.map((item) => {
                     // if (grader !== "single_blank" && grader !== "single_choice" && grader !== "multiple_choice")
@@ -178,37 +187,30 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
         </Form.Group>
 
         <Form.Group>
-            {
-                grader?.blanks.map((blank, index) => {
-                    if (blank.multiple) {
-                        return (
-                            <div key={index}>
-                                <Form.Label>{"Blank " + (index + 1) + ": multiple choice"}</Form.Label><br/>
-                                <Form.Text>Click "Add Choice" and input all choices content</Form.Text>
-                                <Choices id={"sub" + id + "_sub" + index} choicesData={subQuestion?.choices !== undefined ? subQuestion?.choices[index] : null}/>
-                            </div>)
-                    }
-
-                    // if (blank.type === "string" || blank.type === "code")
+            {grader?.blanks.map((blank, index) => {
+                if (blank.is_choice) {
                     return (
                         <div key={index}>
-                            <Form.Label>
-                                {"Blank " + (index + 1) + (blank.type === "string"? ": blank" : ": code")}
-                            </Form.Label>
-                        <br/></div>
+                            <Form.Label>{(index + 1) + (blank.multiple === true ? ". Multiple" : ". Single") + " Choice"}</Form.Label>
+                            <br/>
+                            <Choice subSubId={"sub" + id + "_sub" + index} multiple={blank.multiple}
+                                choiceData={subQuestion?.choices[index]}
+                                solutionData={subQuestion?.solutions[index]}/>
+                        </div>
                     )
-                })
-            }
-        </Form.Group>
-
-        <Form.Group className="mb-3">
-            <Form.Label>Solution</Form.Label><br/>
-            <Form.Text>Click "Add Solution" and iuput all possible solutions.</Form.Text><br/>
-            {solutions}
+                } else {
+                    return (
+                        <div key={index}>
+                            <Form.Label>{(index + 1) + (blank.type === "string"? ". Blank" : ". Code")}</Form.Label>
+                            <Blank subSubId={"sub" + id + "_sub" + index} solutionData={subQuestion?.solutions[index]}/>
+                            <br/>
+                        </div>
+                    )
+                }
+            })}
         </Form.Group>
 
         <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setSolutionList([...solutionList, {solution_idx: solutionIdx as number, solution_content: ""}]); setSolutionIdx((solutionIdx as number) + 1)}}>Add Solution</Button>
             <Button variant="secondary" className="ms-2" onClick={() => onDelete(id)}>Delete Subquestion</Button>
         </div>
         <hr/>

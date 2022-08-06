@@ -5,6 +5,7 @@ export interface choiceDataType {
 
 export interface blankDataType {
     type: 'string' | 'code';
+    is_choice: boolean;
     multiple: boolean;
 }
 
