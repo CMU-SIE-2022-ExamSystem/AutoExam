@@ -17,14 +17,16 @@ const (
 )
 
 type Grader_Creat struct {
-	Name   string       `form:"name" json:"name" binding:"required"`
-	Blanks []dao.Blanks `form:"blanks" json:"blanks" binding:"required"`
+	Name    string       `form:"name" json:"name" binding:"required"`
+	Blanks  []dao.Blanks `form:"blanks" json:"blanks" binding:"required"`
+	Modules dao.Strings  `form:"modules" json:"modules"`
 }
 
 type Grader_Create_Validate struct {
 	Name       string       `form:"name" json:"name" binding:"required"`
 	BaseCourse string       `form:"base_course" json:"base_course" binding:"required"`
 	Blanks     []dao.Blanks `form:"blanks" json:"blanks"`
+	Modules    dao.Strings  `form:"modules" json:"modules"`
 }
 
 type Grader_Upload struct {

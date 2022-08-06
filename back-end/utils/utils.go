@@ -11,7 +11,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/fatih/color"
+	"github.com/gin-gonic/gin"
 	cp "github.com/otiai10/copy"
 )
 
@@ -55,6 +57,12 @@ func Copy_file(file, src, dest string) {
 func FileCheck(path string) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		panic(err)
+	}
+}
+
+func FileCheckWithC(c *gin.Context, path string) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		response.ErrFileNotValidResponse(c)
 	}
 }
 

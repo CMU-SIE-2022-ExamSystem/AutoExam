@@ -110,6 +110,7 @@ func CreateGrader_Handler(c *gin.Context) {
 		QuestionType: body.Name,
 		BaseCourse:   body.BaseCourse,
 		Blanks:       body.Blanks,
+		Modules:      body.Modules,
 	}
 	grader, err := dao.Insert_grader(instance)
 	if err != nil {

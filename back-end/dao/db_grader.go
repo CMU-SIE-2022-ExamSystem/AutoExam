@@ -30,6 +30,7 @@ type PythonFile struct {
 	Valid        bool     `gorm:"type:bool"`
 	Blanks       []Blanks `gorm:"constraint:OnUpdate:CASCADE,,OnDelete:CASCADE,foreignKey:PythonFileID"`
 	Uploaded     bool     `gorm:"type:bool,default:false"`
+	Modules      Strings
 }
 
 // @Description grader model info
@@ -39,14 +40,16 @@ type Grader_API struct {
 	BlanksNumber int      `json:"-"`                        // the number of blanks
 	Valid        bool     `json:"valid" binding:"required"` // whether the grader is valid by /courses/{course_name}/graders/{grader_name}/valid api
 	Uploaded     bool     `json:"uploaded"`                 // whether the python file is uploaded
+	Modules      Strings  `json:"modules"`                  // the desired python modules for executing the grader correctly
 }
 
 // @Description describing the type of a certain blank
 type Blanks struct {
-	ID           uint   `json:"-" gorm:"primaryKey"`
-	PythonFileID uint   `json:"-"`
-	Type         string `json:"type" binding:"required,oneof=string code"`
-	Multiple     bool   `json:"multiple" gorm:"multiple"`
+	ID             uint   `json:"-" gorm:"primaryKey" bson:"-"`
+	PythonFileID   uint   `json:"-" bson:"-"`
+	Type           string `json:"type" binding:"required,oneof=string code"`
+	ChoiceMultiple bool   `json:"multiple" gorm:"multiple"`   // used when the blank is choice
+	IsChoice       bool   `json:"is_choice" gorm:"is_choice"` // whether this blank is choice or not
 }
 
 func insert(instance PythonFile) error {
@@ -272,18 +275,32 @@ func GetUploadStatus(question_type, course string) bool {
 func GetBasicGraderDict() map[string]Grader_API {
 	grader_dict := make(map[string]Grader_API)
 	var single_blanks []Blanks
-	single_blanks = append(single_blanks, Blanks{Type: "string", Multiple: false})
+	single_blanks = append(single_blanks, Blanks{Type: "string", ChoiceMultiple: false, IsChoice: false})
 
-	var multiple_blanks []Blanks
-	multiple_blanks = append(multiple_blanks, Blanks{Type: "string", Multiple: true})
+	var multiple_choice []Blanks
+	multiple_choice = append(multiple_choice, Blanks{Type: "string", ChoiceMultiple: true, IsChoice: true})
+
+	var single_choice []Blanks
+	single_choice = append(single_choice, Blanks{Type: "string", ChoiceMultiple: false, IsChoice: true})
+
 	for _, grader := range global.Settings.Basic_Grader {
-		if strings.Contains(grader, "multiple") && strings.Contains(grader, "choice") {
-			grader_dict[grader] = Grader_API{
-				Name:         grader,
-				Blanks:       multiple_blanks,
-				BlanksNumber: 1,
-				Valid:        true,
-				Uploaded:     true,
+		if strings.Contains(grader, "choice") {
+			if strings.Contains(grader, "multiple") {
+				grader_dict[grader] = Grader_API{
+					Name:         grader,
+					Blanks:       multiple_choice,
+					BlanksNumber: 1,
+					Valid:        true,
+					Uploaded:     true,
+				}
+			} else if strings.Contains(grader, "single") {
+				grader_dict[grader] = Grader_API{
+					Name:         grader,
+					Blanks:       single_choice,
+					BlanksNumber: 1,
+					Valid:        true,
+					Uploaded:     true,
+				}
 			}
 		} else {
 			grader_dict[grader] = Grader_API{
@@ -309,6 +326,7 @@ func (grader *PythonFile) ToGraderAPI() Grader_API {
 		Blanks:       grader.Blanks,
 		BlanksNumber: len(grader.Blanks),
 		Uploaded:     grader.Uploaded,
+		Modules:      grader.Modules,
 	}
 	return api
 }

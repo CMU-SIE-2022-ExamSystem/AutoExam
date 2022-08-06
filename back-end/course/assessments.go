@@ -32,10 +32,11 @@ func Build_Assessment(c *gin.Context, course, base_course string, autoexam dao.A
 	copy_template(c, exam_path)
 	replace_template(c, exam_path, assessment_name, autoexam.General.Url)
 	modify_yml(c, exam_path, autoexam.ToDownloadAssessments())
-	err := copy_autograders(exam_path, base_course, assessment_name)
+	modules, err := copy_autograders(exam_path, base_course, assessment_name)
 	if err != nil {
 		response.ErrAssessmentGenerateResponse(c, course, err.Error())
 	}
+	add_modules(c, exam_path, assessment_name, modules)
 	make_tar(c, exam_path, assessment_name)
 
 	tar_path = filepath.Join(exam_path, assessment_name+".tar")
@@ -107,7 +108,7 @@ func run_exec(c *gin.Context, prog, arg1, arg2 string) {
 	}
 }
 
-func copy_autograders(path, base_course, assessment_name string) error {
+func copy_autograders(path, base_course, assessment_name string) ([]string, error) {
 	path = filepath.Join(path, assessment_name)
 	path = filepath.Join(path, "autograder")
 	path = filepath.Join(path, "autograders")
@@ -119,18 +120,37 @@ func copy_autograders(path, base_course, assessment_name string) error {
 
 	db_path := filepath.Join(dao.DBgrade_path, base_course)
 	graders, _ := dao.ReadAllGraders(base_course)
+
+	var modules []string
 	for _, grader := range graders {
 		file_name := grader.Name + ".py"
 		file_path := filepath.Join(db_path, file_name)
 		if _, err := os.Stat(file_path); os.IsNotExist(err) {
 			err := dao.Storegrader(grader, base_course)
 			if err != nil {
-				return err
+				return []string{}, err
 			}
 		}
+		modules = append(modules, grader.Modules...)
 		utils.Copy_file(file_name, db_path, path)
 	}
-	return nil
+	return modules, nil
+}
+
+func add_modules(c *gin.Context, path, assessment_name string, modules []string) {
+	autograder_path := filepath.Join(path, assessment_name)
+	autograder_path = filepath.Join(autograder_path, "autograder")
+	requirement_path := filepath.Join(autograder_path, "requirements.txt")
+	utils.FileCheckWithC(c, requirement_path)
+	f, err := os.OpenFile(requirement_path,
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+	if err != nil {
+		response.ErrFileNotValidResponse(c)
+	}
+	defer f.Close()
+	for _, module := range modules {
+		f.WriteString("\n" + module)
+	}
 }
 
 func GetAssessment(c *gin.Context, course_name, assessment_name string) dao.AutoExam_Assessments {

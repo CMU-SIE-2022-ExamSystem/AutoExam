@@ -6,7 +6,7 @@ all:
 	cp answer/config.yaml autograder
 	cp answer/answer.json autograder
 	cp answer/solution.json autograder
-	(cd autograder; python3.8 -m venv env; source env/bin/activate; pip3 install -r requirements.txt; chmod +x driver.sh; ./driver.sh)
+	(cd autograder; python3.8 -m venv env; source env/bin/activate; pip3 install --upgrade pip; pip3 install -r requirements.txt; chmod +x driver.sh; ./driver.sh)
 
 clean:
 	rm -rf *~ autograder

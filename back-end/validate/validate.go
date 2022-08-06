@@ -41,8 +41,7 @@ func getErrorMsg(fe validator.FieldError) string {
 	case "noTag":
 		return "This field is required in the " + fe.Param() + " settings"
 	case "notValidTag":
-		s := strings.Split(fe.Param(), ",")
-		return "This field is not one of the valid tags id in the base course '" + s[0] + "' in the " + s[1] + " settings"
+		return "This field is not one of the valid tags id in the base course '" + fe.Param()
 	case "gteSetting":
 		s := strings.Split(fe.Param(), ",")
 		return "This field is required or should be greate than or equal than " + s[0] + " in the " + s[1] + " settings"
@@ -93,8 +92,20 @@ func getErrorMsg(fe validator.FieldError) string {
 	case "notValidAnswer":
 		return "The type of this field should two-dimensional array of string in the " + fe.Param() + " sub_questions"
 	case "requiredChoice":
-		return "This field is required when the grader name contains 'choice' in the " + fe.Param() + " sub_questions"
+		return "This field is required when there is any choice blank in the " + fe.Param() + " sub_questions"
+	case "notRequiredChoice":
+		return "This field is should be empty or length = 0 when there is no choice blank in the " + fe.Param() + " sub_questions"
+	case "lenChoice":
+		s := strings.Split(fe.Param(), ",")
+		return "The length of choices should be '" + s[1] + "' to match the length of grader's blanks because of the existence of choice blanks in the " + s[0] + " sub_questions"
+	case "notValidChoiceZero":
+		s := strings.Split(fe.Param(), ",")
+		return "The " + s[1] + " choice should not be empty in the " + s[0] + " sub_questions"
+	case "notValidChoiceNotZero":
+		s := strings.Split(fe.Param(), ",")
+		return "The " + s[1] + " choice should be empty in the " + s[0] + " sub_questions"
 	}
+
 	fmt.Println(fe.Namespace())
 	fmt.Println(fe.Field())
 	fmt.Println(fe.StructNamespace())
