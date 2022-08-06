@@ -48,36 +48,21 @@ func QuestionsCreateValidation(sl validator.StructLevel) {
 		question.SubQuestions[i].Blanks = grader_dict[grader_name].Blanks
 
 		// check whether there is a choice sub blank
-		is_choice := false
-		for _, blank := range grader_dict[grader_name].Blanks {
-			if blank.IsChoice {
-				is_choice = true
-			}
+		if len(sub_question.Choices) != len(grader_dict[grader_name].Blanks) {
+			sl.ReportError(sub_question.Choices, "choices", "Choices", "lenChoice", utils.Ordinalize(i+1)+","+strconv.Itoa(len(grader_dict[grader_name].Blanks)))
+			break
 		}
-		if is_choice {
-			if len(sub_question.Choices) == 0 {
-				sl.ReportError(sub_question.Choices, "choices", "Choices", "requiredChoice", utils.Ordinalize(i+1))
-				break
-			}
-			if len(sub_question.Choices) != len(grader_dict[grader_name].Blanks) {
-				sl.ReportError(sub_question.Choices, "choices", "Choices", "lenChoice", utils.Ordinalize(i+1)+","+strconv.Itoa(len(grader_dict[grader_name].Blanks)))
-				break
-			}
-			for j, blank := range grader_dict[grader_name].Blanks {
-				if blank.IsChoice {
-					if len(sub_question.Choices[i]) == 0 {
-						sl.ReportError(sub_question.Choices, "choices", "Choices", "notValidChoiceZero", utils.Ordinalize(i+1)+","+utils.Ordinalize(j+1))
-					}
-				} else {
-					if len(sub_question.Choices[i]) != 0 {
-						sl.ReportError(sub_question.Choices, "choices", "Choices", "notValidChoiceNotZero", utils.Ordinalize(i+1)+","+utils.Ordinalize(j+1))
-					}
+		for j, blank := range grader_dict[grader_name].Blanks {
+			if blank.IsChoice {
+				if len(sub_question.Choices[j]) == 0 {
+					sl.ReportError(sub_question.Choices, "choices", "Choices", "notValidChoiceZero", utils.Ordinalize(i+1)+","+utils.Ordinalize(j+1))
+					break
 				}
-			}
-		} else {
-			if len(sub_question.Choices) != 0 {
-				sl.ReportError(sub_question.Choices, "choices", "Choices", "notRequiredChoice", utils.Ordinalize(i+1))
-				break
+			} else {
+				if sub_question.Choices[j] != nil {
+					sl.ReportError(sub_question.Choices, "choices", "Choices", "notValidChoiceNotZero", utils.Ordinalize(i+1)+","+utils.Ordinalize(j+1))
+					break
+				}
 			}
 		}
 	}
