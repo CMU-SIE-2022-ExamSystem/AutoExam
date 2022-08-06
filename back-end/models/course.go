@@ -24,3 +24,7 @@ func (Course) TableName() string {
 type Basecourse struct {
 	Name string `json:"name"`
 }
+
+type Download_Answer struct {
+	Eamil string `json:"email"`
+}
