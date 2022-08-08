@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bytes"
+	"os"
 	"os/exec"
 	"syscall"
 
@@ -418,8 +419,8 @@ func Testgrader_Handler(c *gin.Context) {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
-	// os.Remove("./autograder/exec/autograders/" + question_type + ".py")
-	// os.Remove("./autograder/exec/requirements.txt")
+	os.Remove("./autograder/exec/autograders/" + question_type + ".py")
+	os.Remove("./autograder/exec/requirements.txt")
 	if err != nil {
 		dao.UpdateGraderValid(question_type, base_course, false)
 		response.ErrorInternaWithData(c, err.Error(), stdout.String()+stderr.String())
