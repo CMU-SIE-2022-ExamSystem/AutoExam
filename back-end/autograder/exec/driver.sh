@@ -4,7 +4,7 @@
 
 # Run the autograder
 echo "<---Running--->"
-py=`python main.py $1`
+py=`python3.8 main.py $1`
 status=$?
 if [ ${status} -eq -1 ]; then
     echo "<---Failure--->"
