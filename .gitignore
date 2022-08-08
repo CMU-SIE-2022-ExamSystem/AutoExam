@@ -77,3 +77,7 @@ bin
 
 # swagger-docs
 back-end/docs
+
+# python env
+back-end/autograder/exec/env/
+back-end/autograder/exec/autograders/__pycache__/
