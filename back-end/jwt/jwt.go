@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
@@ -44,4 +45,12 @@ func GetEmail(c *gin.Context) (user models.User_Token) {
 	}
 	user = models.User_Token{ID: id.(uint), Email: email.(string)}
 	return
+}
+
+func GetAccessToken(id uint) string {
+	user := models.User{ID: id}
+	global.DB.Find(&user)
+	token := user.Access_token
+
+	return token
 }
