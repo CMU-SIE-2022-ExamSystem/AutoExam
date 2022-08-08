@@ -15,6 +15,8 @@ const EditChoice = ({type, id, subQuestion, onDelete}: {type: string, id: number
     const [choiceList, setChoiceList] = useState<choiceProps[]>([]);
 
     useEffect(() => {
+        subQuestion !== undefined && subQuestion!== null &&
+            setDescription(subQuestion.description);
         subQuestion !== undefined && subQuestion!== null && subQuestion.choices[0] !== null &&
             setChoiceIdx(subQuestion.choices[0]?.length);
         subQuestion !== undefined && subQuestion!== null &&
@@ -69,7 +71,7 @@ const EditChoice = ({type, id, subQuestion, onDelete}: {type: string, id: number
         <div>{choices}</div>
 
         <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, {choice_idx: choiceIdx as number, choice_content: "", choice_checked: false}]); setChoiceIdx((choiceIdx as number) + 1);}}>Add Choice</Button>
+            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, {choice_idx: choiceIdx, choice_content: "", choice_checked: false}]); setChoiceIdx(choiceIdx + 1);}}>Add Choice</Button>
             <Button variant="secondary" className="ms-2" onClick={() => onDelete(id)}>Delete Subquestion</Button>
         </div>
         <hr/>

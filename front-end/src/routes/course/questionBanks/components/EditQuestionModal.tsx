@@ -13,6 +13,7 @@ import EditCustomized from './EditCustomized';
 
 interface blankProps {
     type: 'string' | 'code';
+    is_choice: boolean;
     multiple: boolean;
 }
 
@@ -32,13 +33,13 @@ interface tagProps {
     name: string;
 }
 
-const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, clearQuestion, clearMessage}: {show: boolean, tag: tagProps, question: questionDataType, errorMessage: string, onEdit: (id: string, data: object) => void, onClose: () => void, clearQuestion: () => void, clearMessage: () => void}) => {
+const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, question, clearQuestion, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, question: questionDataType, clearQuestion: () => void, errorMsg: string, setErrorMsg: any}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
 
     const [title, setTitle] = useState("");
 
-    const [description, setDescription]= useState<string>("");
+    const [description, setDescription]= useState("");
 
     const updateDescription = (newDescription: string) => {
         setDescription(newDescription);
@@ -49,6 +50,10 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
     const [subqList, setSubqList] = useState<subqProps[]>([]);
     
     useEffect(() => {
+        question !== undefined &&
+            setTitle(question.title);
+        question !== undefined &&
+            setDescription(question.description)
         question !== undefined &&
             setId(question.sub_questions.length);
         question !== undefined &&
@@ -109,8 +114,8 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
         function getSingleChoiceData(type: string, id: number) {
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
             const choiceNodeList = document.getElementsByName("sub" + id + "_choices");
-            let solutions: string[] = []
             let choices: object[] = []
+            let solutions: string[] = []
             choiceNodeList.forEach((item, index) => {
                 const isChecked = item as HTMLInputElement;
                 if (isChecked.checked) {
@@ -133,8 +138,8 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
         function getMultipleChoiceData(type: string, id: number) {
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
             const choiceNodeList = document.getElementsByName("sub" + id + "_choices");
-            let solutions: string = ""
             let choices: object[] = []
+            let solutions: string = ""
             choiceNodeList.forEach((item, index) => {
                 const isChecked = item as HTMLInputElement;
                 if (isChecked.checked) {
@@ -154,35 +159,49 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
             return data;
         }
 
-        function getCustomizedData(type: string, id: number) {
+        function getCustomizedData(id: number) {
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
             const graderName = (document.getElementById("sub" + id + "_grader") as HTMLInputElement).value;
             const grader = graders.filter((grader) => grader.name === graderName)[0];
             let choices: (object[] | null)[] = [];
+            let solutions: string[][] = []
             grader.blanks.forEach((blank: blankProps, index) => {
-                if (blank.multiple) {
+                if (blank.is_choice) {
                     choices[index] = []
+                    solutions[index] = []
+                    if (blank.multiple) {
+                        solutions[index][0] = ""
+                    }
                     const choiceNodeList = document.getElementsByName("sub" + id + "_sub" + index + "_choices");
-                    choiceNodeList.forEach((choice, choiceIdx) => {
+                    choiceNodeList.forEach((item, choiceIdx) => {
+                        const choice = item as HTMLInputElement;
+                        const choice_id = String.fromCharCode(choiceIdx + 65);
+                        if (choice.checked) {
+                            if (blank.multiple) {
+                                solutions[index][0] = solutions[index][0].concat(choice_id);
+                            } else {
+                                solutions[index].push(choice_id);
+                            }
+                        }
                         const choiceId = "sub" + id + "_sub" + index + "_choice" + choiceIdx;
-                        const choiceContent = (document.getElementById(choiceId) as HTMLInputElement).value;
-                        (choices[index] as object[]).push({choice_id: String.fromCharCode(choiceIdx + 65), content: choiceContent})
+                        const choice_content = (document.getElementById(choiceId) as HTMLInputElement).value;
+                        (choices[index] as object[]).push({choice_id: choice_id, content: choice_content})
                     })
                 } else {
                     choices[index] = null
+                    solutions[index] = []
+                    const solutionNodeList = document.getElementsByName("sub" + id + "_sub" + index + "_solutions");
+                    solutionNodeList.forEach((solution) => {
+                        solutions[index].push((solution as HTMLInputElement).value);
+                    })
                 }
-            })
-            const solutionNodeList = document.getElementsByName("sub" + id + "_solutions");
-            let solutions: string[] = []
-            solutionNodeList.forEach((solution) => {
-                solutions.push((solution as HTMLInputElement).value);
             })
             
             const data = {
                 grader: graderName,
                 description: description,
                 choices: choices,
-                solutions: [solutions]
+                solutions: solutions
             }
             return data;
         }
@@ -191,7 +210,7 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
             if (type === "single_blank") return getSingleBlankData(type, id);
             if (type === "single_choice") return getSingleChoiceData(type, id);
             if (type === "multiple_choice") return getMultipleChoiceData(type, id);
-            if (type === "customized") return getCustomizedData(type, id);
+            if (type === "customized") return getCustomizedData(id);
             return (<></>);
         });
         return subqData;
@@ -201,11 +220,31 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
         e.preventDefault();
         const questionData = {
             description: description,
-            question_tag: tag.id,
+            question_tag: [...tags].filter((tag) => tag.name === params.tag)[0].id,
             title: title,
             sub_questions: getSubquestionsData()
         }
-        onEdit(question.id, questionData);
+        editQuestion(question.id, questionData);
+    }
+
+    const editQuestion = async (id: string, questionData: object) => {
+        console.log(questionData)
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
+        const token = globalState.token;
+        axios.put(url, questionData, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                onClose();
+                clearState();
+                setErrorMsg("");
+                getTags()
+                    .then((tags: tagProps[]) => getQuestionsByTag(tags))
+                    .catch();
+            })
+            .catch((error: any) => {
+                console.log(error);
+                let response = error.response.data;
+                setErrorMsg(response.error.message || response.error.message[0].message);
+            });
     }
 
     const clearState = () => {
@@ -217,7 +256,7 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
     }
 
     return (
-        <Modal show={show} onHide={() => {onClose(); clearState(); clearQuestion(); clearMessage()}} size="lg">
+        <Modal show={show} onHide={() => {onClose(); clearState(); clearQuestion(); setErrorMsg("")}} size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Edit Queston</Modal.Title>
             </Modal.Header>
@@ -250,15 +289,15 @@ const EditQuestionModal = ({show, tag, question, errorMessage, onEdit, onClose, 
                             <option value="multiple_choice">Multiple Choice</option>
                             <option value="customized">Customized</option>
                         </Form.Select>
-                        <Button variant="primary" onClick={() => {if (type !== "") setSubqList([...subqList, {type: type, id : id as number, content: null}]); setId((id as number) + 1)}}>Add Subquestion</Button>
+                        <Button variant="primary" onClick={() => {type !== "" && setSubqList([...subqList, {type: type, id : id, content: null}]); type !== "" && setId(id + 1)}}>Add Subquestion</Button>
                     </InputGroup>
 
                     <div>
-                        <small className="text-danger">{errorMessage}</small>
+                        <small className="text-danger">{errorMsg}</small>
                     </div>
 
                     <div className="text-end">
-                        <Button variant="secondary" onClick={() => {onClose(); clearQuestion(); clearMessage()}}>Close</Button>
+                        <Button variant="secondary" onClick={() => {onClose(); clearState(); clearQuestion(); setErrorMsg("")}}>Close</Button>
                         <Button variant="primary" className="ms-2" type="submit">Confirm</Button>
                     </div>
                 </Form>

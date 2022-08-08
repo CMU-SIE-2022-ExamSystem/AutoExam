@@ -23,7 +23,7 @@ const AddModal = ({show, onSubmit, onCancel}: {show: boolean, onSubmit: (newBase
     );
 }
 
-const EditModal = ({show, oldBaseName, onSubmit, onCancel}: {show: boolean, oldBaseName: string, onSubmit: (oldName, newBaseName: string) => void, onCancel: () => void}) => {
+const EditModal = ({show, oldBaseName, onSubmit, onCancel}: {show: boolean, oldBaseName: string, onSubmit: (oldName: string, newBaseName: string) => void, onCancel: () => void}) => {
     const [newBaseName, setNewBaseName] = useState(oldBaseName);
     return (
         <Modal>

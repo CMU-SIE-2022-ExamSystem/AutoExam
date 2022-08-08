@@ -13,8 +13,8 @@ const CustomizedWithSolution = ({index, subQuestion}: {index: number, subQuestio
                 let choices = subQuestion.choices[index];
                 if (choices !== null) {
                     return (
-                        <div key={index}>
-                            <Form.Label>{(index + 1) + (blank.multiple === true ? ". Multiple" : ". Single") + " Choice"}</Form.Label>
+                        <div key={index} className="mb-3">
+                            <Form.Label>{"(" + (index + 1) + (blank.multiple === true ? ") Multiple" : ") Single") + " Choice"}</Form.Label>
                             {choices.map((choice) => (
                                 <div key={choice.choice_id}>
                                     <Form.Label>{choice.choice_id + ". " + choice.content}</Form.Label>
@@ -26,8 +26,8 @@ const CustomizedWithSolution = ({index, subQuestion}: {index: number, subQuestio
                     );
                 } else {
                     return (
-                        <div key={index}>
-                            <Form.Label>{(index + 1) + (blank.type === "string"? ". Blank" : ". Code")}</Form.Label>
+                        <div key={index} className="mb-3">
+                            <Form.Label>{"(" + (index + 1) + (blank.type === "string"? ") Blank" : ") Code")}</Form.Label>
                             <Form.Control disabled readOnly value={subQuestion.solutions[index]}/>
                         </div>
                     )

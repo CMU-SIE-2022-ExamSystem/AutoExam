@@ -281,40 +281,6 @@ function QuestionBank () {
             .catch();
     }, [getTags, getQuestionsByTag]);
 
-    const addNewQuestion = async (questionData: object) => {
-        console.log(questionData);
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions");
-        const token = globalState.token;
-        axios.post(url, questionData, {headers: {Authorization: "Bearer " + token}})
-            .then(_ => {
-                setAddQuestionShow(false);
-                getTags()
-                    .then(tags => getQuestionsByTag(tags));
-            })
-            .catch((error: any) => {
-                console.log(error);
-                let response = error.response.data;
-                setQuestionError(response.error.message[0].message);
-            });
-    }
-
-    const editQuestion = async (id: string, questionData: object) => {
-        console.log(questionData)
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
-        const token = globalState.token;
-        axios.put(url, questionData, {headers: {Authorization: "Bearer " + token}})
-            .then(_ => {
-                setEditQuestionShow(false);
-                getTags()
-                    .then(tags => getQuestionsByTag(tags));
-            })
-            .catch((error: any) => {
-                console.log(error);
-                let response = error.response.data;
-                setQuestionError(response.error.message[0].message);
-            });
-    }
-
     const deleteQuestion = async (id: string, hard: boolean) => {
         let url: string = "";
         if (hard) {
@@ -411,22 +377,24 @@ function QuestionBank () {
                 
                 <AddQuestionModal
                     show={addQuestionShow}
-                    tag={[...tags].filter((tag) => tag.name === params.tag)[0] as tagProps}
-                    errorMessage={questionError}
-                    onAdd={addNewQuestion}
                     onClose={() => setAddQuestionShow(false)}
-                    clearMessage={() => setQuestionError("")}
+                    tags={tags}
+                    getTags={getTags}
+                    getQuestionsByTag={getQuestionsByTag}
+                    errorMsg={questionError}
+                    setErrorMsg={setQuestionError}
                 />
 
                 <EditQuestionModal
                     show={editQuestionShow}
-                    tag={[...tags].filter((tag) => tag.name === params.tag)[0] as tagProps}
-                    question={question as questionDataType}
-                    errorMessage={questionError}
-                    onEdit={editQuestion}
                     onClose={() => setEditQuestionShow(false)}
+                    tags={tags}
+                    getTags={getTags}
+                    getQuestionsByTag={getQuestionsByTag}
+                    question={question as questionDataType}
                     clearQuestion={() => setQuestion(emptyQuestion)}
-                    clearMessage={() => setQuestionError("")}
+                    errorMsg={questionError}
+                    setErrorMsg={setQuestionError}
                 />
 
                 <DeleteQuestionModal

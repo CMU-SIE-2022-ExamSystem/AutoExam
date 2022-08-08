@@ -14,6 +14,8 @@ const EditSingleBlank = ({id, subQuestion, onDelete}: {id: number, subQuestion: 
 
     useEffect(() => {
         subQuestion !== null &&
+            setDescription(subQuestion.description);
+        subQuestion !== null &&
             setSolutionIdx(subQuestion.solutions[0].length);
         subQuestion !== null &&
             subQuestion.solutions[0].map((solution, index) =>
@@ -61,7 +63,7 @@ const EditSingleBlank = ({id, subQuestion, onDelete}: {id: number, subQuestion: 
         </Form.Group>
 
         <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setSolutionList([...solutionList, {solution_idx: solutionIdx as number, solution_content: ""}]); setSolutionIdx((solutionIdx as number) + 1)}}>Add Solution</Button>
+            <Button variant="primary" onClick={() => {setSolutionList([...solutionList, {solution_idx: solutionIdx, solution_content: ""}]); setSolutionIdx(solutionIdx + 1)}}>Add Solution</Button>
             <Button variant="secondary" className="ms-2" onClick={() => onDelete(id)}>Delete Subquestion</Button>
         </div>
         <hr/>

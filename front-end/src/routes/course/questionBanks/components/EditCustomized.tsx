@@ -68,7 +68,7 @@ const Blank = ({subSubId, solutionData}: {subSubId: string, solutionData: string
         <div className="mb-3">
             {solutions}
             <div className="text-end">
-                <Button variant="primary" onClick={() => {setSolutionList([...solutionList, {solution_idx: solutionIdx as number, solution_content: ""}]); setSolutionIdx((solutionIdx as number) + 1)}}>Add Solution</Button>
+                <Button variant="primary" onClick={() => {setSolutionList([...solutionList, {solution_idx: solutionIdx, solution_content: ""}]); setSolutionIdx(solutionIdx + 1)}}>Add Solution</Button>
             </div>
         </div>
     )
@@ -118,7 +118,7 @@ const Choice = ({subSubId, multiple, choiceData, solutionData}: {subSubId: strin
         <>
         {choices}
         <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, {choice_idx: choiceIdx as number, choice_content: "", choice_checked: false}]); setChoiceIdx((choiceIdx as number) + 1);}}>Add Choice</Button>
+            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, {choice_idx: choiceIdx, choice_content: "", choice_checked: false}]); setChoiceIdx(choiceIdx + 1);}}>Add Choice</Button>
         </div>
         </>
     );
@@ -135,6 +135,8 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
     const [grader, setGrader] = useState<graderProps>();
 
     useEffect(() => {
+        subQuestion !== null &&
+            setDescription(subQuestion.description);
         subQuestion !== null &&
             setGrader({
                 name: subQuestion.grader,
@@ -191,7 +193,7 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
                 if (blank.is_choice) {
                     return (
                         <div key={index}>
-                            <Form.Label>{(index + 1) + (blank.multiple === true ? ". Multiple" : ". Single") + " Choice"}</Form.Label>
+                            <Form.Label>{"(" + (index + 1) + (blank.multiple === true ? ") Multiple" : ") Single") + " Choice"}</Form.Label>
                             <br/>
                             <Choice subSubId={"sub" + id + "_sub" + index} multiple={blank.multiple}
                                 choiceData={subQuestion?.choices[index]}
@@ -201,7 +203,7 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
                 } else {
                     return (
                         <div key={index}>
-                            <Form.Label>{(index + 1) + (blank.type === "string"? ". Blank" : ". Code")}</Form.Label>
+                            <Form.Label>{"(" + (index + 1) + (blank.type === "string"? ") Blank" : ") Code")}</Form.Label>
                             <Blank subSubId={"sub" + id + "_sub" + index} solutionData={subQuestion?.solutions[index]}/>
                             <br/>
                         </div>

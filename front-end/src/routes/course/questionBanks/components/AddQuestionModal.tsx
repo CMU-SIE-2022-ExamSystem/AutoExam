@@ -11,7 +11,7 @@ import AddCustomized from './AddCustomized';
 
 interface blankProps {
     type: 'string' | 'code';
-    choice: boolean;
+    is_choice: boolean;
     multiple: boolean;
 }
 
@@ -30,7 +30,7 @@ interface tagProps {
     name: string;
 }
 
-const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage} : {show: boolean, tag: tagProps, errorMessage: string, onAdd: (questionData: object) => void, onClose: () => void, clearMessage: () => void}) => {
+const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, errorMsg, setErrorMsg} : {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, errorMsg: string, setErrorMsg: any}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
     
@@ -92,8 +92,8 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
         function getSingleChoiceData(type: string, id: number) {
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
             const choiceNodeList = document.getElementsByName("sub" + id + "_choices");
-            let solutions: string[] = []
             let choices: object[] = []
+            let solutions: string[] = []
             choiceNodeList.forEach((item, index) => {
                 const isChecked = item as HTMLInputElement;
                 if (isChecked.checked) {
@@ -137,20 +137,23 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
             return data;
         }
 
-        function getCustomizedData(type: string, id: number) {
+        function getCustomizedData(id: number) {
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
             const graderName = (document.getElementById("sub" + id + "_grader") as HTMLInputElement).value;
             const grader = graders.filter((grader) => grader.name === graderName)[0];
             let choices: (object[] | null)[] = [];
             let solutions: string[][] = []
             grader.blanks.forEach((blank: blankProps, index) => {
-                if (blank.choice) {
+                if (blank.is_choice) {
                     choices[index] = []
                     solutions[index] = []
+                    if (blank.multiple) {
+                        solutions[index][0] = ""
+                    }
                     const choiceNodeList = document.getElementsByName("sub" + id + "_sub" + index + "_choices");
                     choiceNodeList.forEach((item, choiceIdx) => {
                         const choice = item as HTMLInputElement;
-                        const choice_id = String.fromCharCode(index + 65);
+                        const choice_id = String.fromCharCode(choiceIdx + 65);
                         if (choice.checked) {
                             if (blank.multiple) {
                                 solutions[index][0] = solutions[index][0].concat(choice_id);
@@ -185,7 +188,7 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
             if (type === "single_blank") return getSingleBlankData(type, id);
             if (type === "single_choice") return getSingleChoiceData(type, id);
             if (type === "multiple_choice") return getMultipleChoiceData(type, id);
-            if (type === "customized") return getCustomizedData(type, id);
+            if (type === "customized") return getCustomizedData(id);
             return (<></>);
         });
         return subqData;
@@ -195,11 +198,31 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
         e.preventDefault();
         const question = {
             description: description,
-            question_tag: tag.id,
+            question_tag: [...tags].filter((tag) => tag.name === params.tag)[0].id,
             title: title,
             sub_questions: getSubquestionsData()
         }
-        onAdd(question);
+        addNewQuestion(question);
+    }
+
+    const addNewQuestion = async (questionData: object) => {
+        console.log(questionData)
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions");
+        const token = globalState.token;
+        axios.post(url, questionData, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                onClose();
+                clearState();
+                setErrorMsg("");
+                getTags()
+                    .then((tags: tagProps[]) => getQuestionsByTag(tags))
+                    .catch();
+            })
+            .catch((error: any) => {
+                console.log(error);
+                let response = error.response.data;
+                setErrorMsg(response.error.message || response.error.message[0].message);
+            });
     }
 
     const clearState = () => {
@@ -211,7 +234,7 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
     }
 
     return (
-        <Modal show={show} onHide={() => {onClose(); clearState(); clearMessage()}} size="lg">
+        <Modal show={show} onHide={() => {onClose(); clearState(); setErrorMsg("")}} size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Add New Question</Modal.Title>
             </Modal.Header>
@@ -243,10 +266,10 @@ const AddQuestionModal = ({show, tag, errorMessage, onAdd, onClose, clearMessage
                         <Button variant="primary" onClick={() => {if (type !== "") setSubqList([...subqList, {type: type, id: id}]); setId(id + 1);}}>Add Subquestion</Button>
                     </InputGroup>
 
-                    <div><small className="text-danger">{errorMessage}</small></div>
+                    <div><small className="text-danger">{errorMsg}</small></div>
 
                     <div className="text-end">
-                        <Button variant="secondary" onClick={() => {onClose(); clearState(); clearMessage()}}>Close</Button>
+                        <Button variant="secondary" onClick={() => {onClose(); clearState(); setErrorMsg("")}}>Close</Button>
                         <Button variant="primary" className="ms-2" type="submit">Add</Button>
                     </div>
                 </Form>
