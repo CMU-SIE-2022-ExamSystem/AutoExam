@@ -11,6 +11,7 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/validate"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
@@ -395,6 +396,8 @@ func Testgrader_Handler(c *gin.Context) {
 	base_course, question_type := course.GetBaseCourseGrader(c)
 	color.Yellow(base_course)
 	dao.SearchAndStore_grader(c, question_type, base_course, "./autograder/exec/autograders/")
+	dao.SearchAndStore_module(c, question_type, base_course, "./autograder/exec/")
+	utils.CheckModule()
 
 	var stdout, stderr bytes.Buffer
 	cmd := exec.Command("python", "main.py", question_type)
@@ -404,6 +407,7 @@ func Testgrader_Handler(c *gin.Context) {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	os.Remove("./autograder/exec/autograders/" + question_type + ".py")
+	os.Remove("./autograder/exec/requirements.txt")
 	if err != nil {
 		dao.UpdateGraderValid(question_type, base_course, false)
 		response.ErrorInternaWithData(c, err.Error(), stdout.String()+stderr.String())

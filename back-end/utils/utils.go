@@ -132,3 +132,13 @@ func MakeAnswertar(path string) bool {
 		return true
 	}
 }
+
+func CheckModule() {
+	var stdout, stderr bytes.Buffer
+	cmd := exec.Command("make")
+	cmd.Dir = "./autograder/"
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Run()
+}
