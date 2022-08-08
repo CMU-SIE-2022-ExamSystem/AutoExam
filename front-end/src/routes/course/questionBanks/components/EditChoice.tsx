@@ -14,7 +14,13 @@ const EditChoice = ({type, id, subQuestion, onDelete}: {type: string, id: number
     const [choiceIdx, setChoiceIdx] = useState(0);
     const [choiceList, setChoiceList] = useState<choiceProps[]>([]);
 
+    const clearState = () => {
+        setChoiceIdx(0);
+        setChoiceList([]);
+    }
+
     useEffect(() => {
+        clearState();
         subQuestion !== undefined && subQuestion!== null &&
             setDescription(subQuestion.description);
         subQuestion !== undefined && subQuestion!== null && subQuestion.choices[0] !== null &&

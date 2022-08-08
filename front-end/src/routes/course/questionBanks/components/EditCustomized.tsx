@@ -32,7 +32,13 @@ const Blank = ({subSubId, solutionData}: {subSubId: string, solutionData: string
     const [solutionIdx, setSolutionIdx] = useState(0);
     const [solutionList, setSolutionList] = useState<solutionProps[]>([]);
 
+    const clearState = () => {
+        setSolutionIdx(0);
+        setSolutionList([]);
+    }
+
     useEffect(() => {
+        clearState();
         solutionData !== undefined &&
             setSolutionIdx(solutionData.length);
         solutionData !== undefined &&
@@ -78,7 +84,13 @@ const Choice = ({subSubId, multiple, choiceData, solutionData}: {subSubId: strin
     const [choiceIdx, setChoiceIdx] = useState(0);
     const [choiceList, setChoiceList] = useState<choiceProps[]>([]);
 
+    const clearState = () => {
+        setChoiceIdx(0);
+        setChoiceList([]);
+    }
+
     useEffect(() => {
+        clearState();
         choiceData !== undefined && choiceData !== null &&
             setChoiceIdx(choiceData.length);
         choiceData !== undefined && choiceData !== null && solutionData !== undefined &&

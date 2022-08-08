@@ -12,7 +12,13 @@ const EditSingleBlank = ({id, subQuestion, onDelete}: {id: number, subQuestion: 
     const [solutionIdx, setSolutionIdx] = useState(0);
     const [solutionList, setSolutionList] = useState<solutionProps[]>([]);
 
+    const clearState = () => {
+        setSolutionIdx(0);
+        setSolutionList([]);
+    }
+
     useEffect(() => {
+        clearState();
         subQuestion !== null &&
             setDescription(subQuestion.description);
         subQuestion !== null &&

@@ -89,9 +89,36 @@ const DeleteTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessag
     );
 }
 
-const DeleteQuestionModal = ({show, question, errorMessage, onDelete, onClose, clearMessage}: {show: boolean, question: questionDataType, errorMessage: string, onDelete: (id: string, hard: boolean) => void, onClose: () => void, clearMessage: () => void}) => {
+const DeleteQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, question, clearQuestion, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, question: questionDataType, clearQuestion: () => void, errorMsg: string,  setErrorMsg: any}) => {
+    const params = useParams();
+    const {globalState} = useGlobalState();
+    
+    const deleteQuestion = async (id: string, hard: boolean) => {
+        let url: string = "";
+        if (hard) {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id + "?hard=true");
+        } else {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
+        }
+        const token = globalState.token;
+        axios.delete(url, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                onClose();
+                clearQuestion();
+                setErrorMsg("");
+                getTags()
+                    .then((tags: tagProps[]) => getQuestionsByTag(tags))
+                    .catch();
+            })
+            .catch((error: any) => {
+                console.log(error);
+                let response = error.response.data;
+                setErrorMsg(response.error.message || response.error.message[0].message);
+            });
+    }
+
     return (
-        <Modal show={show} onHide={() => {onClose(); clearMessage()}}>
+        <Modal show={show} onHide={() => {onClose(); clearQuestion(); setErrorMsg("")}}>
             <Modal.Header closeButton>
                 <Modal.Title>Delete Queston</Modal.Title>
             </Modal.Header>
@@ -101,12 +128,12 @@ const DeleteQuestionModal = ({show, question, errorMessage, onDelete, onClose, c
                         (question.hidden? "Do you want to delete this question permanently?" : "Do you want to delete this question?")
                 }
                 <div>
-                    <small className="text-danger">{errorMessage}</small>
+                    <small className="text-danger">{errorMsg}</small>
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={() => {onClose(); clearMessage()}}>Cancel</Button>
-                <Button variant="primary" type="submit" className="ms-2" onClick={() => onDelete(question.id, question.hidden? true : false)}>Confirm</Button>
+                <Button variant="secondary" onClick={() => {onClose(); clearQuestion(); setErrorMsg("")}}>Cancel</Button>
+                <Button variant="primary" type="submit" className="ms-2" onClick={() => deleteQuestion(question.id, question.hidden? true : false)}>Confirm</Button>
             </Modal.Footer>
         </Modal>
     );
@@ -164,8 +191,8 @@ const QuestionsByTag = ({questions, setQuestion, setDeleteShow, setEditShow}: {q
         <Row>
             <Col sm={10}>
                 {!!questions &&
-                    questions.map((question, index) => {
-                        return <CollapseQuestion question={question} key={index}
+                    questions.map((question) => {
+                        return <CollapseQuestion question={question} key={question.id}
                             setQuestion={setQuestion} setDeleteShow ={setDeleteShow} setEditShow={setEditShow}/>
                     })
                 }
@@ -281,27 +308,6 @@ function QuestionBank () {
             .catch();
     }, [getTags, getQuestionsByTag]);
 
-    const deleteQuestion = async (id: string, hard: boolean) => {
-        let url: string = "";
-        if (hard) {
-            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id + "?hard=true");
-        } else {
-            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
-        }
-        const token = globalState.token;
-        axios.delete(url, {headers: {Authorization: "Bearer " + token}})
-            .then(_ => {
-                setDeleteQuestionShow(false);
-                getTags()
-                    .then(tags => getQuestionsByTag(tags));
-            })
-            .catch((error: any) => {
-                console.log(error);
-                let response = error.response.data;
-                setQuestionError(response.error.message[0].message);
-            });
-    }
-
     const [graderShow, setGraderShow] = useState(false);
     const [graderError, setGraderError] = useState("");
 
@@ -399,11 +405,14 @@ function QuestionBank () {
 
                 <DeleteQuestionModal
                     show={deleteQuestionShow}
-                    question={question as questionDataType}
-                    errorMessage={questionError}
-                    onDelete={deleteQuestion}
                     onClose={() => setDeleteQuestionShow(false)}
-                    clearMessage={() => setQuestionError("")}
+                    tags={tags}
+                    getTags={getTags}
+                    getQuestionsByTag={getQuestionsByTag}
+                    question={question as questionDataType}
+                    clearQuestion={() => setQuestion(emptyQuestion)}
+                    errorMsg={questionError}
+                    setErrorMsg={setQuestionError}
                 />
 
                 <GraderModal

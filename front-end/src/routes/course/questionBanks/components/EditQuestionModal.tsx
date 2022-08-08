@@ -50,6 +50,7 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
     const [subqList, setSubqList] = useState<subqProps[]>([]);
     
     useEffect(() => {
+        clearState();
         question !== undefined &&
             setTitle(question.title);
         question !== undefined &&
@@ -235,6 +236,7 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
             .then(_ => {
                 onClose();
                 clearState();
+                clearQuestion();
                 setErrorMsg("");
                 getTags()
                     .then((tags: tagProps[]) => getQuestionsByTag(tags))
