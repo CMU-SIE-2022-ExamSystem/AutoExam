@@ -392,6 +392,19 @@ func upload_and_store_grader(c *gin.Context, base_course, grader_name string, bo
 	response.SuccessResponse(c, grader)
 }
 
+// Testgrader_Handler godoc
+// @Summary test a grader
+// @Schemes
+// @Description test a grader file to make it work in our system
+// @Tags grader
+// @Accept json
+// @Produce json
+// @Param		course_name			path	string	true	"Course Name"
+// @Param		grader_name			path	string	true	"Grader Name"
+// @Success 200 "success"
+// @Failure 500 "not valid"
+// @Security ApiKeyAuth
+// @Router /courses/{course_name}/autograder/{grader_name}/test [get]
 func Testgrader_Handler(c *gin.Context) {
 	base_course, question_type := course.GetBaseCourseGrader(c)
 	color.Yellow(base_course)
