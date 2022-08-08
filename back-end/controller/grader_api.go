@@ -413,7 +413,7 @@ func Testgrader_Handler(c *gin.Context) {
 	utils.CheckModule()
 
 	var stdout, stderr bytes.Buffer
-	cmd := exec.Command("./driver.sh", question_type)
+	cmd := exec.Command("python3.9", "main.py", question_type)
 	cmd.Dir = "./autograder/exec/"
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
 	cmd.Stdout = &stdout

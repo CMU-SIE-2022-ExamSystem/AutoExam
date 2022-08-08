@@ -3,8 +3,9 @@
 # Usage: ./driver.sh
 
 # Run the autograder
+source env/bin/activate
 echo "<---Running--->"
-py=`python3.8 main.py $1`
+py=`python3.9 main.py $1`
 status=$?
 if [ ${status} -eq -1 ]; then
     echo "<---Failure--->"
@@ -14,3 +15,4 @@ fi
 echo $py
 
 exit
+
