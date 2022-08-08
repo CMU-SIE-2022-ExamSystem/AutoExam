@@ -9,6 +9,7 @@ import {getBackendApiUrl} from "../../../utils/url";
 import axios from 'axios';
 import CollapseQuestion from './components/CollapseQuestion';
 import AddQuestionModal from './components/AddQuestionModal';
+import EditQuestionModal from './components/EditQuestionModal';
 
 interface tagProps {
     id: string;
@@ -88,19 +89,36 @@ const DeleteTagModal = ({show, tag, errorMessage, onClose, onSubmit, clearMessag
     );
 }
 
-const EditQuestionModal = ({show, question, errorMessage, onEdit, onClose, clearMessage}: {show: boolean, question: questionDataType, errorMessage: string, onEdit: (id: string, data: object) => void, onClose: () => void, clearMessage: () => void}) => {
-    return (
-        <Modal show={show} onHide={() => {onClose(); clearMessage()}} size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>Edit Queston</Modal.Title>
-            </Modal.Header>
-        </Modal>
-    );
-}
+const DeleteQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, question, clearQuestion, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, question: questionDataType, clearQuestion: () => void, errorMsg: string,  setErrorMsg: any}) => {
+    const params = useParams();
+    const {globalState} = useGlobalState();
+    
+    const deleteQuestion = async (id: string, hard: boolean) => {
+        let url: string = "";
+        if (hard) {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id + "?hard=true");
+        } else {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
+        }
+        const token = globalState.token;
+        axios.delete(url, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                onClose();
+                clearQuestion();
+                setErrorMsg("");
+                getTags()
+                    .then((tags: tagProps[]) => getQuestionsByTag(tags))
+                    .catch();
+            })
+            .catch((error: any) => {
+                console.log(error);
+                let response = error.response.data;
+                setErrorMsg(response.error.message || response.error.message[0].message);
+            });
+    }
 
-const DeleteQuestionModal = ({show, question, errorMessage, onDelete, onClose, clearMessage}: {show: boolean, question: questionDataType, errorMessage: string, onDelete: (id: string, hard: boolean) => void, onClose: () => void, clearMessage: () => void}) => {
     return (
-        <Modal show={show} onHide={() => {onClose(); clearMessage()}}>
+        <Modal show={show} onHide={() => {onClose(); clearQuestion(); setErrorMsg("")}}>
             <Modal.Header closeButton>
                 <Modal.Title>Delete Queston</Modal.Title>
             </Modal.Header>
@@ -110,12 +128,12 @@ const DeleteQuestionModal = ({show, question, errorMessage, onDelete, onClose, c
                         (question.hidden? "Do you want to delete this question permanently?" : "Do you want to delete this question?")
                 }
                 <div>
-                    <small className="text-danger">{errorMessage}</small>
+                    <small className="text-danger">{errorMsg}</small>
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={() => {onClose(); clearMessage()}}>Cancel</Button>
-                <Button variant="primary" type="submit" className="ms-2" onClick={() => onDelete(question.id, question.hidden? true : false)}>Confirm</Button>
+                <Button variant="secondary" onClick={() => {onClose(); clearQuestion(); setErrorMsg("")}}>Cancel</Button>
+                <Button variant="primary" type="submit" className="ms-2" onClick={() => deleteQuestion(question.id, question.hidden? true : false)}>Confirm</Button>
             </Modal.Footer>
         </Modal>
     );
@@ -173,8 +191,8 @@ const QuestionsByTag = ({questions, setQuestion, setDeleteShow, setEditShow}: {q
         <Row>
             <Col sm={10}>
                 {!!questions &&
-                    questions.map((question, index) => {
-                        return <CollapseQuestion question={question} key={index}
+                    questions.map((question) => {
+                        return <CollapseQuestion question={question} key={question.id}
                             setQuestion={setQuestion} setDeleteShow ={setDeleteShow} setEditShow={setEditShow}/>
                     })
                 }
@@ -202,7 +220,7 @@ function QuestionBank () {
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         console.log(result.data.data);
-        setTags(result.data.data);
+        if (result.data.data) setTags(result.data.data);
         return result.data.data;
     }, [globalState.token, params.course_name]);
 
@@ -264,6 +282,17 @@ function QuestionBank () {
     const [deleteQuestionShow, setDeleteQuestionShow] = useState(false);
     const [questionError, setQuestionError] = useState("");
 
+    const emptyQuestion: questionDataType = {
+        description: "",
+        question_tag: "",
+        sub_questions: [],
+        sub_question_number: -1,
+        title: "",
+        score: -1,
+        id: "",
+        hidden: false
+    }
+
     const getQuestionsByTag = useCallback(async (tags: tagProps[]) => {
         const id = [...tags].filter((tag) => tag.name === params.tag)[0].id;
         const url = getBackendApiUrl("/courses/" + params.course_name + "/questions?tag_id=" + id + "&hidden=true");
@@ -279,61 +308,6 @@ function QuestionBank () {
             .catch();
     }, [getTags, getQuestionsByTag]);
 
-    const addNewQuestion = async (questionData: object) => {
-        console.log(questionData);
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions");
-        const token = globalState.token;
-        axios.post(url, questionData, {headers: {Authorization: "Bearer " + token}})
-            .then(_ => {
-                setAddQuestionShow(false);
-                getTags()
-                    .then(tags => getQuestionsByTag(tags));
-            })
-            .catch((error: any) => {
-                console.log(error);
-                let response = error.response.data;
-                setQuestionError(response.error.message);
-            });
-    }
-
-    const editQuestion = async (id: string, questionData: object) => {
-        console.log("edit question: " + id);
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
-        const token = globalState.token;
-        axios.put(url, questionData, {headers: {Authorization: "Bearer " + token}})
-            .then(_ => {
-                setEditQuestionShow(false);
-                getTags()
-                    .then(tags => getQuestionsByTag(tags));
-            })
-            .catch((error: any) => {
-                console.log(error);
-                let response = error.response.data;
-                setQuestionError(response.error.message);
-            });
-    }
-
-    const deleteQuestion = async (id: string, hard: boolean) => {
-        let url: string = "";
-        if (hard) {
-            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id + "?hard=true");
-        } else {
-            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
-        }
-        const token = globalState.token;
-        axios.delete(url, {headers: {Authorization: "Bearer " + token}})
-            .then(_ => {
-                setDeleteQuestionShow(false);
-                getTags()
-                    .then(tags => getQuestionsByTag(tags));
-            })
-            .catch((error: any) => {
-                console.log(error);
-                let response = error.response.data;
-                setQuestionError(response.error.message);
-            });
-    }
-
     const [graderShow, setGraderShow] = useState(false);
     const [graderError, setGraderError] = useState("");
 
@@ -346,7 +320,7 @@ function QuestionBank () {
                 <Row>
                     <Col xs={2} className="d-flex flex-column bg-light vh-100 sticky-top text-start p-3">
                         <Nav variant="pills" className="my-3">
-                            {
+                            {tags !== null &&
                                 tags.map((tag) => (
                                     <Row className="d-flex flex-row align-items-center vw-100" key={tag.id}>
                                         <Col xs={8} className="text-start p-1">
@@ -362,7 +336,7 @@ function QuestionBank () {
                                 ))
                             }
                         </Nav>
-                        <span style={{cursor: "pointer"}} onClick={() => setAddTagShow(true)}><i className="bi-plus-square mx-3"/> Add new tags</span>
+                        <span style={{cursor: "pointer"}} onClick={() => setAddTagShow(true)}><i className="bi-plus-square mx-3"/>Add New Tag</span>
                     </Col>
                     {params.tag !== "null" &&
                         <Col xs={10}>
@@ -408,30 +382,37 @@ function QuestionBank () {
                 />
                 
                 <AddQuestionModal
-                    tag={([...tags].filter((tag) => tag.name === params.tag)[0] as tagProps)}
                     show={addQuestionShow}
-                    errorMessage={questionError}
-                    onAdd={addNewQuestion}
                     onClose={() => setAddQuestionShow(false)}
-                    clearMessage={() => setQuestionError("")}
+                    tags={tags}
+                    getTags={getTags}
+                    getQuestionsByTag={getQuestionsByTag}
+                    errorMsg={questionError}
+                    setErrorMsg={setQuestionError}
                 />
 
                 <EditQuestionModal
                     show={editQuestionShow}
-                    question={question as questionDataType}
-                    errorMessage={questionError}
-                    onEdit={editQuestion}
                     onClose={() => setEditQuestionShow(false)}
-                    clearMessage={() => setQuestionError("")}
+                    tags={tags}
+                    getTags={getTags}
+                    getQuestionsByTag={getQuestionsByTag}
+                    question={question as questionDataType}
+                    clearQuestion={() => setQuestion(emptyQuestion)}
+                    errorMsg={questionError}
+                    setErrorMsg={setQuestionError}
                 />
 
                 <DeleteQuestionModal
                     show={deleteQuestionShow}
-                    question={question as questionDataType}
-                    errorMessage={questionError}
-                    onDelete={deleteQuestion}
                     onClose={() => setDeleteQuestionShow(false)}
-                    clearMessage={() => setQuestionError("")}
+                    tags={tags}
+                    getTags={getTags}
+                    getQuestionsByTag={getQuestionsByTag}
+                    question={question as questionDataType}
+                    clearQuestion={() => setQuestion(emptyQuestion)}
+                    errorMsg={questionError}
+                    setErrorMsg={setQuestionError}
                 />
 
                 <GraderModal

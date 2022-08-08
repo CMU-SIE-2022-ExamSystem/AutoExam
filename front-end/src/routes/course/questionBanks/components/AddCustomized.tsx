@@ -6,8 +6,9 @@ import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
 
 interface blankProps {
-    type: 'string' | 'code';
+    is_choice: boolean;
     multiple: boolean;
+    type: 'string' | 'code';
 }
 
 interface graderProps {
@@ -15,47 +16,7 @@ interface graderProps {
     blanks: blankProps[];
 }
 
-const Choices = ({id}: {id: string}) => {
-    const [choiceIdx, setChoiceIdx] = useState(0);
-    const [choiceList, setChoiceList] = useState<number[]>([]);
-
-    const deleteChoice = (idx: number) => {
-        setChoiceList(choiceList.filter((choice) => choice !== idx));
-    }
-
-    const choices = choiceList.map((idx, index) => {
-        return (
-            <Row className="d-flex flex-row align-items-center" key={idx}>
-                <Col>
-                    <div className="my-2">
-                        <Form.Control id={id + "_choice" + index}
-                            name={id + "_choices"}/>
-                    </div>
-                </Col>
-                <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}}
-                        onClick={() => deleteChoice(idx)}/>
-                </Col>
-            </Row>
-        );
-    });
-
-    return (
-        <>
-        {choices}
-        <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, choiceIdx]); setChoiceIdx(choiceIdx + 1);}}>Add Choice</Button>
-        </div>
-        </>
-    );
-}
-
-const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => void}) => {
-    const params = useParams();
-    const {globalState} = useGlobalState();
-    
-    const [description, setDescription] = useState("");
-
+const Blank = ({subSubId}: {subSubId: string}) => {
     const [solutionIdx, setSolutionIdx] = useState(0);
     const [solutionList, setSolutionList] = useState<number[]>([]);
 
@@ -65,20 +26,66 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
 
     const solutions = solutionList.map((idx, index) => {
         return (
-            <Row className="d-flex flex-row align-items-center" key={idx}>
+            <Row className="d-flex flex-row align-items-center my-2" key={idx}>
                 <Col>
-                    <div className="my-2">
-                        <Form.Control id={"sub" + id + "_solution" + index}
-                            name={"sub" + id + "_solutions"}/>
-                    </div>
+                    <Form.Control id={subSubId + "_solution" + index} name={subSubId + "_solutions"}/>
                 </Col>
                 <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}}
-                        onClick={() => deleteSolution(idx)}/>
+                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteSolution(idx)}/>
                 </Col>
             </Row>
         );
     })
+
+    return (
+        <div>
+            {solutions}
+            <div className="text-end">
+                <Button variant="primary" onClick={() => {setSolutionList([...solutionList, solutionIdx]); setSolutionIdx(solutionIdx + 1)}}>Add Solution</Button>
+            </div>
+        </div>
+    )
+}
+
+const Choice = ({subSubId}: {subSubId: string}) => {
+    const [choiceIdx, setChoiceIdx] = useState(0);
+    const [choiceList, setChoiceList] = useState<number[]>([]);
+
+    const deleteChoice = (idx: number) => {
+        setChoiceList(choiceList.filter((choice) => choice !== idx));
+    }
+
+    const choices = choiceList.map((idx, index) => {
+        return (
+            <Row className="d-flex flex-row align-items-center my-2" key={idx}>
+                <Col>
+                    <InputGroup>
+                        <InputGroup.Checkbox name={subSubId + "_choices"}/>
+                        <Form.Control id={subSubId + "_choice" + index}/>
+                    </InputGroup>
+                </Col>
+                <Col xs={1}>
+                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteChoice(idx)}/>
+                </Col>
+            </Row>
+        );
+    });
+
+    return (
+        <>
+            {choices}
+            <div className="mb-3 text-end">
+                <Button variant="primary" onClick={() => {setChoiceList([...choiceList, choiceIdx]); setChoiceIdx(choiceIdx + 1);}}>Add Choice</Button>
+            </div>
+        </>
+    );
+}
+
+const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => void}) => {
+    const params = useParams();
+    const {globalState} = useGlobalState();
+    
+    const [description, setDescription] = useState("");
 
     // const [graders, setGraders] = useState<string[]>([]);
     const [graders, setGraders] = useState<graderProps[]>([]);
@@ -129,38 +136,31 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
         </Form.Group>
 
         <Form.Group>
-            {
-                grader?.blanks.map((blank, index) => {
-                    if (blank.multiple) {
-                        return (
-                            <div key={index}>
-                                <Form.Label>{"Sub " + (index + 1) + ": Multiple Choice"}</Form.Label><br/>
-                                <Form.Text>Click "Add Choice" and input all choices content</Form.Text>
-                                <Choices id={"sub" + id + "_sub" + index}/>
-                            </div>)
-                    }
-
-                    // if (blank.type === "string" || blank.type === "code")
+            {grader?.blanks.map((blank, index) => {
+                if (blank.is_choice) {
                     return (
                         <div key={index}>
-                            <Form.Label>
-                                {"Sub " + (index + 1) + (blank.type === "string"? ": Blank" : ": Code")}
-                            </Form.Label>
-                        <br/></div>
+                            <Form.Label>{(index + 1) + (blank.multiple === true ? ". Multiple" : ". Single") + " Choice"}</Form.Label>
+                            <br/>
+                            <Choice subSubId={"sub" + id + "_sub" + index}/>
+                        </div>
                     )
-                })
+                }
+
+                // blank or code
+                return (
+                    <div key={index}>
+                        <Form.Label>{(index + 1) + (blank.type === "string"? ". Blank" : ". Code")}</Form.Label>
+                        <Blank subSubId={"sub" + id + "_sub" + index}/>
+                        <br/>
+                    </div>
+                )
+            })
             }
         </Form.Group>
 
-        <Form.Group className="mb-3">
-            <Form.Label>Solution</Form.Label><br/>
-            <Form.Text>Click "Add Solution" and iuput all possible solutions.</Form.Text><br/>
-            {solutions}
-        </Form.Group>
-
         <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setSolutionList([...solutionList, solutionIdx]); setSolutionIdx(solutionIdx + 1)}}>Add Solution</Button>
-            <Button variant="secondary" className="ms-2" onClick={() => onDelete(id)}>Delete Subquestion</Button>
+            <Button variant="secondary" onClick={() => onDelete(id)}>Delete Subquestion</Button>
         </div>
         <hr/>
         </>

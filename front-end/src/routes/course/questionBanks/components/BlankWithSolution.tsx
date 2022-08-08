@@ -10,7 +10,7 @@ const BlankWithSolution = ({index, subQuestion}: {index: number, subQuestion: su
                     <Form.Control disabled readOnly key={index} value={solution}/>
                 ))
             } */}
-            <Form.Control disabled readOnly key={index} value={subQuestion.solutions[0]}/>
+            <Form.Control disabled readOnly value={subQuestion.solutions[0]}/>
         </Form.Group>
     );
 }

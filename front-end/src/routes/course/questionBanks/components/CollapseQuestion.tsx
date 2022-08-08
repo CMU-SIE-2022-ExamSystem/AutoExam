@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, Card, Col, Collapse, Modal, Row} from 'react-bootstrap';
+import {Button, Card, Col, Collapse, Row} from 'react-bootstrap';
 import {subQuestionDataType} from "../../../../components/questionTemplate/subQuestionDataType";
 import questionDataType from "../../../../components/questionTemplate/questionDataType";
 import BlankWithSolution from './BlankWithSolution';
@@ -18,25 +18,23 @@ const CollapseQuestion = ({question, setQuestion, setDeleteShow, setEditShow} : 
     return (
         <>
             <Card>
-                <Card.Header
-                    style={{cursor: "pointer"}}
-                    onClick={() => setOpen(!open)}
-                    aria-expanded={open}>
+                <Card.Header style={{cursor: "pointer"}} onClick={() => setOpen(!open)} aria-expanded={open}>
                     <Row>
                         <Col>{question.title}</Col>
                         <Col>{question.hidden && <div className="text-end">(soft deleted)</div>}</Col>
                     </Row>
                 </Card.Header>
+                
                 <Collapse in={open}>
                     <div>
-                    <div className="text-end my-3 me-3">
-                        <Button variant="success" onClick={() => {setQuestion(question); setEditShow(true)}}>Edit</Button>
-                        <Button variant="secondary" className="ms-2" onClick={() => {setQuestion(question); setDeleteShow(true)}}>Delete</Button>
-                    </div>
-                    <Card.Body>
-                        <div dangerouslySetInnerHTML={{__html: question.description}}/>
-                        {subQuestions}
-                    </Card.Body>
+                        <div className="text-end my-3 me-3">
+                            <Button variant="success" onClick={() => {setQuestion(question); setEditShow(true)}}>Edit</Button>
+                            <Button variant="secondary" className="ms-2" onClick={() => {setQuestion(question); setDeleteShow(true)}}>Delete</Button>
+                        </div>
+                        <Card.Body>
+                            <div dangerouslySetInnerHTML={{__html: question.description}}/>
+                            {subQuestions}
+                        </Card.Body>
                     </div>
                 </Collapse>
             </Card>

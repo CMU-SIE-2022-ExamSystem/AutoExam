@@ -5,8 +5,9 @@ const ChoiceWithSolution = ({index, subQuestion}: {index: number, subQuestion: s
     const choices = (subQuestion.choices[0] as choiceDataType[]).map((choice) => {
         return (
             <div key={choice.choice_id}>
-            <Form.Label disabled readOnly>{choice.choice_id + ". " + choice.content}</Form.Label>
-            <br/></div>
+                <Form.Label>{choice.choice_id + ". " + choice.content}</Form.Label>
+                <br/>
+            </div>
         );
     })
 

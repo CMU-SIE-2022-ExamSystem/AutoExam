@@ -4,7 +4,7 @@ import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
 const AddChoice = ({type, id, onDelete}: {type: string, id: number, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");
 
-    const [idx, setIdx] = useState(0);
+    const [choiceIdx, setChoiceIdx] = useState(0);
     const [choiceList, setChoiceList] = useState<number[]>([]);
 
     const deleteChoice = (idx: number) => {
@@ -13,16 +13,15 @@ const AddChoice = ({type, id, onDelete}: {type: string, id: number, onDelete: (i
 
     const choices = choiceList.map((idx, index) => {
         return (
-            <Row className="d-flex flex-row align-items-center" key={idx}>
+            <Row className="d-flex flex-row align-items-center my-2" key={idx}>
                 <Col>
-                    <InputGroup className="my-2">
+                    <InputGroup>
                         <InputGroup.Checkbox name={"sub" + id + "_choices"}/>
                         <Form.Control id={"sub" + id + "_choice" + index}/>
                     </InputGroup>
                 </Col>
                 <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}}
-                        onClick={() => deleteChoice(idx)}/>
+                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteChoice(idx)}/>
                 </Col>
             </Row>
         );
@@ -47,7 +46,7 @@ const AddChoice = ({type, id, onDelete}: {type: string, id: number, onDelete: (i
         <div>{choices}</div>
 
         <div className="mb-3 text-end">
-            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, idx]); setIdx(idx + 1);}}>Add Choice</Button>
+            <Button variant="primary" onClick={() => {setChoiceList([...choiceList, choiceIdx]); setChoiceIdx(choiceIdx + 1);}}>Add Choice</Button>
             <Button variant="secondary" className="ms-2" onClick={() => onDelete(id)}>Delete Subquestion</Button>
         </div>
         <hr/>
