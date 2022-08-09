@@ -17,6 +17,11 @@ func ErrGraderReadFileResponse(c *gin.Context, err any) {
 	ErrorResponseWithStatus(c, err, http.StatusInternalServerError)
 }
 
+func ErrGraderTestResponse(c *gin.Context, err any) {
+	err = ErrorJson{Type: Grader, Message: err}
+	ErrorResponseWithStatus(c, err, http.StatusBadRequest)
+}
+
 func ErrGraderNotValidResponse(c *gin.Context, course, grader string) {
 	var temp GraderNotValidError
 	err := Error{Type: Grader, Message: ReplaceMessageCourseGraderName(&temp, course, grader)}

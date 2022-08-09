@@ -72,6 +72,6 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.DELETE("/:course_name/base", jwt.JWTAuth(), controller.DeleteBaseCourseRelation_Handler)
 
 		// test the uploaded grader
-		CourseRouter.GET("/:course_name/autograder/:grader_name/test", jwt.JWTAuth(), controller.Testgrader_Handler)
+		CourseRouter.POST("/:course_name/autograder/:grader_name/test", jwt.JWTAuth(), controller.Testgrader_Handler)
 	}
 }

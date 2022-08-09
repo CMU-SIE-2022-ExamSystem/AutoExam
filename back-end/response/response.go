@@ -116,6 +116,11 @@ func ErrForbiddenResponse(c *gin.Context, message string) {
 	ErrorResponseWithStatus(c, err, http.StatusForbidden)
 }
 
+func ErrFileResponse(c *gin.Context, message interface{}) {
+	err := ErrorJson{Type: FileSystem, Message: message}
+	ErrorResponseWithStatus(c, err, http.StatusInternalServerError)
+}
+
 func ErrFileNotValidResponse(c *gin.Context) {
 	err := Error{Type: FileSystem, Message: "Target file does not exist or it is empty."}
 	ErrorResponseWithStatus(c, err, http.StatusInternalServerError)

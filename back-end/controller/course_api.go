@@ -758,7 +758,7 @@ func CheckSubmission_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Success 200 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLReadAllError} "mysql error"
-// @Failure 404 "not exists"
+// @Failure 404 {object} response.NotValidResponse{error=response.BasecourseRelationNotExistsError}"not exists"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/base [get]
 func ReadBaseCourseRelation_Handler(c *gin.Context) {
@@ -787,9 +787,9 @@ func ReadBaseCourseRelation_Handler(c *gin.Context) {
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		base_name			path	string	true	"Base Course Name"
-// @Success 200 "success"
+// @Success 201 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLCreateError} "mysql error"
-// @Failure 400 "not valid"
+// @Failure 400 {object} response.BadRequestResponse{error=response.BasecourseRelationRecreatedError} "not valid"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/base/{base_name} [post]
 func CreateBaseCourseRelation_Handler(c *gin.Context) {
@@ -802,7 +802,7 @@ func CreateBaseCourseRelation_Handler(c *gin.Context) {
 		flag := dao.CreateBaseCourseRelation(coursename, base)
 
 		if flag {
-			response.SuccessResponse(c, coursename+" "+base)
+			response.CreatedResponse(c, coursename+" "+base)
 		} else {
 			response.ErrMySQLCreateResponse(c, BaseCourseRelation_Model)
 		}
@@ -822,8 +822,8 @@ func CreateBaseCourseRelation_Handler(c *gin.Context) {
 // @Param		base_name			path	string	true	"Base Course Name"
 // @Success 200 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
-// @Failure 400 "not valid"
-// @Failure 404 "not exists"
+// @Failure 400 {object} response.BadRequestResponse{error=response.BasecourseRelationNotValidError} "not valid"
+// @Failure 404 {object} response.NotValidResponse{error=response.BasecourseRelationNotExistsError}"not exists"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/base/{base_name} [put]
 func UpdateBaseCourseRelation_Handler(c *gin.Context) {
@@ -860,8 +860,8 @@ func UpdateBaseCourseRelation_Handler(c *gin.Context) {
 // @Param		course_name			path	string	true	"Course Name"
 // @Success 204
 // @Failure 500 {object} response.DBesponse{error=response.MySQLDeleteError} "mysql error"
-// @Failure 400 "not valid"
-// @Failure 404 "not exists"
+// @Failure 400 {object} response.BadRequestResponse{error=response.BasecourseRelationNotValidError} "not valid"
+// @Failure 404 {object} response.NotValidResponse{error=response.BasecourseRelationNotExistsError}"not exists"
 // @Security ApiKeyAuth
 // @Router /courses/{course_name}/base [delete]
 func DeleteBaseCourseRelation_Handler(c *gin.Context) {

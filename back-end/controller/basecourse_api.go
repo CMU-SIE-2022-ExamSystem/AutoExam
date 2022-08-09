@@ -42,9 +42,9 @@ func ReadAllBaseCourse_Handler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param data body models.Basecourse true "body data"
-// @Success 200 "success"
+// @Success 201 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLCreateError} "mysql error"
-// @Failure 400 "not valid"
+// @Failure 400 {object} response.BadRequestResponse{error=response.BasecourseNotValidError} "not valid"
 // @Security ApiKeyAuth
 // @Router /basecourses/create [post]
 func CreateBaseCourse_Handler(c *gin.Context) {
@@ -59,7 +59,7 @@ func CreateBaseCourse_Handler(c *gin.Context) {
 		flag := dao.CreateBaseCourse(name)
 
 		if flag {
-			response.SuccessResponse(c, name)
+			response.CreatedResponse(c, name)
 		} else {
 			response.ErrMySQLCreateResponse(c, BaseCourse_Model)
 		}
@@ -79,8 +79,8 @@ func CreateBaseCourse_Handler(c *gin.Context) {
 // @Param data body models.Basecourse true "body data"
 // @Success 200 "success"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
-// @Failure 400 "not valid"
-// @Failure 404 "not exists"
+// @Failure 400 {object} response.BadRequestResponse{error=response.BasecourseNotValidError} "not valid"
+// @Failure 404 {object} response.NotValidResponse{error=response.BasecourseNotExistsError}"not exists"
 // @Security ApiKeyAuth
 // @Router /basecourses/{base_name} [put]
 func UpdateBaseCourse_Handler(c *gin.Context) {
@@ -120,8 +120,8 @@ func UpdateBaseCourse_Handler(c *gin.Context) {
 // @Param		base_name		path	string	true	"Base Course Name"
 // @Success 204
 // @Failure 500 {object} response.DBesponse{error=response.MySQLDeleteError} "mysql error"
-// @Failure 400 "not valid"
-// @Failure 404 "not exists"
+// @Failure 400 {object} response.BadRequestResponse{error=response.BasecourseNotValidError} "not valid"
+// @Failure 404 {object} response.NotValidResponse{error=response.BasecourseNotExistsError}"not exists"
 // @Security ApiKeyAuth
 // @Router /basecourses/{base_name} [delete]
 func DeleteBaseCourse_Handler(c *gin.Context) {

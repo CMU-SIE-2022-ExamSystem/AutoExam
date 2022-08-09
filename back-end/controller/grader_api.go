@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/course"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/jwt"
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/validate"
@@ -399,33 +401,41 @@ func upload_and_store_grader(c *gin.Context, base_course, grader_name string, bo
 // @Tags grader
 // @Accept json
 // @Produce json
+// @Param data body models.GraderTest true "body data"
 // @Param		course_name			path	string	true	"Course Name"
 // @Param		grader_name			path	string	true	"Grader Name"
-// @Success 200 "success"
-// @Failure 500 "not valid"
+// @Success 201 {object} models.GraderTestSuccess{} "success"
+// @Failure 400 {object} response.BadRequestResponse{error=models.GraderTestError} "not valid"
+// @Failure 500 "file system error"
 // @Security ApiKeyAuth
-// @Router /courses/{course_name}/autograder/{grader_name}/test [get]
+// @Router /courses/{course_name}/autograder/{grader_name}/test [post]
 func Testgrader_Handler(c *gin.Context) {
 	base_course, question_type := course.GetBaseCourseGrader(c)
 	color.Yellow(base_course)
 	dao.SearchAndStore_grader(c, question_type, base_course, "./autograder/exec/autograders/")
 	dao.SearchAndStore_module(c, question_type, base_course, "./autograder/exec/")
 	utils.CheckModule()
+	body := models.GraderTest{}
+	c.BindJSON(&body)
+	err := utils.WriteGraderTest(body, "./autograder/exec/")
+	if err != nil {
+		response.ErrFileResponse(c, err.Error())
+	}
 
 	var stdout, stderr bytes.Buffer
-	c1 := exec.Command("source", "env/bin/activate")
-	cmd := exec.Command("python3.9", "main.py", question_type)
+	cmd := exec.Command("./driver.sh", question_type)
 	cmd.Dir = "./autograder/exec/"
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
-	cmd.Stdin, _ = c1.StdoutPipe()
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	err := cmd.Run()
+	cmd.Run()
 	os.Remove("./autograder/exec/autograders/" + question_type + ".py")
 	os.Remove("./autograder/exec/requirements.txt")
-	if err != nil {
+	os.Remove("./autograder/exec/answer.json")
+	os.Remove("./autograder/exec/solution.json")
+	if strings.Contains(stdout.String(), "Failure") {
 		dao.UpdateGraderValid(question_type, base_course, false)
-		response.ErrorInternaWithData(c, err.Error(), stdout.String()+stderr.String())
+		response.ErrGraderTestResponse(c, stdout.String())
 	} else {
 		dao.UpdateGraderValid(question_type, base_course, true)
 		response.SuccessResponse(c, stdout.String())
