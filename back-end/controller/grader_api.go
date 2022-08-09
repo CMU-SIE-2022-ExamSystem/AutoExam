@@ -2,7 +2,6 @@ package controller
 
 import (
 	"bytes"
-	"os"
 	"os/exec"
 	"syscall"
 
@@ -413,14 +412,18 @@ func Testgrader_Handler(c *gin.Context) {
 	utils.CheckModule()
 
 	var stdout, stderr bytes.Buffer
+<<<<<<< HEAD
 	cmd := exec.Command("python3.9", "main.py", question_type)
+=======
+	cmd := exec.Command("./driver.sh", question_type)
+>>>>>>> 6a1b6dc (Add functions for process modules in customized autograders.)
 	cmd.Dir = "./autograder/exec/"
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
-	os.Remove("./autograder/exec/autograders/" + question_type + ".py")
-	os.Remove("./autograder/exec/requirements.txt")
+	// os.Remove("./autograder/exec/autograders/" + question_type + ".py")
+	// os.Remove("./autograder/exec/requirements.txt")
 	if err != nil {
 		dao.UpdateGraderValid(question_type, base_course, false)
 		response.ErrorInternaWithData(c, err.Error(), stdout.String()+stderr.String())
