@@ -9,4 +9,13 @@ const downloadFile = (filename: string, text: string) => {
     document.body.removeChild(element);
 }
 
-export default downloadFile;
+const downloadBlob = (filename: string, link_href: string) => {
+    const element = document.createElement('a');
+    element.href = link_href;
+    element.setAttribute('download', filename);
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+export {downloadFile, downloadBlob};
