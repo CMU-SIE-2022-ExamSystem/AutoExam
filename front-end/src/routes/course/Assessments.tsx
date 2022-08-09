@@ -7,6 +7,7 @@ import {getBackendApiUrl} from "../../utils/url";
 import axios from "axios";
 import {useGlobalState} from "../../components/GlobalStateProvider";
 import moment from 'moment';
+import BaseCourseRelationshipManageModal from "./baseCourse/BaseCourseRelationshipManageModal";
 
 interface assessmentProps {
     name: string;
@@ -172,7 +173,8 @@ function Assessments() {
     const {globalState} = useGlobalState();
     const [examList, setExamList] = useState<assessmentProps[]>([]);
     const [courseInfo, setCourseInfo] = useState<ICourseInfo>();
-    const [showModal, setShowModal] = useState<boolean>(false);
+    const [showNexExamModal, setShowNexExamModal] = useState<boolean>(false);
+    const [showBaseCourseModal, setShowBaseCourseModal] = useState(false);
     const [badExamConfig, setBadExamConfig] = useState<string>("");
     const navigate = useNavigate();
 
@@ -182,6 +184,7 @@ function Assessments() {
         const token = globalState.token;
         const infoResult = await axios.get(infoUrl, {headers: {Authorization: "Bearer " + token}});
         setCourseInfo(infoResult.data.data);
+        if (infoResult.data.data.base_course.length === 0) setShowBaseCourseModal(true);
         const assessmentResult = await axios.get(assessmentUrl, {headers: {Authorization: "Bearer " + token}});
         if (assessmentResult.data.data) setExamList(assessmentResult.data.data);
     }, [globalState.token, params.course_name]);
@@ -213,7 +216,7 @@ function Assessments() {
         axios.post(postUrl, data, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
                 const configPage = "/courses/`" + params.course_name + "/examConfig/" + name;
-                setShowModal(false);
+                setShowNexExamModal(false);
                 navigate(configPage);
             })
             .catch((error: any) => {
@@ -231,7 +234,8 @@ function Assessments() {
             <main>
                 {courseInfo?.auth_level === "instructor" &&
                     <div className="text-end pe-5">
-                        <Button variant="info" className="me-3 text-white" onClick={() => {setShowModal(true);}}>New Exam</Button>
+                        <Button variant="secondary" className="me-3 text-white" onClick={() => {setShowBaseCourseModal(true);}}>Base Course Edit</Button>
+                        <Button variant="info" className="me-3 text-white" onClick={() => {setShowNexExamModal(true);}}>New Exam</Button>
                         <Link to={"questionBank/null"}><Button variant="primary">Question Bank</Button></Link>
                     </div>
                 }
@@ -242,13 +246,14 @@ function Assessments() {
                     </Col>
                 </Row>
             </main>
-            <NewExamConfig show={showModal}
-                           onClose={() => {setShowModal(false);}}
+            <NewExamConfig show={showNexExamModal}
+                           onClose={() => {setShowNexExamModal(false);}}
                            clearMessage={() => {setBadExamConfig("")}}
                            onSubmit={(categoryName, name) => {createNewExam(categoryName, name).catch();}}
                            categoryList={categoryList}
                            errorMessage={badExamConfig}
             />
+            <BaseCourseRelationshipManageModal show={showBaseCourseModal} toClose={() => setShowBaseCourseModal(false)} />
         </AppLayout>
     );
 }

@@ -190,12 +190,12 @@ const BaseCourseManage = () => {
                     <Container fluid className="text-end mb-3">
                         <Button variant="success" onClick={() => setAddModalShow(true)}>Add base course</Button>
                     </Container>
+                    {baseCourseTable}
                     <Alert variant="info" className="mb-3 text-start" dismissible>
                         Base course is a category that the course belongs to.<br />
                         Courses with same base course share question banks with each other.<br />
                         By convention, we set course numbers as base course names.
                     </Alert>
-                    {baseCourseTable}
                 </Col>
             </Row>
             <AddModal show={addModalShow} onSubmit={addHandler} onCancel={() => {setAddModalShow(false);}} />
