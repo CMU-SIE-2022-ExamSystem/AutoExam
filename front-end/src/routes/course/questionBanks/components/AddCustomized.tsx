@@ -87,13 +87,11 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
     
     const [description, setDescription] = useState("");
 
-    // const [graders, setGraders] = useState<string[]>([]);
-    const [graders, setGraders] = useState<graderProps[]>([]);
+    const [graders, setGraders] = useState<string[]>([]);
     const [grader, setGrader] = useState<graderProps>();
 
     const getGraders = useCallback(async () => {
-        // const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/list");
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/list");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         setGraders(result.data.data);
@@ -127,10 +125,8 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
             <Form.Select id={"sub" + id + "_grader"} onChange={(e) => getGrader(e.target.value)}>
                 <option>Grader Type</option>
                 {graders.map((grader) => {
-                    // if (grader !== "single_blank" && grader !== "single_choice" && grader !== "multiple_choice")
-                    // return (<option key={grader} value={grader}>{grader}</option>)
-                    if (grader.name !== "single_blank" && grader.name !== "single_choice" && grader.name !== "multiple_choice")
-                    return (<option key={grader.name} value={grader.name}>{grader.name}</option>)
+                    if (grader !== "single_blank" && grader !== "single_choice" && grader !== "multiple_choice")
+                    return (<option key={grader} value={grader}>{grader}</option>)
                 })}
             </Form.Select>
         </Form.Group>

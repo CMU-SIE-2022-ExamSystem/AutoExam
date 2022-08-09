@@ -142,8 +142,7 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
     
     const [description, setDescription] = useState("");
 
-    // const [graders, setGraders] = useState<string[]>([]);
-    const [graders, setGraders] = useState<graderProps[]>([]);
+    const [graders, setGraders] = useState<string[]>([]);
     const [grader, setGrader] = useState<graderProps>();
 
     useEffect(() => {
@@ -157,8 +156,7 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
     }, [subQuestion])
 
     const getGraders = useCallback(async () => {
-        // const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/list");
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/list");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
         setGraders(result.data.data);
@@ -191,11 +189,9 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
             <Form.Text>Choose grader, or upload your grader by clicking "Grader" at the top right corner of the Question Bank page.</Form.Text>
             <Form.Select id={"sub" + id + "_grader"} value={grader?.name} onChange={(e) => {getGrader(e.target.value);}}>
                 <option>Grader Type</option>
-                {graders.map((item) => {
-                    // if (grader !== "single_blank" && grader !== "single_choice" && grader !== "multiple_choice")
-                    // return (<option key={grader} value={grader}>{grader}</option>)
-                    if (item.name !== "single_blank" && item.name !== "single_choice" && item.name !== "multiple_choice")
-                    return (<option key={item.name} value={item.name}>{item.name}</option>)
+                {graders.map((grader) => {
+                    if (grader !== "single_blank" && grader !== "single_choice" && grader !== "multiple_choice")
+                    return (<option key={grader} value={grader}>{grader}</option>)
                 })}
             </Form.Select>
         </Form.Group>

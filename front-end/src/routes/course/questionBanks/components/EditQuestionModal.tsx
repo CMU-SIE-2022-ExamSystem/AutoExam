@@ -33,6 +33,25 @@ interface tagProps {
     name: string;
 }
 
+const EditForciblyModal = ({show, onClose, question, questionData, editQuestion, clearQuestion, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, question: questionDataType, questionData: object, editQuestion: (id: string, questionData: object, force: boolean) => void, clearQuestion: () => void, errorMsg: string, setErrorMsg: any}) => {
+    return (
+        <Modal show={show} onHide={() => {onClose(); clearQuestion(); setErrorMsg("")}}>
+            <Modal.Header closeButton>
+                <Modal.Title>Edit Queston Forcibly</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+                This question is already used in some exams. Do you want to edit this question forcibly?
+            </Modal.Body>
+
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => {onClose(); clearQuestion(); setErrorMsg("")}}>Cancel</Button>
+                <Button variant="primary" type="submit" className="ms-2" onClick={() => editQuestion(question.id, questionData, true)}>Confirm</Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
+
 const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, question, clearQuestion, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, question: questionDataType, clearQuestion: () => void, errorMsg: string, setErrorMsg: any}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
@@ -93,6 +112,9 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
     useEffect(() => {
         getGraders().catch();
     }, [getGraders])
+
+    const [editForciblyShow, setEditForciblyShow] = useState(false);
+    const [questionData, setQuestionData] = useState<object>();
 
     const getSubquestionsData = () => {
         function getSingleBlankData(type: string, id: number) {
@@ -225,16 +247,26 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
             title: title,
             sub_questions: getSubquestionsData()
         }
-        editQuestion(question.id, questionData);
+        editQuestion(question.id, questionData, false);
+        setQuestionData(questionData);
     }
 
-    const editQuestion = async (id: string, questionData: object) => {
-        console.log(questionData)
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
+    const editQuestion = async (id: string, questionData: object, force: boolean) => {
+        console.log(questionData);
+        let url: string = "";
+        if (force) {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id + "/force");
+        } else {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
+        }
         const token = globalState.token;
         axios.put(url, questionData, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
-                onClose();
+                if (force) {
+                    setEditForciblyShow(false);
+                } else {
+                    onClose();
+                }
                 clearState();
                 clearQuestion();
                 setErrorMsg("");
@@ -243,9 +275,13 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
                     .catch();
             })
             .catch((error: any) => {
-                console.log(error);
+                console.log(error)
                 let response = error.response.data;
                 setErrorMsg(response.error.message || response.error.message[0].message);
+                if (!force && error.response.status === 400) {
+                    onClose();
+                    setEditForciblyShow(true);
+                }
             });
     }
 
@@ -258,6 +294,7 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
     }
 
     return (
+        <>
         <Modal show={show} onHide={() => {onClose(); clearState(); clearQuestion(); setErrorMsg("")}} size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Edit Queston</Modal.Title>
@@ -305,6 +342,18 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
                 </Form>
             </Modal.Body>
         </Modal>
+
+        <EditForciblyModal
+            show={editForciblyShow}
+            onClose={() => setEditForciblyShow(false)}
+            question={question as questionDataType}
+            questionData={questionData as object}
+            editQuestion={editQuestion}
+            clearQuestion={clearQuestion}
+            errorMsg={errorMsg}
+            setErrorMsg={setErrorMsg}
+        />
+        </>
     );
 }
 

@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Button, Col, Form, ListGroup, Modal, Nav, Row, Tab} from 'react-bootstrap';
+import {Button, Col, Form, Modal, Nav, Row, Tab} from 'react-bootstrap';
 import {Link, useParams} from "react-router-dom";
 import TopNavbar from "../../../components/TopNavbar";
 import AppLayout from "../../../components/AppLayout";
@@ -10,6 +10,7 @@ import axios from 'axios';
 import CollapseQuestion from './components/CollapseQuestion';
 import AddQuestionModal from './components/AddQuestionModal';
 import EditQuestionModal from './components/EditQuestionModal';
+import GraderModal from './components/GraderModal';
 
 interface tagProps {
     id: string;
@@ -137,53 +138,6 @@ const DeleteQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, q
             </Modal.Footer>
         </Modal>
     );
-}
-
-const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean, errorMessage: string, onClose: () => void, clearMessage: () => void}) => {
-    const params = useParams();
-    const {globalState} = useGlobalState();
-    
-    const [graders, setGraders] = useState<string[]>([]);
-
-    const getGraders = useCallback(async () => {
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/list");
-        const token = globalState.token;
-        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        setGraders(result.data.data);
-    }, [globalState.token, params.course_name])
-
-    useEffect(() => {
-        getGraders().catch();
-    }, [getGraders])
-
-    return (
-        <Modal show={show} onHide={() => {onClose(); clearMessage()}}>
-            <Modal.Header closeButton>
-                <Modal.Title>Grader</Modal.Title>
-            </Modal.Header>
-
-            <Modal.Body>
-                <ListGroup variant="flush">
-                    {graders.map((grader, index) => (
-                        <ListGroup.Item key={index}>
-                            <Row>
-                                <Col xs={10}>{grader}</Col>
-                                <Col xs={2}>
-                                {grader === "single_blank" || grader === "single_choice" || grader === "multiple_choice" ?
-                                    <div className="text-secondary">Basic</div> :
-                                    <>
-                                    <i className="bi-pencil-square" style={{cursor: "pointer"}}/>
-                                    <i className="bi-trash ms-2" style={{cursor: "pointer"}}/>
-                                    </>
-                                }
-                                </Col>
-                            </Row>
-                        </ListGroup.Item>
-                    ))}
-                </ListGroup>
-            </Modal.Body>
-        </Modal>
-    )
 }
 
 const QuestionsByTag = ({questions, setQuestion, setDeleteShow, setEditShow}: {questions: questionDataType[] | undefined, setQuestion: any, setDeleteShow: any, setEditShow: any}) => {
