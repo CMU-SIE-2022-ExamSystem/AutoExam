@@ -1,10 +1,11 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Row, Col, Card} from 'react-bootstrap';
+import {Row, Col, Card, Button} from 'react-bootstrap';
 import AppLayout from "../../components/AppLayout";
 import TopNavbar from "../../components/TopNavbar";
 import {getBackendApiUrl} from "../../utils/url";
 import {useGlobalState} from "../../components/GlobalStateProvider";
 import {LinkContainer} from 'react-router-bootstrap';
+import {Link} from "react-router-dom";
 
 interface CourseProps {
     name: string;
@@ -48,12 +49,21 @@ function Dashboard() {
         getCourses().catch();
     }, [getCourses])
 
+    const isInstructor = listOfCourses.some(course => course.auth_level === 'instructor');
+
     return (
         <AppLayout>
             <Row>
                 <TopNavbar brandLink="/dashboard" />
             </Row>
             <main>
+                {isInstructor && (
+                    <Row className="mb-2 text-end">
+                        <Col>
+                            <Link to="/baseCourse"><Button variant="primary" className="mx-4">Manage base course</Button></Link>
+                        </Col>
+                    </Row>)
+                }
                 <h1>My Courses</h1>
                 <Row className="mt-4">
                     <Col xs={{span: "10", offset: "1"}}>
