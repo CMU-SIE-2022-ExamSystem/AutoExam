@@ -244,7 +244,7 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, erro
                     <Form.Label>Tag: {params.tag}</Form.Label>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Title </Form.Label>
+                        <Form.Label>Title</Form.Label>
                         <Form.Control type="text" placeholder="Title" onChange={(e) => setTitle(e.target.value)} required/>
                     </Form.Group>
 
