@@ -6,7 +6,7 @@ import Question from "../../../components/Question";
 import CountdownTimer from "../../../components/CountdownTimer";
 import questionDataType from "../../../components/questionTemplate/questionDataType";
 import {blankDataType, choiceDataType} from '../../../components/questionTemplate/subQuestionDataType';
-import downloadFile from "../../../utils/downloadFile";
+import {downloadFile} from "../../../utils/downloadFile";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";

@@ -107,7 +107,7 @@ function ExamConfig() {
             <Row>
                 <TopNavbar brand={courseName} brandLink={"/courses/"+courseName}/>
             </Row>
-            <main>
+            <main className="mb-3">
                 <Tab.Container id="exam-config-tabs" defaultActiveKey="global">
                     <Row>
                         <Col xs={{span: "3"}}>

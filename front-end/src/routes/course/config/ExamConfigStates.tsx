@@ -11,9 +11,10 @@ export interface ExamConfigGeneralProperties {
 }
 
 export interface ExamConfigSettingsType {
-    id: number;
+    id: string[];
     max_score: number;
-    score: number[];
+    scores: number[];
+    sub_question_number: number;
     tag: string;
     title: string;
 }

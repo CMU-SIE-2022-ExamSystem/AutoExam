@@ -6,6 +6,7 @@ import axios from "axios";
 import {useNavigate, useParams} from "react-router-dom";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
 import {RightBottomAlert} from "../../../components/RightBottomAlert";
+import {downloadBlob} from "../../../utils/downloadFile";
 
 const PublishModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit: () => void, onClose: () => void }) => {
     return (
@@ -102,10 +103,17 @@ const ExamConfigExport = () => {
 
     }
     const downloadExamPackage = () => {
-        console.log("downloadExam");
+        const downloadUrl = getBackendApiUrl("/courses/" + courseName + "/assessments/" + examId + "/download");
+        const token = globalState.token;
+        axios.get(downloadUrl, {headers: {Authorization: "Bearer " + token}})
+            .then(response => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                downloadBlob(examId+".tar", url);
+            })
     }
     const publishButton = (<Button variant="success" onClick={publishOnClick}>Publish</Button>);
     const removeButton = (<Button variant="danger" onClick={removeOnClick}>Remove Test</Button>)
+
     return (
         <div>
             <Row className="mt-3 text-start">
