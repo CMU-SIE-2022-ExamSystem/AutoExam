@@ -251,7 +251,7 @@ func ValidateGrader(question_type, course string) bool {
 
 	var instance PythonFile
 	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&instance)
-	fmt.Println(rows.RowsAffected)
+	// fmt.Println(rows.RowsAffected)
 	return rows.RowsAffected >= 1
 }
 

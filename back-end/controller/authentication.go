@@ -15,7 +15,7 @@ import (
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Response{data=models.Autolab_Info_Front} "desc"
+// @Success 200 {object} response.Response{data=models.Autolab_Info_Front} "success"
 // @Router /auth/info [get]
 func Authinfo_Handler(c *gin.Context) {
 	auth := global.Settings.Autolabinfo
@@ -31,7 +31,7 @@ func Authinfo_Handler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param data body models.Auth_Code true "body data"
-// @Success 200 {object} response.Response{data=models.User_Info_Front} "desc"
+// @Success 200 {object} response.Response{data=models.User_Info_Front} "success"
 // @Router /auth/token [post]
 func Authtoken_Handler(c *gin.Context) {
 	auth := global.Settings.Autolabinfo

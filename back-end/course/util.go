@@ -152,7 +152,6 @@ func get_autolab_assessments(c *gin.Context, course string) []models.Assessments
 	token := user.Access_token
 
 	body := autolab.AutolabGetHandler(c, token, "/courses/"+course+"/assessments")
-	// fmt.Println(string(body))
 
 	autolab_resp := utils.Course_assessments_trans(string(body))
 	filtered_resp := utils.ExamNameFilter(autolab_resp)
@@ -175,7 +174,6 @@ func CourseUserData(c *gin.Context) ([]models.Course_User_Data, error) {
 	course_name := GetCourse(c)
 
 	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/course_user_data")
-	// fmt.Println(string(body))
 
 	if strings.Contains(string(body), "error") {
 		return users, errors.New(string(body))

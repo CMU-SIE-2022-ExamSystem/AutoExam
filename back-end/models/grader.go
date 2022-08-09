@@ -1,11 +1,14 @@
 package models
 
-type GraderQuestions map[string]Grader_Sub_Questions
 type Grader_Sub_Questions map[string][]string
 
+type GraderQuestions struct {
+	TestAutograder Grader_Sub_Questions `json:"test_autograder"`
+}
+
 type GraderTest struct {
-	Answers   GraderQuestions `json:"answers" bson:"answers"`
-	Solutions GraderQuestions `json:"solutions" bson:"solutions"`
+	Answers   GraderQuestions `json:"answers"`
+	Solutions GraderQuestions `json:"solutions"`
 }
 
 type GraderTestError struct {

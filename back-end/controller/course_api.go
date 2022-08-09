@@ -44,7 +44,6 @@ func Usercoursesinfo_Handler(c *gin.Context) {
 	course_name := course.GetCourse(c)
 
 	body := autolab.AutolabGetHandler(c, token, "/courses")
-	// fmt.Println(string(body))
 
 	if strings.Contains(string(body), course_name) {
 		autolab_resp := utils.User_courses_trans(string(body))
@@ -113,7 +112,6 @@ func Submissions_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 
 	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
-	// fmt.Println(string(body))
 
 	autolab_resp := utils.Assessments_submissions_trans(string(body))
 	student, _ := dao.ReadStudent(course_name, assessment_name, user.Email)
@@ -597,7 +595,7 @@ func ReadStatusAssessments_Handler(c *gin.Context) {
 // @Tags courses
 // @Accept json
 // @Produce json
-// @Success 200 {object} response.Response{data=models.Submit} "desc"
+// @Success 201 {object} response.Response{data=models.Submit} "success"
 // @Failure 500 {object} response.DBesponse{error=response.MongoDBReadError} "mongo error"
 // @Failure 403 "reached the maximum number"
 // @Param		course_name			path	string	true	"Course Name"
@@ -613,14 +611,14 @@ func Usersubmit_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 	answertar_path := utils.Find_assessment_folder(c, strconv.Itoa(int(user.ID)), course_name, assessment_name)
 
-	if status, _ := course.CheckSubmission(c); !status {
+	student, err := dao.ReadStudent(course_name, assessment_name, user.Email)
+	if err != nil {
+		response.ErrMongoDBReadResponse(c, "student")
+	}
+
+	if !student.Can_submit {
 		response.ErrorResponseWithStatus(c, response.Error{Type: "Autolab", Message: "You have reached the maximum number of submissions!"}, http.StatusForbidden)
 	} else {
-		student, err := dao.ReadStudent(course_name, assessment_name, user.Email)
-		if err != nil {
-			response.ErrMongoDBReadResponse(c, "student")
-		}
-
 		flag := course.CreateAnswerFolder(answertar_path)
 		if !flag {
 			response.ErrFileNotValidResponse(c)
@@ -646,12 +644,7 @@ func Usersubmit_Handler(c *gin.Context) {
 			student.Submitted = true
 			student.Can_submit, student.SubmitNumber = course.CheckSubmission(c)
 			dao.CreateOrUpdateStudent(student)
-			response.SuccessResponse(c, autolab_resp)
-			// if autolab_resp.Version == 0 {
-			// 	response.ErrorResponseWithStatus(c, response.Error{Type: "Autolab", Message: "You are only allowed to submit once!"}, http.StatusForbidden)
-			// } else {
-			// 	response.SuccessResponse(c, autolab_resp)
-			// }
+			response.CreatedResponse(c, autolab_resp)
 		} else {
 			response.ErrFileNotValidResponse(c)
 		}
@@ -664,6 +657,7 @@ func Usersubmit_Handler(c *gin.Context) {
 // @Description download an answer tarball, only can be used for instructor or TA
 // @Tags courses
 // @Accept json
+// @Produce mpfd
 // @Produce json
 // @Success 200  "success"
 // @Failure 500  "db error"
@@ -737,7 +731,6 @@ func CheckSubmission_Handler(c *gin.Context) {
 	course_name, assessment_name := course.GetCourseAssessment(c)
 
 	body := autolab.AutolabGetHandler(c, token, "/courses/"+course_name+"/assessments/"+assessment_name+"/submissions")
-	// fmt.Println(string(body))
 
 	_, flag := utils.Assessments_submissionscheck_trans(string(body))
 
@@ -858,7 +851,7 @@ func UpdateBaseCourseRelation_Handler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param		course_name			path	string	true	"Course Name"
-// @Success 204
+// @Success 204 "no content"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLDeleteError} "mysql error"
 // @Failure 400 {object} response.BadRequestResponse{error=response.BasecourseRelationNotValidError} "not valid"
 // @Failure 404 {object} response.NotValidResponse{error=response.BasecourseRelationNotExistsError}"not exists"

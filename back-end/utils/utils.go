@@ -155,7 +155,7 @@ func writejson(test models.GraderTest, path string, name string) error {
 	defer file.Close()
 	switch name {
 	case "answer":
-		if test.Answers == nil {
+		if test.Answers.TestAutograder == nil {
 			return errors.New("the answer can not be found")
 		}
 		data, _ := json.Marshal(test.Answers)
@@ -163,7 +163,7 @@ func writejson(test models.GraderTest, path string, name string) error {
 		_, err = fmt.Fprint(file, string(data))
 		return err
 	case "solution":
-		if test.Solutions == nil {
+		if test.Solutions.TestAutograder == nil {
 			return errors.New("the solution can not be found")
 		}
 		data, _ := json.Marshal(test.Solutions)

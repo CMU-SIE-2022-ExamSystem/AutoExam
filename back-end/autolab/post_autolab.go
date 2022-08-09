@@ -60,7 +60,6 @@ func AutolabAuthHandler(c *gin.Context, endpoint string, http_body interface{}) 
 	defer resp.Body.Close()
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	// fmt.Println(string(body))
 
 	var autolab_resp models.Autolab_Response
 
@@ -92,7 +91,6 @@ func AutolabSubmitHandler(c *gin.Context, token string, endpoint string, path st
 	}
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	// fmt.Println(string(body))
 
 	return body
 }

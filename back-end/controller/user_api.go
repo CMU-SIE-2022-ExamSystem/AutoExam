@@ -15,7 +15,6 @@ import (
 func find_userinfo(email string) (*models.User, bool) {
 	var user models.User
 	rows := global.DB.Where(&models.User{Email: email}).Find(&user)
-	// fmt.Println(&user)
 	if rows.RowsAffected < 1 {
 		return &user, false
 	}
@@ -29,7 +28,6 @@ func set_cookie(c *gin.Context, cookie string) {
 
 func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 	body := autolab.AutolabGetHandler(c, autolab_resp.Access_token, "/user")
-	// fmt.Println(string(body))
 
 	userinfo_resp := utils.User_info_trans(string(body))
 
@@ -86,7 +84,6 @@ func Usercourses_Handler(c *gin.Context) {
 	token := user.Access_token
 
 	body := autolab.AutolabGetHandler(c, token, "/courses")
-	// fmt.Println(string(body))
 
 	autolab_resp := utils.User_courses_trans(string(body))
 

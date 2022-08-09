@@ -1,8 +1,6 @@
 package course
 
 import (
-	"fmt"
-
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
@@ -13,7 +11,6 @@ func GetCourseBaseCourse(c *gin.Context) (string, string) {
 	course := GetCourse(c)
 	base, err := CourseToBase(course)
 	if err != nil {
-		fmt.Println(err)
 		response.ErrMySQLReadResponse(c, "base_course")
 	} else if base == "" {
 		response.ErrCourseNoBaseCourseResponse(c, course)

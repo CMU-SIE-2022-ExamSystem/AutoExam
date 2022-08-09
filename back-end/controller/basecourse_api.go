@@ -118,7 +118,7 @@ func UpdateBaseCourse_Handler(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param		base_name		path	string	true	"Base Course Name"
-// @Success 204
+// @Success 204 "no content"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLDeleteError} "mysql error"
 // @Failure 400 {object} response.BadRequestResponse{error=response.BasecourseNotValidError} "not valid"
 // @Failure 404 {object} response.NotValidResponse{error=response.BasecourseNotExistsError}"not exists"

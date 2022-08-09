@@ -438,6 +438,6 @@ func Testgrader_Handler(c *gin.Context) {
 		response.ErrGraderTestResponse(c, stdout.String())
 	} else {
 		dao.UpdateGraderValid(question_type, base_course, true)
-		response.SuccessResponse(c, stdout.String())
+		response.CreatedResponse(c, stdout.String())
 	}
 }
