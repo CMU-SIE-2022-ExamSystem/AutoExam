@@ -27,7 +27,7 @@ const UploadFileModal = ({show, onClose, name, getGraders, errorMsg, setErrorMsg
         const formData = new FormData();
         formData.append("file", file);
         formData.append("fileName", fileName);
-        uploadGraderFile(name, formData)
+        uploadGraderFile(name, formData);
     }
 
     const uploadGraderFile = async (name: string, file: FormData) => {
@@ -224,7 +224,7 @@ const AddGraderModal = ({show, onClose, getGraders, errorMsg, setErrorMsg}: {sho
                     </InputGroup>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Modules</Form.Label>
+                        <Form.Label>Module</Form.Label>
                         {modules}
                         <div className='text-end'>
                             <Button variant="primary" onClick={() => {setModuleList([...moduleList, moduleIdx]); setModuleIdx(moduleIdx + 1)}}>Add Module</Button>

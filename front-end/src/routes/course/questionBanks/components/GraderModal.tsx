@@ -8,6 +8,7 @@ import graderDataType from './graderDataType';
 import AddGraderModal from './AddGraderModal';
 import EditGraderModal from './EditGraderModal';
 import DeleteGraderModal from './DeleteGraderModal';
+import TestGraderModal from './TestGraderModal';
 
 const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean, errorMessage: string, onClose: () => void, clearMessage: () => void}) => {
     const params = useParams();
@@ -18,6 +19,7 @@ const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean
     const [addGraderShow, setAddGraderShow] = useState(false);
     const [editGraderShow, setEditGraderShow] = useState(false);
     const [deleteGraderShow, setDeleteGraderShow] = useState(false);
+    const [testGraderShow, setTestGraderShow] = useState(false);
     const [graderError, setGraderError] = useState("");
 
     const getGraders = useCallback(async () => {
@@ -33,7 +35,7 @@ const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean
 
     return (
         <>
-        <Modal show={show} onHide={() => {onClose(); clearMessage()}}>
+        <Modal show={show} onHide={() => {onClose(); clearMessage()}} size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Grader</Modal.Title>
             </Modal.Header>
@@ -46,9 +48,13 @@ const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean
                     {graders.map((grader, index) => (
                         <ListGroup.Item key={index}>
                             <Row>
-                                <Col xs={10}>{grader.name}</Col>
-                                <Col xs={2}>
-                                    <i className="bi-pencil-square" style={{cursor: "pointer" }} onClick={() => {setGrader(grader); onClose(); setEditGraderShow(true)}}/>
+                                <Col xs={7}>{grader.name}</Col>
+                                <Col xs={5} className="text-end">
+                                    {
+                                        grader.valid && <Button size="sm" variant="outline-success" disabled>Valid</Button>
+                                    }
+                                    <Button size="sm" variant="outline-primary" className="ms-2" onClick={() => {setGrader(grader); onClose(); setTestGraderShow(true)}}>Test</Button>
+                                    <i className="bi-pencil-square ms-3" style={{cursor: "pointer" }} onClick={() => {setGrader(grader); onClose(); setEditGraderShow(true)}}/>
                                     <i className="bi-trash ms-2" style={{cursor: "pointer"}} onClick={() => {setGrader(grader); onClose(); setDeleteGraderShow(true)}}/>
                                 </Col>
                             </Row>
@@ -78,6 +84,15 @@ const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean
         <DeleteGraderModal
             show={deleteGraderShow}
             onClose={() => setDeleteGraderShow(false)}
+            grader={grader as graderDataType}
+            getGraders={getGraders}
+            errorMsg={graderError}
+            setErrorMsg={setGraderError}
+        />
+
+        <TestGraderModal
+            show={testGraderShow}
+            onClose={() => setTestGraderShow(false)}
             grader={grader as graderDataType}
             getGraders={getGraders}
             errorMsg={graderError}

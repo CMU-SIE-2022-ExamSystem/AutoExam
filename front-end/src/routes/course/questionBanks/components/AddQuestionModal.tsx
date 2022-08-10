@@ -63,7 +63,6 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, erro
         const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        console.log(result.data.data)
         setGraders(result.data.data);
     }, [globalState.token, params.course_name])
 
