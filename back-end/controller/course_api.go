@@ -87,7 +87,12 @@ func Assessments_Handler(c *gin.Context) {
 			assessments[i].Can_submit = student.Can_submit
 		}
 	}
-	response.SuccessResponse(c, assessments)
+
+	if len(assessments) == 0 {
+		response.SuccessResponse(c, []string{})
+	} else {
+		response.SuccessResponse(c, assessments)
+	}
 }
 
 // Submissions_Handler godoc

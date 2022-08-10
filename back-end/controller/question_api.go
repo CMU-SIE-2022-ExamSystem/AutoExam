@@ -39,7 +39,11 @@ func ReadAllQuestion_Handler(c *gin.Context) {
 	if err != nil {
 		response.ErrMongoDBReadAllResponse(c, Que_Model)
 	}
-	response.SuccessResponse(c, questions)
+	if len(questions) == 0 {
+		response.SuccessResponse(c, []string{})
+	} else {
+		response.SuccessResponse(c, questions)
+	}
 }
 
 // CreateQuestion_Handler godoc
@@ -216,5 +220,3 @@ func DeleteQuestion_Handler(c *gin.Context) {
 
 	response.NonContentResponse(c)
 }
-
-// TODO grader install module add install module fields and add to requirements when building tar

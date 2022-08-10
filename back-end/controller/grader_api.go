@@ -44,7 +44,12 @@ func ReadAllGrader_Handler(c *gin.Context) {
 	if err != nil {
 		response.ErrMySQLReadAllResponse(c, Grader_Model)
 	}
-	response.SuccessResponse(c, grader)
+
+	if len(grader) == 0 {
+		response.SuccessResponse(c, []string{})
+	} else {
+		response.SuccessResponse(c, grader)
+	}
 }
 
 // ReadAllGrader_Handler godoc

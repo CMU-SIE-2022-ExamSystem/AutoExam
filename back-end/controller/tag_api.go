@@ -36,7 +36,11 @@ func ReadAllTag_Handler(c *gin.Context) {
 	if err != nil {
 		response.ErrMongoDBReadAllResponse(c, Tag_Model)
 	}
-	response.SuccessResponse(c, tags)
+	if len(tags) == 0 {
+		response.SuccessResponse(c, []string{})
+	} else {
+		response.SuccessResponse(c, tags)
+	}
 }
 
 // CreateTag_Handler godoc

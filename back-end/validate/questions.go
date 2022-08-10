@@ -54,7 +54,7 @@ func QuestionsCreateValidation(sl validator.StructLevel) {
 		}
 		for j, blank := range grader_dict[grader_name].Blanks {
 			if blank.IsChoice {
-				if len(sub_question.Choices[j]) == 0 {
+				if sub_question.Choices[j] == nil || len(sub_question.Choices[j]) == 0 {
 					sl.ReportError(sub_question.Choices, "choices", "Choices", "notValidChoiceZero", utils.Ordinalize(i+1)+","+utils.Ordinalize(j+1))
 					break
 				}
@@ -66,5 +66,4 @@ func QuestionsCreateValidation(sl validator.StructLevel) {
 			}
 		}
 	}
-
 }

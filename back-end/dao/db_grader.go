@@ -242,7 +242,7 @@ func ValidateGraderUsed(question_type, course string) (bool, error) {
 	client := global.Mongo
 	//get the collection instance
 	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
-	filter := bson.D{{Key: "questions.questionType", Value: question_type}, {Key: "course", Value: course}}
+	filter := bson.D{{Key: "sub_questions.grader", Value: question_type}, {Key: "base_course", Value: course}}
 	var questions AutoExam_Questions
 	err := collection.FindOne(context.TODO(), filter).Decode(&questions)
 	if err != nil {
