@@ -64,7 +64,7 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
     const updateState = (updateTerm: any) => {
         const newState = Object.assign({}, examConfigState, updateTerm)
         setExamConfigState(newState);
-    }
+    };
 
     const updateGeneral = (updateTerm: any) => {
         updateState({general: Object.assign({}, examConfigState?.general, updateTerm)})
@@ -104,9 +104,16 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
             inputElement.value = moment(value.toISOString()).format("MM/DD/YYYY, h:mm A");
             return bindPicker(myElement, restrictions, value);
         })
+        const updateTime = () => {
+            updateGeneral({
+                start_at: moment(pickers[0].viewDate.toISOString()).toISOString(true),
+                end_at: moment(pickers[1].viewDate.toISOString()).toISOString(true),
+                grading_deadline: moment(pickers[2].viewDate.toISOString()).toISOString(true)
+            })
+        };
         pickers[0].subscribe(Namespace.events.change, (e: ChangeEvent) => {
             const newStart = e.date;
-            updateGeneral({start_at: newStart?.toISOString()});
+            updateTime();
             pickers[1].updateOptions({
                 restrictions: {
                     minDate: newStart
@@ -115,7 +122,7 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
         });
         pickers[1].subscribe(Namespace.events.change, (e: ChangeEvent) => {
             const newEnd = e.date;
-            updateGeneral({end_at: newEnd?.toISOString()});
+            updateTime();
             pickers[0].updateOptions({
                 restrictions: {
                     maxDate: newEnd
@@ -129,7 +136,7 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
         });
         pickers[2].subscribe(Namespace.events.change, (e: ChangeEvent) => {
             const newDDL = e.date;
-            updateGeneral({grading_deadline: newDDL?.toISOString()});
+            updateTime();
             pickers[1].updateOptions({
                 restrictions: {
                     maxDate: newDDL
@@ -168,6 +175,10 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
                     <Form.Group className="mb-3">
                         <Form.Label>Grading Deadline</Form.Label>
                         <DateTimePicker pickerId="grading_deadline"/>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Zoom Link</Form.Label>
+                        <Form.Control type="text" value={examConfigState?.general.zoom || ""} onChange={(e) => {updateGeneral({zoom: e.target.value})}} />
                     </Form.Group>
                 </Form>
             </Col>

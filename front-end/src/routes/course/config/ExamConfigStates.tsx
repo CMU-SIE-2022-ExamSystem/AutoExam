@@ -8,6 +8,8 @@ export interface ExamConfigGeneralProperties {
     max_submissions: number;
     name: string;
     start_at: string;
+    url: string;
+    zoom: string;
 }
 
 export interface ExamConfigSettingsType {

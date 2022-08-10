@@ -215,7 +215,7 @@ function Assessments() {
         };
         axios.post(postUrl, data, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
-                const configPage = "/courses/`" + params.course_name + "/examConfig/" + name;
+                const configPage = "/courses/" + params.course_name + "/examConfig/" + name;
                 setShowNexExamModal(false);
                 navigate(configPage);
             })

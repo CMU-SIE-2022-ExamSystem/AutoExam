@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Alert, Button, Col, Modal, Row} from "react-bootstrap";
+import {Alert, Button, Col, Container, Modal, Row} from "react-bootstrap";
 import {useConfigStates} from "./ExamConfigStates";
 import {getBackendApiUrl} from "../../../utils/url";
 import axios from "axios";
@@ -82,6 +82,23 @@ const ExamConfigExport = () => {
                 setAlertShow(true);
             })
     }
+
+    const generateExams = () => {
+        const url = getBackendApiUrl("/courses/" + courseName + "/assessments/" + examId + "/generate");
+        const token = globalState.token;
+        axios.get(url, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                setAlertVariant("success");
+                setAlertContent("Successfully generated.")
+                setAlertShow(true);
+            })
+            .catch(onFailure => {
+                setAlertVariant("danger");
+                setAlertContent(onFailure.toString().substring(0, 50))
+                console.error(onFailure);
+                setAlertShow(true);
+            })
+    }
     const [removeModalShow, setRemoveModalShow] = useState<boolean>(false);
     const removeOnClick = () => {
         setRemoveModalShow(true);
@@ -111,6 +128,7 @@ const ExamConfigExport = () => {
                 downloadBlob(examId+".tar", url);
             })
     }
+    const generateButton = (<Button variant="info" onClick={generateExams}>Generate</Button>);
     const publishButton = (<Button variant="success" onClick={publishOnClick}>Publish</Button>);
     const removeButton = (<Button variant="danger" onClick={removeOnClick}>Remove Test</Button>)
 
@@ -123,6 +141,9 @@ const ExamConfigExport = () => {
                     </div>
                     <hr></hr>
                     <div className="mb-3">
+                        Generate exams: <span className="ms-3">{generateButton}</span>
+                    </div>
+                    <div className="mb-3">
                         Published: {publishedText}
                         <span className="ms-3">{publishButton}</span>
                     </div>
@@ -131,6 +152,17 @@ const ExamConfigExport = () => {
                     </div>
                 </Col>
             </Row>
+            <Container className="text-start mt-3">
+                <Alert variant="secondary">
+                    <i className="bi bi-info-circle"/> First Time Reminder: Steps to publish an exam
+                    <ol>
+                        <li>Download the package for Autolab using the blue button.</li>
+                        <li>Upload the package to Autolab.</li>
+                        <li>Generate the exams using the cyan button.</li>
+                        <li>Publish the exam to students using the green button.</li>
+                    </ol>
+                </Alert>
+            </Container>
             <PublishModal show={publishModalShow} onSubmit={publishOnSubmit} onClose={() => setPublishModalShow(false)}/>
             <RemoveModal show={removeModalShow} onSubmit={removeOnSubmit} onClose={() => setRemoveModalShow(false)} />
             <RightBottomAlert variant={alertVariant} content={alertContent} show={alertShow} onClose={() => {setAlertShow(false)}} />
