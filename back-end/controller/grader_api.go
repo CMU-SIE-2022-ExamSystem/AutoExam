@@ -15,7 +15,6 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/validate"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
@@ -411,7 +410,6 @@ func upload_and_store_grader(c *gin.Context, base_course, grader_name string, bo
 // @Router /courses/{course_name}/autograder/{grader_name}/test [post]
 func Testgrader_Handler(c *gin.Context) {
 	base_course, question_type := course.GetBaseCourseGrader(c)
-	color.Yellow(base_course)
 	dao.SearchAndStore_grader(c, question_type, base_course, "./autograder/exec/autograders/")
 	dao.SearchAndStore_module(c, question_type, base_course, "./autograder/exec/")
 	utils.CheckModule()
@@ -437,7 +435,6 @@ func Testgrader_Handler(c *gin.Context) {
 		dao.UpdateGraderValid(question_type, base_course, false)
 		response.ErrGraderTestResponse(c, stdout.String())
 	} else {
-		dao.UpdateGraderValid(question_type, base_course, true)
 		response.CreatedResponse(c, stdout.String())
 	}
 }
