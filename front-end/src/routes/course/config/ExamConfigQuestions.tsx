@@ -17,7 +17,7 @@ interface tagProps {
 const settingToQuestion = (setting: ExamConfigSettingsType, qIndex: number, tags: tagProps[], editWrapper: (arg0: number) => void, deleteWrapper: (arg0: number) => void) => {
     const myTag = tags.find(tag => tag.id === setting.tag);
     const idLength = setting.id.length;
-    const appointed = idLength > 0 ? ("Chosen from " + idLength + "questions") : "Random pick according to tag";
+    const appointed = idLength > 0 ? ("Chosen from " + idLength + " questions") : "Random pick according to tag";
     const subquestionTitles = Array.from({length: setting.sub_question_number}, (value, index) => "sub" + (index + 1).toString());
     const subquestionScores = (
         <Table bordered>
@@ -30,7 +30,7 @@ const settingToQuestion = (setting: ExamConfigSettingsType, qIndex: number, tags
         </Table>
     )
     return (
-        <Card className="my-3 text-start" key={"question_" + qIndex}>
+        <Card className="my-3 text-start" key={"exam_config_question_" + qIndex}>
             <Card.Header>
                 {qIndex + 1}. {myTag ? myTag.name : setting.title}
             </Card.Header>
@@ -148,6 +148,7 @@ const AddModal = ({show, question, setQuestion, onSubmit, onCancel, tagList, pic
             return;
         }
         console.log(question);
+        onSubmit();
     }
 
     let availableValuesText = (<small className={badSubQuestionsNumber ? "text-danger" : ""}>Following values are available: {availableValues.join(",")}.</small>);
@@ -209,12 +210,12 @@ const AddModal = ({show, question, setQuestion, onSubmit, onCancel, tagList, pic
     );
 }
 
-const DeleteModal = ({show, oldQuestion, onSubmit, onCancel}: {show: boolean, oldQuestion: ExamConfigSettingsType | undefined, onSubmit: () => void, onCancel: () => void}) => {
+const DeleteModal = ({show, oldQuestion, onSubmit, onCancel}: {show: boolean, oldQuestion: ExamConfigSettingsType, onSubmit: () => void, onCancel: () => void}) => {
     return (
         <Modal show={show}>
             <Modal.Header><Modal.Title>Delete question</Modal.Title></Modal.Header>
             <Modal.Body>
-                <p>Removing from the exam.</p>
+                <p>Removing '{oldQuestion.title}' from the exam.</p>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onCancel}>Back</Button>
@@ -227,9 +228,13 @@ const DeleteModal = ({show, oldQuestion, onSubmit, onCancel}: {show: boolean, ol
 const ExamConfigQuestions = () => {
     let params = useParams();
     const courseName = params.course_name;
-    const examId = params.exam_id;
     const {globalState} = useGlobalState();
     let {examConfigState, setExamConfigState}  = useConfigStates();
+
+    const updateState = (updateTerm: any) => {
+        const newState = Object.assign({}, examConfigState, updateTerm)
+        setExamConfigState(newState);
+    }
 
     const settingLength = examConfigState?.settings ? examConfigState.settings.length : -1;
 
@@ -253,6 +258,12 @@ const ExamConfigQuestions = () => {
     const [deleteQuestionModalShow, setDeleteQuestionModalShow] = useState(false);
     const [qIIindex, setQIIindex] = useState<number>(0);
     const [questionInInterest, setQuestionInInterest] = useState<ExamConfigSettingsType>(templateExamConfigSetting);
+
+    const addQuestionWrapper = () => {
+        setQuestionInInterest(templateExamConfigSetting);
+        setQIIindex(-1);
+        setAddQuestionModalShow(true);
+    }
 
     const editQuestionWrapper = (index: number) => {
         if (index >= 0 && index <= settingLength) {
@@ -285,14 +296,26 @@ const ExamConfigQuestions = () => {
 
 
     const addFormHandler = () => {
+        let currentSettings = examConfigState?.settings;
+        if (!currentSettings) return;
+        currentSettings.push(questionInInterest);
+        updateState({settings: currentSettings});
         addFormCleanUp();
     }
 
     const editFormHandler = () => {
+        let currentSettings = examConfigState?.settings;
+        if (!currentSettings) return;
+        currentSettings.splice(qIIindex, 1, questionInInterest);
+        updateState({settings: currentSettings});
         editFormCleanUp();
     }
 
     const deleteFormHandler = () => {
+        let currentSettings = examConfigState?.settings;
+        if (!currentSettings) return;
+        currentSettings.splice(qIIindex, 1);
+        updateState({settings: currentSettings});
         deleteFormCleanUp();
     }
 
@@ -314,7 +337,7 @@ const ExamConfigQuestions = () => {
     return (
         <div>
             <div className="text-end mb-2">
-                <Button variant="success" className="me-1" onClick={() => setAddQuestionModalShow(true)}><i className="bi bi-plus-square me-1"/>Add Question</Button>
+                <Button variant="success" className="me-1" onClick={addQuestionWrapper}><i className="bi bi-plus-square me-1"/>Add Question</Button>
                 {(settingLength >= 2) && (<Button variant="warning"><i className="bi bi-list me-1"/>Change Order</Button>)}
             </div>
             {settingsToQuestion}
