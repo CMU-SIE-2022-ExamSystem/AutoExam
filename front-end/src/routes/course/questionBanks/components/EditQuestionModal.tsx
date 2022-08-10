@@ -33,7 +33,7 @@ interface tagProps {
     name: string;
 }
 
-const EditForciblyModal = ({show, onClose, question, questionData, editQuestion, clearQuestion, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, question: questionDataType, questionData: object, editQuestion: (id: string, questionData: object, force: boolean) => void, clearQuestion: () => void, errorMsg: string, setErrorMsg: any}) => {
+const EditForciblyModal = ({show, onClose, setEditQuestionShow, question, questionData, editQuestion, clearQuestion, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, setEditQuestionShow: any, question: questionDataType, questionData: object, editQuestion: (id: string, questionData: object, force: boolean) => void, clearQuestion: () => void, errorMsg: string, setErrorMsg: any}) => {
     return (
         <Modal show={show} onHide={() => {onClose(); clearQuestion(); setErrorMsg("")}}>
             <Modal.Header closeButton>
@@ -42,19 +42,18 @@ const EditForciblyModal = ({show, onClose, question, questionData, editQuestion,
 
             <Modal.Body>
                 This question is already used in some exams. Do you want to edit it forcibly?
+                <div><small className="text-danger">{errorMsg}</small></div>
             </Modal.Body>
 
-            <div><small className="text-danger">{errorMsg}</small></div>
-
             <Modal.Footer>
-                <Button variant="secondary" onClick={() => {onClose(); clearQuestion(); setErrorMsg("")}}>Cancel</Button>
+                <Button variant="secondary" onClick={() => {onClose(); setEditQuestionShow(true)}}>Back</Button>
                 <Button variant="primary" type="submit" className="ms-2" onClick={() => editQuestion(question.id, questionData, true)}>Confirm</Button>
             </Modal.Footer>
         </Modal>
     )
 }
 
-const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, question, clearQuestion, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, question: questionDataType, clearQuestion: () => void, errorMsg: string, setErrorMsg: any}) => {
+const EditQuestionModal = ({show, onClose, setEditQuestionShow, tags, getTags, getQuestionsByTag, question, clearQuestion, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, setEditQuestionShow: any, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, question: questionDataType, clearQuestion: () => void, errorMsg: string, setErrorMsg: any}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
 
@@ -95,10 +94,10 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
         setSubqList(subqList.filter((subq) => subq.id !== id));
     }
     
-    const subquestions = subqList.map(({type, id, content}) => {
-        if (type === "single_blank") return (<EditSingleBlank key={id} id={id} subQuestion={content} onDelete={deleteSubq}/>);
-        if (type === "single_choice" || type === "multiple_choice") return (<EditChoice key={id} type={type} id={id} subQuestion={content} onDelete={deleteSubq}/>);
-        if (type === "customized") return (<EditCustomized key={id} id={id} subQuestion={content} onDelete={deleteSubq}/>);
+    const subquestions = subqList.map(({type, id, content}, index) => {
+        if (type === "single_blank") return (<EditSingleBlank key={id} id={id} displayIdx={index + 1} subQuestion={content} onDelete={deleteSubq}/>);
+        if (type === "single_choice" || type === "multiple_choice") return (<EditChoice key={id} type={type} id={id} displayIdx={index + 1} subQuestion={content} onDelete={deleteSubq}/>);
+        if (type === "customized") return (<EditCustomized key={id} id={id} displayIdx={index + 1} subQuestion={content} onDelete={deleteSubq}/>);
         return (<></>);
     });
 
@@ -261,6 +260,7 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
         } else {
             url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
         }
+        console.log(url)
         const token = globalState.token;
         axios.put(url, questionData, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
@@ -279,9 +279,10 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
             .catch((error: any) => {
                 console.log(error)
                 let response = error.response.data;
-                setErrorMsg(response.error.message || response.error.message[0].message);
-                if (!force && error.response.status === 400) {
+                setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
+                if (!force && error.response.status === 400 && response.error.message[0].field !== "solutions") {
                     onClose();
+                    setErrorMsg("");
                     setEditForciblyShow(true);
                 }
             });
@@ -348,6 +349,7 @@ const EditQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, que
         <EditForciblyModal
             show={editForciblyShow}
             onClose={() => setEditForciblyShow(false)}
+            setEditQuestionShow={setEditQuestionShow}
             question={question as questionDataType}
             questionData={questionData as object}
             editQuestion={editQuestion}

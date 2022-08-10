@@ -37,6 +37,10 @@ const TestSuccessModal = ({show, onClose, setTestGraderShow, result, grader, get
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });
     }
+
+    const resultData = result.split('\n').map((item, index) => {
+        return (<p key={index}>{item}</p>)
+    })
     
     return (
         <Modal show={show} onHide={() => {onClose(); setErrorMsg("")}}>
@@ -45,8 +49,8 @@ const TestSuccessModal = ({show, onClose, setTestGraderShow, result, grader, get
             </Modal.Header>
 
             <Modal.Body>
-                {result}<br/><br/>
-                <div className="text-primary">Click "Back" to do more tests, or click "Confirm" to validate this grader.</div>
+                {resultData}
+                <div><small className="text-primary">Click "Back" to do more tests, or click "Confirm" to validate this grader.</small></div>
                 <div><small className="text-danger">{errorMsg}</small></div>
             </Modal.Body>
 

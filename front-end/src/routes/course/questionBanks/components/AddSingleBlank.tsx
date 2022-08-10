@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 
-const AddSingleBlank = ({id, onDelete}: {id: number, onDelete: (id: number) => void}) => {
+const AddSingleBlank = ({id, displayIdx, onDelete}: {id: number, displayIdx: number, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");
     
     const [solutionIdx, setSolutionIdx] = useState(0);
@@ -27,7 +27,7 @@ const AddSingleBlank = ({id, onDelete}: {id: number, onDelete: (id: number) => v
     return (
         <>
         <Form.Group>
-            <Form.Label><h5>Subquestion (Single Blank)</h5></Form.Label>
+            <Form.Label><h5>{displayIdx + ". Single Blank"}</h5></Form.Label>
         </Form.Group>
 
         <Form.Group className="mb-3">

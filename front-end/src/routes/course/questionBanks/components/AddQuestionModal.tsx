@@ -49,11 +49,10 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, erro
         setSubqList(subqList.filter((subq) => subq.id !== id));
     }
     
-    const subquestions = subqList.map(({type, id}) => {
-        if (type === "single_blank") return (<AddSingleBlank key={id} id={id} onDelete={deleteSubq}/>);
-        if (type === "single_choice") return (<AddChoice key={id} type={type} id={id} onDelete={deleteSubq}/>);
-        if (type === "multiple_choice") return (<AddChoice key={id} type={type} id={id} onDelete={deleteSubq}/>);
-        if (type === "customized") return (<AddCustomized key={id} id={id} onDelete={deleteSubq}/>);
+    const subquestions = subqList.map(({type, id}, index) => {
+        if (type === "single_blank") return (<AddSingleBlank key={id} id={id} displayIdx={index + 1} onDelete={deleteSubq}/>);
+        if (type === "single_choice" || type === "multiple_choice") return (<AddChoice key={id} type={type} id={id} displayIdx={index + 1} onDelete={deleteSubq}/>);
+        if (type === "customized") return (<AddCustomized key={id} id={id} displayIdx={index + 1} onDelete={deleteSubq}/>);
         return (<></>);
     });
 
@@ -220,7 +219,7 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, erro
             .catch((error: any) => {
                 console.log(error);
                 let response = error.response.data;
-                setErrorMsg(response.error.message || response.error.message[0].message);
+                setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });
     }
 

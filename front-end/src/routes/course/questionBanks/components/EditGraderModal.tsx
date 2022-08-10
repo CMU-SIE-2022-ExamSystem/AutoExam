@@ -31,9 +31,8 @@ const EditForciblyModal = ({show, onClose, grader, fileData, uploadGraderFile, g
             
             <Modal.Body>
                 This grader is already used in some questions. Do you want to edit it forcibly?
+                <div><small className="text-danger">{errorMsg}</small></div>
             </Modal.Body>
-
-            <div><small className="text-danger">{errorMsg}</small></div>
 
             <Modal.Footer>
                 <Button variant="secondary" onClick={() => {onClose(); setErrorMsg("")}}>Cancel</Button>
@@ -213,6 +212,7 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
                 if (!force && error.response.status === 400) {
                     onClose();
+                    setErrorMsg("");
                     setEditForciblyShow(true);
                 }
             });
@@ -226,6 +226,7 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
         } else {
             url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name);
         }
+        console.log(url)
         const token = globalState.token;
         axios.put(url, graderData, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
@@ -244,6 +245,7 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
                 if (!force && error.response.status === 400) {
                     onClose();
+                    setErrorMsg("");
                     setEditForciblyShow(true);
                 }
             });

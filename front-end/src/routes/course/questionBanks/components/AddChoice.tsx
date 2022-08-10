@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
 
-const AddChoice = ({type, id, onDelete}: {type: string, id: number, onDelete: (id: number) => void}) => {
+const AddChoice = ({type, id, displayIdx, onDelete}: {type: string, id: number, displayIdx: number, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");
 
     const [choiceIdx, setChoiceIdx] = useState(0);
@@ -30,7 +30,7 @@ const AddChoice = ({type, id, onDelete}: {type: string, id: number, onDelete: (i
     return (
         <>
         <Form.Group>
-            <Form.Label><h5>Subquestion ({type === "single_choice" ? "Single Choice" : "Multiple Choice"})</h5></Form.Label>
+            <Form.Label><h5>{displayIdx + (type === "single_choice" ? ". Single Choice" : ". Multiple Choice")}</h5></Form.Label>
         </Form.Group>
 
         <Form.Group className="mb-3">

@@ -348,6 +348,7 @@ function QuestionBank () {
                 <EditQuestionModal
                     show={editQuestionShow}
                     onClose={() => setEditQuestionShow(false)}
+                    setEditQuestionShow={setEditQuestionShow}
                     tags={tags}
                     getTags={getTags}
                     getQuestionsByTag={getQuestionsByTag}

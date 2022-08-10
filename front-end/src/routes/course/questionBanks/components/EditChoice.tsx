@@ -8,7 +8,7 @@ interface choiceProps {
     choice_checked: boolean;
 }
 
-const EditChoice = ({type, id, subQuestion, onDelete}: {type: string, id: number, subQuestion: subQuestionDataType | undefined | null, onDelete: (id: number) => void}) => {
+const EditChoice = ({type, id, displayIdx, subQuestion, onDelete}: {type: string, id: number, displayIdx: number, subQuestion: subQuestionDataType | undefined | null, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");
 
     const [choiceIdx, setChoiceIdx] = useState(0);
@@ -61,7 +61,7 @@ const EditChoice = ({type, id, subQuestion, onDelete}: {type: string, id: number
     return (
         <>
         <Form.Group>
-            <Form.Label><h5>Subquestion ({type === "single_choice" ? "Single Choice" : "Multiple Choice"})</h5></Form.Label>
+            <Form.Label><h5>{displayIdx + (type === "single_choice" ? ". Single Choice" : ". Multiple Choice")}</h5></Form.Label>
         </Form.Group>
 
         <Form.Group className="mb-3">
