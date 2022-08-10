@@ -41,8 +41,10 @@ const EditForciblyModal = ({show, onClose, question, questionData, editQuestion,
             </Modal.Header>
 
             <Modal.Body>
-                This question is already used in some exams. Do you want to edit this question forcibly?
+                This question is already used in some exams. Do you want to edit it forcibly?
             </Modal.Body>
+
+            <div><small className="text-danger">{errorMsg}</small></div>
 
             <Modal.Footer>
                 <Button variant="secondary" onClick={() => {onClose(); clearQuestion(); setErrorMsg("")}}>Cancel</Button>
