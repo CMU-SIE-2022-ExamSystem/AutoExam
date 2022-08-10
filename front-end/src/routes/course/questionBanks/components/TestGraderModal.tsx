@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {Button, Col, Form, InputGroup, Modal, Row} from 'react-bootstrap';
+import React, {useState} from 'react';
+import {Button, Col, Form, Modal, Row} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
@@ -13,6 +13,49 @@ interface LooseObject {
 interface solutionProps {
     solution_idx: number;
     content: string;
+}
+
+const TestSuccessModal = ({show, onClose, setTestGraderShow, result, grader, getGraders, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, setTestGraderShow: any, result: string, grader: graderDataType, getGraders: () => void, errorMsg: string, setErrorMsg: any}) => {
+    const params = useParams();
+    const {globalState} = useGlobalState();
+
+    const validateGrader = async(name: string) => {
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name + "/valid");
+        const token = globalState.token;
+        const data = {
+            valid: true
+        }
+        axios.put(url, data, {headers: {Authorization: "Bearer " + token}})
+            .then(response => {
+                setErrorMsg("");
+                onClose();
+                getGraders();
+            })
+            .catch((error) => {
+                console.log(error);
+                let response = error.response.data;
+                setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
+            });
+    }
+    
+    return (
+        <Modal show={show} onHide={() => {onClose(); setErrorMsg("")}}>
+            <Modal.Header>
+                <Modal.Title>Test Result</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+                {result}<br/><br/>
+                <div className="text-primary">Click "Back" to do more tests, or click "Confirm" to validate this grader.</div>
+                <div><small className="text-danger">{errorMsg}</small></div>
+            </Modal.Body>
+
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => {onClose(); setTestGraderShow(true);  setErrorMsg("")}}>Back</Button>
+                <Button variant="primary" className="ms-2" onClick={() => validateGrader(grader.name)}>Confirm</Button>
+            </Modal.Footer>
+        </Modal>
+    )
 }
 
 const OneInBlank = ({blank, blankIdx}: {blank: blankDataType, blankIdx: number}) => {
@@ -57,11 +100,12 @@ const OneInBlank = ({blank, blankIdx}: {blank: blankDataType, blankIdx: number})
     )
 }
 
-const TestGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, grader: graderDataType, getGraders: () => void, errorMsg: string, setErrorMsg: any}) => {
+const TestGraderModal = ({show, setTestGraderShow, onClose, grader, getGraders, errorMsg, setErrorMsg}: {show: boolean, setTestGraderShow: any, onClose: () => void, grader: graderDataType, getGraders: () => void, errorMsg: string, setErrorMsg: any}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
 
     const [testResult, setTestResult] = useState("");
+    const [testSuccessShow, setTestSuccessShow] = useState(false);
 
     const onSubmit = (e: any) => {
         e.preventDefault();
@@ -123,8 +167,10 @@ const TestGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
         axios.post(url, testData, {headers: {Authorization: "Bearer " + token}})
             .then(response => {
                 setErrorMsg("");
-                getGraders();
                 setTestResult(response.data.data);
+                onClose();
+                setTestSuccessShow(true);
+                getGraders();
             })
             .catch((error) => {
                 console.log(error);
@@ -134,6 +180,7 @@ const TestGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
     }
     
     return (
+        <>
         <Modal show={show} onHide={() => {onClose(); setErrorMsg("");}}>
             <Modal.Header>
                 <Modal.Title>Test Grader</Modal.Title>
@@ -153,7 +200,10 @@ const TestGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                     </>
                     }
 
-                    <div><small className="text-danger">{testResult}</small></div>
+                    <Form.Group className="mb-3">
+                        <Form.Text>Please wait for a moment for test result to be shown...</Form.Text>
+                    </Form.Group>
+
                     <div><small className="text-danger">{errorMsg}</small></div>
 
                     <div className="text-end">
@@ -163,6 +213,18 @@ const TestGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                 </Form>
             </Modal.Body>
         </Modal>
+
+        <TestSuccessModal
+            show={testSuccessShow}
+            onClose={() => setTestSuccessShow(false)}
+            setTestGraderShow={setTestGraderShow}
+            result={testResult}
+            grader={grader as graderDataType}
+            getGraders={getGraders}
+            errorMsg={errorMsg}
+            setErrorMsg={setErrorMsg}
+        />
+        </>
     )
 }
 

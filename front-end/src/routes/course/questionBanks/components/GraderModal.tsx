@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Button, Col, Form, InputGroup, ListGroup, Modal, Row} from 'react-bootstrap';
+import {Button, Col, ListGroup, Modal, Row} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
@@ -92,6 +92,7 @@ const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean
 
         <TestGraderModal
             show={testGraderShow}
+            setTestGraderShow={setTestGraderShow}
             onClose={() => setTestGraderShow(false)}
             grader={grader as graderDataType}
             getGraders={getGraders}
