@@ -37,7 +37,7 @@ const settingToQuestion = (setting: ExamConfigSettingsType, qIndex: number, tags
                 <Card.Text>Score: {setting.max_score}</Card.Text>
                 <Card.Text># of sub questions: {setting.sub_question_number}</Card.Text>
                 {subquestionScores}
-                <Card.Text>Generation source: {appointed}</Card.Text>
+                <Card.Text>Generation method: {appointed}</Card.Text>
             </Card.Body>
             <Card.Footer>
                 <Button variant="warning" size="sm" className="me-1" onClick={() => editWrapper(qIndex)}><i className="bi bi-pencil-square me-1"/>Edit</Button>
@@ -47,22 +47,53 @@ const settingToQuestion = (setting: ExamConfigSettingsType, qIndex: number, tags
     );
 };
 
-const AddModal = ({show, onSubmit, onCancel}: {show: boolean, onSubmit: () => void, onCancel: () => void}) => {
+const tagListOptions = (tagList: tagProps[]) => tagList.map(tag => (
+    <option key={tag.id} value={tag.id}>{tag.name}</option>
+));
+
+const templateExamConfigSetting : ExamConfigSettingsType = {
+    id: [], max_score: 0, scores: [], sub_question_number: 0, tag: "", title: ""
+};
+
+const AddModal = ({show, question, setQuestion, onSubmit, onCancel, tagList}: {show: boolean, question: ExamConfigSettingsType, setQuestion: React.Dispatch<React.SetStateAction<ExamConfigSettingsType>>, onSubmit: () => void, onCancel: () => void, tagList: tagProps[]}) => {
+    const updateQuestion = (updateTerm: any) => {
+        const newQuestion = Object.assign({}, question, updateTerm);
+        setQuestion(newQuestion);
+        return newQuestion;
+    }
     const validate = () => {
-        const baseCourseName = (document.getElementById('new-base-course-edit') as HTMLInputElement).value;
-        (document.getElementById('new-question-add-title') as HTMLInputElement).value = "";
+        console.log(question);
     }
     return (
         <Modal show={show}>
             <Modal.Header><Modal.Title>Add question</Modal.Title></Modal.Header>
             <Modal.Body>
                 <Form>
-                    <Form.Group className="pb-4">
+                    <Form.Group className="mb-2">
+                        <Form.Label>Tag</Form.Label>
+                        <Form.Select id="new-question-add-tag" value={question.tag} onChange={(e) => updateQuestion({tag: e.target.value})}>
+                            <option value={""}>Select a tag</option>
+                            {tagListOptions(tagList)}
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                        <Form.Label>Title</Form.Label>
                         <Form.Control type="text"
                                       className="mb-2"
                                       required
                                       id="new-question-add-title"
+                                      value={question.title}
+                                      onChange={(e) => updateQuestion({title: e.target.value})}
                         />
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                        <Form.Label>Generation method</Form.Label>
+                    </Form.Group>
+                    <Form.Group className="mb-2">
+                        <Form.Label>Number of Subquestions</Form.Label>
+                        <Form.Control type="number"
+
+                                      />
                     </Form.Group>
                 </Form>
             </Modal.Body>
@@ -74,34 +105,7 @@ const AddModal = ({show, onSubmit, onCancel}: {show: boolean, onSubmit: () => vo
     );
 }
 
-const EditModal = ({show, onSubmit, onCancel}: {show: boolean, onSubmit: () => void, onCancel: () => void}) => {
-    const validate = () => {
-        const newTitle = (document.getElementById('new-question-edit-title') as HTMLInputElement).value;
-        (document.getElementById('new-question-edit-title') as HTMLInputElement).value = "";
-    }
-    return (
-        <Modal show={show}>
-            <Modal.Header><Modal.Title>Edit question</Modal.Title></Modal.Header>
-            <Modal.Body>
-                <Form>
-                    <Form.Group className="pb-4">
-                        <Form.Control type="text"
-                                      className="mb-2"
-                                      required
-                                      id="new-base-course-edit"
-                        />
-                    </Form.Group>
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onCancel}>Back</Button>
-                <Button variant="primary" onClick={validate}>Submit</Button>
-            </Modal.Footer>
-        </Modal>
-    );
-}
-
-const DeleteModal = ({show, onSubmit, onCancel}: {show: boolean, onSubmit: () => void, onCancel: () => void}) => {
+const DeleteModal = ({show, oldQuestion, onSubmit, onCancel}: {show: boolean, oldQuestion: ExamConfigSettingsType | undefined, onSubmit: () => void, onCancel: () => void}) => {
     return (
         <Modal show={show}>
             <Modal.Header><Modal.Title>Delete question</Modal.Title></Modal.Header>
@@ -143,17 +147,24 @@ const ExamConfigQuestions = () => {
     const [addQuestionModalShow, setAddQuestionModalShow] = useState(false);
     const [editQuestionModalShow, setEditQuestionModalShow] = useState(false);
     const [deleteQuestionModalShow, setDeleteQuestionModalShow] = useState(false);
-    const [questionInInterest, setQuestionInInterest] = useState<ExamConfigSettingsType>();
+    const [qIIindex, setQIIindex] = useState<number>(0);
+    const [questionInInterest, setQuestionInInterest] = useState<ExamConfigSettingsType>(templateExamConfigSetting);
 
     const editQuestionWrapper = (index: number) => {
         if (index >= 0 && index <= settingLength) {
-            setQuestionInInterest(examConfigState?.settings[index]);
+            if (examConfigState && examConfigState.settings) {
+                setQuestionInInterest(examConfigState.settings[index]);
+                setQIIindex(index);
+            }
             setEditQuestionModalShow(true);
         }
     }
     const deleteQuestionWrapper = (index: number) => {
         if (index >= 0 && index <= settingLength) {
-            setQuestionInInterest(examConfigState?.settings[index]);
+            if (examConfigState && examConfigState.settings) {
+                setQuestionInInterest(examConfigState.settings[index]);
+                setQIIindex(index);
+            }
             setDeleteQuestionModalShow(true);
         }
     }
@@ -168,6 +179,19 @@ const ExamConfigQuestions = () => {
         setDeleteQuestionModalShow(false);
     }
 
+
+    const addFormHandler = () => {
+        addFormCleanUp();
+    }
+
+    const editFormHandler = () => {
+        editFormCleanUp();
+    }
+
+    const deleteFormHandler = () => {
+        deleteFormCleanUp();
+    }
+
     const settingsToQuestion = examConfigState?.settings?.map((setting, index) => settingToQuestion(setting, index, tags, editQuestionWrapper, deleteQuestionWrapper));
     return (
         <div>
@@ -176,9 +200,9 @@ const ExamConfigQuestions = () => {
                 {(settingLength >= 2) && (<Button variant="warning"><i className="bi bi-list me-1"/>Change Order</Button>)}
             </div>
             {settingsToQuestion}
-            <AddModal show={addQuestionModalShow} onSubmit={() => {}} onCancel={addFormCleanUp} />
-            <EditModal show={editQuestionModalShow} onSubmit={() => {}} onCancel={editFormCleanUp} />
-            <DeleteModal show={deleteQuestionModalShow} onSubmit={() => {}} onCancel={deleteFormCleanUp} />
+            <AddModal show={addQuestionModalShow} question={questionInInterest} setQuestion={setQuestionInInterest} onSubmit={addFormHandler} onCancel={addFormCleanUp} tagList={tags}/>
+            <AddModal show={editQuestionModalShow} question={questionInInterest} setQuestion={setQuestionInInterest} onSubmit={editFormHandler} onCancel={editFormCleanUp} tagList={tags}/>
+            <DeleteModal show={deleteQuestionModalShow} oldQuestion={questionInInterest} onSubmit={deleteFormHandler} onCancel={deleteFormCleanUp} />
         </div>
     )
 }
