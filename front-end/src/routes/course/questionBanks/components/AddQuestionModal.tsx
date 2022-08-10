@@ -263,7 +263,7 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, erro
                             <option value="multiple_choice">Multiple Choice</option>
                             <option value="customized">Customized</option>
                         </Form.Select>
-                        <Button variant="primary" onClick={() => {if (type !== "") setSubqList([...subqList, {type: type, id: id}]); setId(id + 1);}}>Add Subquestion</Button>
+                        <Button variant="primary" onClick={() => {if (type !== "") {setSubqList([...subqList, {type: type, id: id}]); setId(id + 1);}}}>Add Subquestion</Button>
                     </InputGroup>
 
                     <div><small className="text-danger">{errorMsg}</small></div>
