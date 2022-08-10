@@ -183,6 +183,24 @@ func SearchAndStore_grader(c *gin.Context, question_type string, course string, 
 	write_file(stored_file_name, byte_array, file_path)
 }
 
+func SearchAndStore_module(c *gin.Context, question_type string, course string, file_path string) {
+	var new_data PythonFile
+	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&new_data)
+	if rows.RowsAffected < 1 {
+		response.ErrDBResponse(c, "The corresponding grader of this question type can not be found.")
+	}
+	modules := new_data.Modules
+	f, err := os.OpenFile(file_path+"requirements.txt",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+	if err != nil {
+		response.ErrFileNotValidResponse(c)
+	}
+	defer f.Close()
+	for _, module := range modules {
+		f.WriteString("\n" + module)
+	}
+}
+
 func Storegrader(grader Grader_API, course string) error {
 	instance, _ := search_grader(grader.Name, course)
 	byte_array := instance.PythonGrader
@@ -233,7 +251,7 @@ func ValidateGrader(question_type, course string) bool {
 
 	var instance PythonFile
 	rows := global.DB.Where(&PythonFile{QuestionType: question_type, BaseCourse: course}).Find(&instance)
-	fmt.Println(rows.RowsAffected)
+	// fmt.Println(rows.RowsAffected)
 	return rows.RowsAffected >= 1
 }
 

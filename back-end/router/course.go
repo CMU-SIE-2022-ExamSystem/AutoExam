@@ -14,7 +14,6 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/submissions", jwt.JWTAuth(), controller.Submissions_Handler)
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/download", jwt.JWTAuth(), controller.DownloadAssessments_Handler)
 		CourseRouter.POST("/:course_name/assessments/:assessment_name/submit", jwt.JWTAuth(), controller.Usersubmit_Handler)
-		CourseRouter.GET("/:course_name/course_user_data", jwt.JWTAuth(), controller.Course_all_Test)
 		CourseRouter.GET("/assessments/config/categories", jwt.JWTAuth(), controller.AssessmentCategories_Handler)
 		CourseRouter.GET("/:course_name/assessments/:assessment_name/check", jwt.JWTAuth(), controller.CheckSubmission_Handler)
 		CourseRouter.POST("/:course_name/assessments/:assessment_name/download_answer", jwt.JWTAuth(), controller.DownloadAnswer_Handler)
@@ -72,6 +71,6 @@ func CourseRouter(Router *gin.RouterGroup) {
 		CourseRouter.DELETE("/:course_name/base", jwt.JWTAuth(), controller.DeleteBaseCourseRelation_Handler)
 
 		// test the uploaded grader
-		CourseRouter.GET("/:course_name/autograder/:grader_name", jwt.JWTAuth(), controller.Testgrader_Handler)
+		CourseRouter.POST("/:course_name/autograder/:grader_name/test", jwt.JWTAuth(), controller.Testgrader_Handler)
 	}
 }

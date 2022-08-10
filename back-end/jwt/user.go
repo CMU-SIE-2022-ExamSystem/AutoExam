@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/autolab"
@@ -86,7 +85,6 @@ func Check_authlevel_API(c *gin.Context) {
 	if strings.Contains(string(body), course_name) {
 		autolab_resp := utils.User_courses_trans(string(body))
 		autolab_map := utils.Map_user_authlevel(autolab_resp)
-		fmt.Println(autolab_map)
 		if autolab_map[course_name] == "student" {
 			response.SuccessResponse(c, "student")
 		} else if autolab_map[course_name] == "course_assistant" {

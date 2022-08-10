@@ -55,7 +55,6 @@ func JWTAuth() gin.HandlerFunc {
 			return
 		}
 
-		// fmt.Println(c)
 		c.Set("claims", claims)
 		c.Set("userId", claims.ID)
 		c.Set("email", claims.Email)

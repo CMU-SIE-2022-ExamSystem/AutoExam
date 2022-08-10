@@ -2,6 +2,8 @@ package utils
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -11,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
@@ -131,4 +134,54 @@ func MakeAnswertar(path string) bool {
 	} else {
 		return true
 	}
+}
+
+func CheckModule() {
+	var stdout, stderr bytes.Buffer
+	cmd := exec.Command("make")
+	cmd.Dir = "./autograder/"
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Run()
+}
+
+func writejson(test models.GraderTest, path string, name string) error {
+	target_path := path + name + ".json"
+	file, err := os.OpenFile(target_path, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	switch name {
+	case "answer":
+		if test.Answers.TestAutograder == nil {
+			return errors.New("the answer can not be found")
+		}
+		data, _ := json.Marshal(test.Answers)
+
+		_, err = fmt.Fprint(file, string(data))
+		return err
+	case "solution":
+		if test.Solutions.TestAutograder == nil {
+			return errors.New("the solution can not be found")
+		}
+		data, _ := json.Marshal(test.Solutions)
+
+		_, err = fmt.Fprint(file, string(data))
+		return err
+	}
+	return nil
+}
+
+func WriteGraderTest(test models.GraderTest, path string) error {
+	err := writejson(test, path, "answer")
+	if err != nil {
+		return err
+	}
+	err = writejson(test, path, "solution")
+	if err != nil {
+		return err
+	}
+	return nil
 }

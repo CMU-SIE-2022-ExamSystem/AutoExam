@@ -46,7 +46,6 @@ func compareTwoStringSlice(slice1 Strings, slice2 Strings) bool {
 func find_userinfo(id uint) (*UserCourseRelationship, bool) {
 	var user UserCourseRelationship
 	rows := global.DB.Where(&UserCourseRelationship{Id: id}).Find(&user)
-	// fmt.Println(&user)
 	if rows.RowsAffected < 1 {
 		return &user, false
 	}
@@ -63,21 +62,18 @@ func updateUserCourse(c *gin.Context, userCourseInstance UserCourseRelationship,
 	OriginalStudentCourses := userCourseInstance.ClassesAsStudent
 	NewStudentCourses := mapFromAutoLab["student"]
 	if !compareTwoStringSlice(OriginalStudentCourses, NewStudentCourses) {
-		// fmt.Println("update student courses now!")
 		updateHelper(c, user_id, NewStudentCourses, "classes_as_student")
 	}
 
 	OriginalTACourses := userCourseInstance.ClassesAsTA
 	NewTACourses := mapFromAutoLab["course_assistant"]
 	if !compareTwoStringSlice(OriginalTACourses, NewTACourses) {
-		// fmt.Println("update TA courses now!")
 		updateHelper(c, user_id, NewTACourses, "classes_as_ta")
 	}
 
 	OriginalInstructorCourses := userCourseInstance.ClassesAsInstructor
 	NewInstructorCourses := mapFromAutoLab["instructor"]
 	if !compareTwoStringSlice(OriginalInstructorCourses, NewInstructorCourses) {
-		// fmt.Println("update instructor courses now!")
 		updateHelper(c, user_id, NewInstructorCourses, "classes_as_instructor")
 	}
 }
