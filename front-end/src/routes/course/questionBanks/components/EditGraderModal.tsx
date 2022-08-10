@@ -16,6 +16,33 @@ interface moduleProps {
     name: string;
 }
 
+const EditForciblyModal = ({show, onClose, grader, fileData, uploadGraderFile, graderData, editGrader, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, grader: graderDataType, fileData: FormData, uploadGraderFile: (name: string, file: FormData, force: boolean) => void, graderData: object, editGrader: (name: string, graderData: object, force: boolean) => void, errorMsg: string, setErrorMsg: any}) => {
+    const handleClick = () => {
+        if (fileData !== undefined) {
+            uploadGraderFile(grader.name, fileData, true);
+        }
+        editGrader(grader.name, graderData, true);
+    }
+    return (
+        <Modal show={show} onHide={() => {onClose(); setErrorMsg("")}}>
+            <Modal.Header>
+                <Modal.Title>Edit Grader Forcibly</Modal.Title>
+            </Modal.Header>
+            
+            <Modal.Body>
+                This grader is already used in some questions. Do you want to edit it forcibly?
+            </Modal.Body>
+
+            <div><small className="text-danger">{errorMsg}</small></div>
+
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => {onClose(); setErrorMsg("")}}>Cancel</Button>
+                <Button variant="primary" type="submit" className="ms-2" onClick={handleClick}>Confirm</Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
+
 const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, grader: graderDataType, getGraders: () => void, errorMsg: string, setErrorMsg: any}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
@@ -106,6 +133,10 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
         setFileName(e.target.files[0].name)
     }
 
+    const [editForciblyShow, setEditForciblyShow] = useState(false);
+    const [fileData, setFileData] = useState<FormData>();
+    const [graderData, setGraderData] = useState<object>();
+
     const onSubmit = (e: any) => {
         e.preventDefault();
 
@@ -113,7 +144,8 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
             const formData = new FormData();
             formData.append("file", file);
             formData.append("fileName", fileName);
-            uploadGraderFile(name, formData);
+            uploadGraderFile(name, formData, false);
+            setFileData(formData);
         }
 
         const getBlanks = () => {
@@ -153,15 +185,25 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
             blanks: getBlanks(),
             modules: getModules()
         }
-        editGrader(name, graderData);
+        editGrader(name, graderData, false);
+        setGraderData(graderData);
     }
 
-    const uploadGraderFile = async (name: string, file: FormData) => {
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name + "/upload");
+    const uploadGraderFile = async (name: string, file: FormData, force: boolean) => {
+        let url: string = ""
+        if (force) {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name + "/upload/force");
+        } else {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name + "/upload");
+        }
         const token = globalState.token;
         axios.put(url, file, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
-                onClose();
+                if (force) {
+                    setEditForciblyShow(false);
+                } else {
+                    onClose();
+                }
                 setErrorMsg("");
                 getGraders();
             })
@@ -169,16 +211,29 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                 console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
+                if (!force && error.response.status === 400) {
+                    onClose();
+                    setEditForciblyShow(true);
+                }
             });
     }
 
-    const editGrader = async (name: string, graderData: object) => {
+    const editGrader = async (name: string, graderData: object, force: boolean) => {
         console.log(graderData)
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name);
+        let url: string = ""
+        if (force) {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name + "/force");
+        } else {
+            url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name);
+        }
         const token = globalState.token;
         axios.put(url, graderData, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
-                onClose();
+                if (force) {
+                    setEditForciblyShow(false);
+                } else {
+                    onClose();
+                }
                 clearState();
                 setErrorMsg("");
                 getGraders();
@@ -187,6 +242,10 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                 console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
+                if (!force && error.response.status === 400) {
+                    onClose();
+                    setEditForciblyShow(true);
+                }
             });
     }
 
@@ -198,6 +257,7 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
     }
     
     return (
+        <>
         <Modal show={show} onHide={() => {onClose(); setErrorMsg("");}} backdrop="static" size="lg">
             <Modal.Header>
                 <Modal.Title>Edit Grader</Modal.Title>
@@ -224,6 +284,7 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                             </Form.Select>
                             <Button variant="primary" onClick={() => {if (type !== "") {setInputList([...inputList, {input_idx: inputIdx, type: type}]); setInputIdx(inputIdx + 1);}}}>Add</Button>
                         </InputGroup>
+                        <hr/>
 
                         <Form.Group className="mb-3">
                             <Form.Label>Module</Form.Label>
@@ -232,6 +293,7 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                                 <Button variant="primary" onClick={() => {setModuleList([...moduleList, {module_idx: moduleIdx, name: ""}]); setModuleIdx(moduleIdx + 1)}}>Add Module</Button>
                             </div>
                         </Form.Group>
+                        <hr/>
                     </>
                     }
 
@@ -250,6 +312,19 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                 </Form>
             </Modal.Body>
         </Modal>
+
+        <EditForciblyModal
+            show={editForciblyShow}
+            onClose={() => setEditForciblyShow(false)}
+            grader={grader as graderDataType}
+            fileData={fileData as FormData}
+            uploadGraderFile={uploadGraderFile}
+            graderData={graderData as object}
+            editGrader={editGrader}
+            errorMsg={errorMsg}
+            setErrorMsg={setErrorMsg}
+        />
+        </>
     )
 }
 

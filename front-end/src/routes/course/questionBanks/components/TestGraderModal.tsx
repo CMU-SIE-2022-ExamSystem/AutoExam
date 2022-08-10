@@ -82,6 +82,10 @@ const OneInBlank = ({blank, blankIdx}: {blank: blankDataType, blankIdx: number})
     return (
         <>
         <Form.Label>{"(" + blankIdx + ") " + (blank.is_choice ? (blank.multiple? "Multiple Choice" : "Single Choice") : (blank.type === "string" ? "Blank" : "Code"))}</Form.Label>
+        <br/>
+        {blank.is_choice &&
+            <Form.Text>It's a choice. You can directly input the answer to test grader.</Form.Text>
+        }
 
         <Form.Group className="mb-3">
             <Form.Label>Answer</Form.Label>
