@@ -54,7 +54,7 @@ function ExamInstructions() {
                         <div>
                             <h1 className="my-3">{params.exam_id}</h1>
                             <h2 className="text-start my-4"><strong>Instructions</strong></h2>
-                            <div className="test-start" dangerouslySetInnerHTML={{__html: description}}/>
+                            <div className="text-start" dangerouslySetInnerHTML={{__html: description}}/>
                             {zoomLink.length > 0 && <Alert key="primary" variant="primary" className="text-start my-4">Zoom Link: {zoomLink}</Alert>}
                             <Link to="questions">
                                 <Button type="button" className="btn btn-lg btn-primary w-50">Start</Button>
