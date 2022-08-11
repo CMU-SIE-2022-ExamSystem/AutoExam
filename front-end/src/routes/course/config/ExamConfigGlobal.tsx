@@ -175,23 +175,6 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
                 grading_deadline: moment(pickers[2].viewDate.toISOString()).toISOString(true)
             })
         });
-        return () => {
-            if (p1 instanceof Array) {
-                p1[0].unsubscribe();
-            } else {
-                p1.unsubscribe();
-            }
-            if (p2 instanceof Array) {
-                p2[0].unsubscribe();
-            } else {
-                p2.unsubscribe();
-            }
-            if (p3 instanceof Array) {
-                p3[0].unsubscribe();
-            } else {
-                p3.unsubscribe();
-            }
-        }
     }, [dataReady, examConfigState]);
 
     return (

@@ -178,7 +178,10 @@ const AddModal = ({show, question, setQuestion, onSubmit, onCancel, tagList, pic
                         <Form.Group className="mb-2">
                             <Form.Label>Number of Subquestions</Form.Label>
                             <Form.Control type="number" min="0" step="1" value={question.sub_question_number}
-                                          onChange={(e) => {setBadSubQuestionsNumber(false); updateQuestion({sub_question_number: parseInt(e.target.value) || 0})}}
+                                          onChange={(e) => {
+                                              setBadSubQuestionsNumber(false);
+                                              updateQuestion({sub_question_number: parseInt(e.target.value) || 0, id: []});
+                                          }}
                                           isInvalid={badSubQuestionsNumber}
                             />
                             {question.tag && availableValuesText}
@@ -337,7 +340,7 @@ const ExamConfigQuestions = () => {
         <SettingToQuestion key={"exam_config_question_" + index} setting={setting} qIndex={index} tags={tags}  editWrapper={editQuestionWrapper} deleteWrapper={deleteQuestionWrapper}/>
     ));
     return (
-        <div>
+        <div className="mb-3">
             <div className="text-end mb-2">
                 <Button variant="success" className="me-1" onClick={addQuestionWrapper}><i className="bi bi-plus-square me-1"/>Add Question</Button>
                 {(settingLength >= 2) && (<Button variant="warning"><i className="bi bi-list me-1"/>Change Order</Button>)}

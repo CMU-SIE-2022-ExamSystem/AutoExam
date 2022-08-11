@@ -170,7 +170,7 @@ function ExamConfig() {
                         </Col>
                     </Row>
                 </Tab.Container>
-                <div className="position-absolute bottom-0 end-0 w-25 p-3">
+                <div className={"position-absolute bottom-0 end-0 w-25 p-3" + saveAlertShow ? "" : "d-none"}>
                     <Alert variant="success" show={saveAlertShow} onClose={() => setSaveAlertShow(false)} dismissible>
                         Your config has been saved.
                     </Alert>
