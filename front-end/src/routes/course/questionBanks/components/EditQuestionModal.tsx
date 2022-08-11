@@ -298,7 +298,7 @@ const EditQuestionModal = ({show, onClose, setEditQuestionShow, tags, getTags, g
 
     return (
         <>
-        <Modal show={show} onHide={() => {onClose(); clearState(); clearQuestion(); setErrorMsg("")}} size="lg">
+        <Modal show={show} onHide={() => {onClose(); clearState(); clearQuestion(); setErrorMsg("")}} backdrop="static" size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Edit Queston</Modal.Title>
             </Modal.Header>

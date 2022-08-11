@@ -4,7 +4,8 @@ import {Button, Col, Form, InputGroup, Row} from 'react-bootstrap';
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
-import { choiceDataType, subQuestionDataType } from '../../../../components/questionTemplate/subQuestionDataType';
+import {choiceDataType, subQuestionDataType} from '../../../../components/questionTemplate/subQuestionDataType';
+import CodeEditor from "@uiw/react-textarea-code-editor";
 
 interface blankProps {
     type: 'string' | 'code';
@@ -28,7 +29,7 @@ interface choiceProps {
     choice_checked: boolean;
 }
 
-const Blank = ({subSubId, solutionData}: {subSubId: string, solutionData: string[] | undefined}) => {
+const Blank = ({subSubId, type, solutionData}: {subSubId: string, type: string, solutionData: string[] | undefined}) => {
     const [solutionIdx, setSolutionIdx] = useState(0);
     const [solutionList, setSolutionList] = useState<solutionProps[]>([]);
 
@@ -61,7 +62,23 @@ const Blank = ({subSubId, solutionData}: {subSubId: string, solutionData: string
         return (
             <Row className="d-flex flex-row align-items-center my-2" key={solution.solution_idx}>
                 <Col>
-                    <Form.Control id={subSubId + "_solution" + index} name={subSubId + "_solutions"} defaultValue={solution.solution_content}/>
+                {type==="string" ?
+                    <Form.Control id={subSubId + "_solution" + index} name={subSubId + "_solutions"} defaultValue={solution.solution_content}/> :
+                    <CodeEditor
+                        id={subSubId + "_solution" + index}
+                        name={subSubId + "_solutions"}
+                        language={"c"}
+                        value={solution.solution_content}
+                        className="mb-3"
+                        padding={10}
+                        style={{
+                            height: "200px",
+                            fontSize: 12,
+                            backgroundColor: "#f5f5f5",
+                            fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                        }}
+                    />
+                }
                 </Col>
                 <Col xs={1}>
                     <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteSolution(solution.solution_idx)}/>
@@ -212,7 +229,7 @@ const EditCustomized = ({id, displayIdx, subQuestion, onDelete}: {id: number, di
                     return (
                         <div key={index}>
                             <Form.Label>{"(" + (index + 1) + (blank.type === "string"? ") Blank" : ") Code")}</Form.Label>
-                            <Blank subSubId={"sub" + id + "_sub" + index} solutionData={subQuestion?.solutions[index]}/>
+                            <Blank subSubId={"sub" + id + "_sub" + index} type={blank.type} solutionData={subQuestion?.solutions[index]}/>
                             <br/>
                         </div>
                     )

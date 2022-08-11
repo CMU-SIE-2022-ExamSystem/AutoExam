@@ -63,37 +63,6 @@ const Blank = ({subSubId, type}: {subSubId: string, type: string}) => {
     )
 }
 
-const Code = ({subSubId}: {subSubId: string}) => {
-    const [solutionIdx, setSolutionIdx] = useState(0);
-    const [solutionList, setSolutionList] = useState< number[]>([]);
-
-    const deleteSolution = (idx: number) => {
-        setSolutionList(solutionList.filter((solution) => solution !== idx));
-    }
-
-    const solutions = solutionList.map((solution, index) => {
-        return (
-            <Row className="d-flex flex-row align-items-center my-2" key={solution}>
-                <Col>
-                    
-                </Col>
-                <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteSolution(solution)}/>
-                </Col>
-            </Row>
-        );
-    })
-
-    return (
-        <div>
-            {solutions}
-            <div className="text-end">
-                <Button variant="primary" onClick={() => {setSolutionList([...solutionList, solutionIdx]); setSolutionIdx(solutionIdx + 1)}}>Add Solution</Button>
-            </div>
-        </div>
-    )
-}
-
 const Choice = ({subSubId}: {subSubId: string}) => {
     const [choiceIdx, setChoiceIdx] = useState(0);
     const [choiceList, setChoiceList] = useState<number[]>([]);
@@ -183,7 +152,7 @@ const AddCustomized = ({id, displayIdx, onDelete}: {id: number, displayIdx: numb
                 if (blank.is_choice) {
                     return (
                         <div key={index}>
-                            <Form.Label>{(index + 1) + (blank.multiple === true ? ". Multiple" : ". Single") + " Choice"}</Form.Label>
+                            <Form.Label>{"(" + (index + 1) + (blank.multiple === true ? ") Multiple" : ") Single") + " Choice"}</Form.Label>
                             <br/>
                             <Choice subSubId={"sub" + id + "_sub" + index}/>
                         </div>
@@ -193,7 +162,7 @@ const AddCustomized = ({id, displayIdx, onDelete}: {id: number, displayIdx: numb
                 // blank or code
                 return (
                     <div key={index}>
-                        <Form.Label>{(index + 1) + (blank.type === "string"? ". Blank" : ". Code")}</Form.Label>
+                        <Form.Label>{"(" + (index + 1) + (blank.type === "string"? ") Blank" : ") Code")}</Form.Label>
                         <Blank subSubId={"sub" + id + "_sub" + index} type ={blank.type}/>
                         <br/>
                     </div>

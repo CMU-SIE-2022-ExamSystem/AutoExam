@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, Form, InputGroup, Modal} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
@@ -55,20 +55,6 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, grad
         if (type === "customized") return (<AddCustomized key={id} id={id} displayIdx={index + 1} onDelete={deleteSubq}/>);
         return (<></>);
     });
-
-    // const [graders, setGraders] = useState<graderProps[]>([]);
-
-    // const getGraders = useCallback(async () => {
-    //     const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
-    //     const token = globalState.token;
-    //     const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-    //     setGraders(result.data.data);
-    //     console.log(result.data.data)
-    // }, [globalState.token, params.course_name])
-
-    // useEffect(() => {
-    //     getGraders().catch();
-    // }, [getGraders])
 
     const getSubquestionsData = () => {
         function getSingleBlankData(type: string, id: number) {
@@ -235,7 +221,7 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, grad
     }
 
     return (
-        <Modal show={show} onHide={() => {onClose(); clearState(); setErrorMsg("")}} size="lg">
+        <Modal show={show} onHide={() => {onClose(); clearState(); setErrorMsg("")}} backdrop="static" size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Add New Question</Modal.Title>
             </Modal.Header>

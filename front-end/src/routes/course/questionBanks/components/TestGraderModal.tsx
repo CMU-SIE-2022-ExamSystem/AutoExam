@@ -5,6 +5,7 @@ import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
 import graderDataType, {blankDataType} from './graderDataType';
+import CodeEditor from "@uiw/react-textarea-code-editor";
 
 interface LooseObject {
     [key: string]: any
@@ -74,7 +75,22 @@ const OneInBlank = ({blank, blankIdx}: {blank: blankDataType, blankIdx: number})
         return (
             <Row className="d-flex flex-row align-items-center my-2" key={solution.solution_idx}>
                 <Col>
-                    <Form.Control id={"blank" + blankIdx + "_solution" + index} name={"blank" + blankIdx + "_solutions"}/>
+                    {blank.type !== "code" ?
+                        <Form.Control id={"blank" + blankIdx + "_solution" + index} name={"blank" + blankIdx + "_solutions"}/> :
+                        <CodeEditor
+                            id={"blank" + blankIdx + "_solution" + index}
+                            name={"blank" + blankIdx + "_solutions"}
+                            language={"c"}
+                            className="mb-3"
+                            padding={10}
+                            style={{
+                                height: "200px",
+                                fontSize: 12,
+                                backgroundColor: "#f5f5f5",
+                                fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                            }}
+                        />
+                    }
                 </Col>
                 <Col xs={1}>
                     <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteSolution(solution.solution_idx)}/>
@@ -93,7 +109,21 @@ const OneInBlank = ({blank, blankIdx}: {blank: blankDataType, blankIdx: number})
 
         <Form.Group className="mb-3">
             <Form.Label>Answer</Form.Label>
-            <Form.Control id={"blank" + blankIdx + "_answer"}/>
+            {blank.type !== "code" ?
+                <Form.Control id={"blank" + blankIdx + "_answer"}/> :
+                <CodeEditor
+                    id={"blank" + blankIdx + "_answer"}
+                    language={"c"}
+                    className="mb-3"
+                    padding={10}
+                    style={{
+                        height: "200px",
+                        fontSize: 12,
+                        backgroundColor: "#f5f5f5",
+                        fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                    }}
+                />
+            }
         </Form.Group>
 
         <Form.Group className="mb-3">
