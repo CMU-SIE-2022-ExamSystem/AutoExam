@@ -97,6 +97,10 @@ function ExamConfig() {
     }
 
     const submitHandler = () => {
+        if (!examConfigState?.draft) {
+            navigate('/courses/' + courseName);
+            return;
+        }
         postConfig()
             .then(_ => {navigate('/courses/' + courseName)})
             .catch();

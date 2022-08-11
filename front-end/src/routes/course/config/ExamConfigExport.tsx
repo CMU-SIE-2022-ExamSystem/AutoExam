@@ -82,6 +82,21 @@ const ExamConfigExport = () => {
                 setAlertShow(true);
             })
     }
+    const unpublishExam = () => {
+        const url = getBackendApiUrl("/courses/" + courseName + "/assessments/" + examId + "/draft");
+        const token = globalState.token;
+        axios.put(url, {draft: true}, {headers: {Authorization: "Bearer " + token}})
+            .then(_ => {
+                const newState = Object.assign({}, examConfigState, {draft: true});
+                setExamConfigState(newState);
+            })
+            .catch(onFailure => {
+                setAlertVariant("danger");
+                setAlertContent(onFailure.toString().substring(0, 50))
+                console.error(onFailure);
+                setAlertShow(true);
+            })
+    }
 
     const generateExams = () => {
         const url = getBackendApiUrl("/courses/" + courseName + "/assessments/" + examId + "/generate");
@@ -129,7 +144,8 @@ const ExamConfigExport = () => {
             })
     }
     const generateButton = (<Button variant="info" onClick={generateExams}>Generate</Button>);
-    const publishButton = (<Button variant="success" onClick={publishOnClick}>Publish</Button>);
+    const publishButton = examConfigState?.draft ?
+        (<Button variant="success" onClick={publishOnClick}>Publish</Button>) : (<Button variant="warning" onClick={unpublishExam}>Unpublish</Button>);
     const removeButton = (<Button variant="danger" onClick={removeOnClick}>Remove Test</Button>)
 
     return (
