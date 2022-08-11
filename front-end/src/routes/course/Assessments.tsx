@@ -253,7 +253,7 @@ function Assessments() {
                            categoryList={categoryList}
                            errorMessage={badExamConfig}
             />
-            <BaseCourseRelationshipManageModal show={showBaseCourseModal} toClose={() => setShowBaseCourseModal(false)} />
+            {courseInfo?.auth_level === 'instructor' && <BaseCourseRelationshipManageModal show={showBaseCourseModal} toClose={() => setShowBaseCourseModal(false)} />}
         </AppLayout>
     );
 }

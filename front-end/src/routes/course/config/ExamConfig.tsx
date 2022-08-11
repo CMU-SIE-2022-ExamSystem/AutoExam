@@ -76,7 +76,8 @@ function ExamConfig() {
             settings: examConfigState.settings
         }
         const result = await axios.put(url, data, {headers: {Authorization: "Bearer " + token}});
-        return result.data;
+        setExamConfigState(result.data.data);
+        return result.data.data;
     }
 
     const [backModalShow, setBackModalShow] = useState(false);

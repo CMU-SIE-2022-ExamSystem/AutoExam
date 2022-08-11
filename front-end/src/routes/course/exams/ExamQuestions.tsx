@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Button, Col, Modal, Row} from 'react-bootstrap';
+import {Alert, Button, Col, Modal, Row} from 'react-bootstrap';
 import {useNavigate, useParams} from "react-router-dom";
 import AppLayout from "../../../components/AppLayout";
 import Question from "../../../components/Question";
@@ -89,6 +89,7 @@ const FileDownloadModal = ({show, onSubmit, onClose} :{ show: boolean, onSubmit:
 interface instructionType {
     title: string;
     instructions: string;
+    zoom: string;
 }
 
 const Instructions = ({info}: {info: instructionType}) => {
@@ -97,6 +98,7 @@ const Instructions = ({info}: {info: instructionType}) => {
             <h1 className="my-3">{info.title}</h1>
             <h2 className="text-start my-4"><strong>Instructions</strong></h2>
             <div className="text-start" dangerouslySetInnerHTML={{__html: info.instructions}} />
+            {info.zoom.length > 0 && <Alert key="primary" variant="primary" className="text-start my-4">Zoom Link: {info.zoom}</Alert>}
         </div>
     );
 }
@@ -213,6 +215,7 @@ const ExamQuestions = () => {
 
     const [targetTime, setTargetTime] = useState(new Date(Date.now() + 1000 * 3600).toString());
     const [description, setDescription] = useState<string>("");
+    const [zoomLink, setZoomLink] = useState<string>("");
 
     const getTestGeneralInfo = useCallback(() => {
         const examUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}`);
@@ -236,6 +239,7 @@ const ExamQuestions = () => {
                     return;
                 }
                 setDescription(testInfo.description);
+                setZoomLink(testInfo.zoom);
                 setTargetTime(new Date(testInfo.end_at).toString());
             })
     }, [getTestGeneralInfo]);
@@ -243,6 +247,7 @@ const ExamQuestions = () => {
     let instructionsInfo : instructionType = {
         title: params.exam_id!,
         instructions: description,
+        zoom: zoomLink
     }
 
     const questions = questionList.map((question, index) => {

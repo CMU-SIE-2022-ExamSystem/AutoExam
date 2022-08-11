@@ -14,7 +14,7 @@ interface tagProps {
     course: string;
 }
 
-const settingToQuestion = (setting: ExamConfigSettingsType, qIndex: number, tags: tagProps[], editWrapper: (arg0: number) => void, deleteWrapper: (arg0: number) => void) => {
+const SettingToQuestion = ({setting, qIndex, tags, editWrapper, deleteWrapper}:{setting: ExamConfigSettingsType, qIndex: number, tags: tagProps[], editWrapper: (arg0: number) => void, deleteWrapper: (arg0: number) => void}) => {
     const myTag = tags.find(tag => tag.id === setting.tag);
     const idLength = setting.id.length;
     const appointed = idLength > 0 ? ("Chosen from " + idLength + " questions") : "Random pick according to tag";
@@ -22,15 +22,15 @@ const settingToQuestion = (setting: ExamConfigSettingsType, qIndex: number, tags
     const subquestionScores = (
         <Table bordered>
             <thead>
-                <tr><th>Questions</th>{subquestionTitles.map(title => <th scope="col" key={title}>{title}</th>)}</tr>
+                <tr><th>Questions</th>{subquestionTitles.map((title, index) => <th scope="col" key={"question_" + qIndex + "_subtitle_" + index}>{title}</th>)}</tr>
             </thead>
             <tbody>
-                <tr><td>Scores</td>{setting.scores.map(score => <td>{score}</td>)}</tr>
+                <tr><td>Scores</td>{setting.scores.map((score, index) => <td key={"question_" + qIndex + "_subscore_" + index}>{score}</td>)}</tr>
             </tbody>
         </Table>
     )
     return (
-        <Card className="my-3 text-start" key={"exam_config_question_" + qIndex}>
+        <Card className="my-3 text-start">
             <Card.Header>
                 {qIndex + 1}. {myTag ? myTag.name : setting.title}
             </Card.Header>
@@ -333,7 +333,9 @@ const ExamConfigQuestions = () => {
         getQuestionList().catch();
     }, [questionInInterest.tag])
 
-    const settingsToQuestion = examConfigState?.settings?.map((setting, index) => settingToQuestion(setting, index, tags, editQuestionWrapper, deleteQuestionWrapper));
+    const settingsToQuestion = examConfigState?.settings?.map((setting, index) => (
+        <SettingToQuestion key={"exam_config_question_" + index} setting={setting} qIndex={index} tags={tags}  editWrapper={editQuestionWrapper} deleteWrapper={deleteQuestionWrapper}/>
+    ));
     return (
         <div>
             <div className="text-end mb-2">
