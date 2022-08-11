@@ -223,6 +223,7 @@ const AddGraderModal = ({show, onClose, getGraders, errorMsg, setErrorMsg}: {sho
                         <ReactTags
                             tags={tags}
                             name="modules"
+                            classNames={{remove: 'btn btn-sm'}}
                             handleDelete={handleDelete}
                             handleAddition={handleAddition}
                             inputFieldPosition="bottom"

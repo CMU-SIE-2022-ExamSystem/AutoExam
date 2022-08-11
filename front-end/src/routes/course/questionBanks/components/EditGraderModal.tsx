@@ -280,6 +280,7 @@ const EditGraderModal = ({show, onClose, grader, getGraders, clearGrader, errorM
                             <ReactTags
                                 tags={tags}
                                 name="modules"
+                                classNames={{remove: 'btn btn-sm'}}
                                 handleDelete={handleDelete}
                                 handleAddition={handleAddition}
                                 inputFieldPosition="bottom"
