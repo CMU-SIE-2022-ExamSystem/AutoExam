@@ -281,6 +281,7 @@ const EditGraderModal = ({show, onClose, grader, getGraders, clearGrader, errorM
                                 tags={tags}
                                 name="modules"
                                 classNames={{remove: 'btn btn-sm'}}
+                                placeholder="Press enter to add new module"
                                 handleDelete={handleDelete}
                                 handleAddition={handleAddition}
                                 inputFieldPosition="bottom"
