@@ -345,7 +345,7 @@ const ExamConfigQuestions = () => {
         <div className="mb-3">
             <div className="text-end mb-2">
                 <Button variant="success" className="me-1" onClick={addQuestionWrapper}><i className="bi bi-plus-square me-1"/>Add Question</Button>
-                {(settingLength >= 2) && (<Button variant="warning"><i className="bi bi-list me-1"/>Change Order</Button>)}
+                {false && (settingLength >= 2) && (<Button variant="warning"><i className="bi bi-list me-1"/>Change Order</Button>)}
             </div>
             {settingsToQuestion}
             <AddModal show={addQuestionModalShow} question={questionInInterest} setQuestion={setQuestionInInterest} onSubmit={addFormHandler} onCancel={addFormCleanUp} tagList={tags} pickList={queryQuestionList}/>
