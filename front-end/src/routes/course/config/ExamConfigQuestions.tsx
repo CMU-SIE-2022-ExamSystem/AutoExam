@@ -160,7 +160,9 @@ const AddModal = ({show, question, setQuestion, onSubmit, onCancel, tagList, pic
                     <Modal.Body>
                         <Form.Group className="mb-2">
                             <Form.Label>Tag</Form.Label>
-                            <Form.Select required id="new-question-add-tag" value={question.tag} onChange={(e) => updateQuestion({tag: e.target.value})}>
+                            <Form.Select required id="new-question-add-tag" value={question.tag} onChange={(e) => {
+                                updateQuestion({tag: e.target.value, id: []})
+                            }}>
                                 <option value={""}>Select a tag</option>
                                 {tagListOptions(tagList)}
                             </Form.Select>
