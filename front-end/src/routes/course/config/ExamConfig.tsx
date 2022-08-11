@@ -7,7 +7,7 @@ import ExamConfigInstructions from "./ExamConfigInstructions";
 import ExamConfigGlobal from "./ExamConfigGlobal";
 import ExamConfigQuestions from "./ExamConfigQuestions";
 import {useConfigStates} from "./ExamConfigStates";
-import {getBackendApiUrl} from "../../../utils/url";
+import {getBackendApiUrl, getFrontendUrl} from "../../../utils/url";
 import axios from "axios";
 import {useGlobalState} from "../../../components/GlobalStateProvider";
 import ExamConfigExport from "./ExamConfigExport";
@@ -71,11 +71,13 @@ function ExamConfig() {
         const token = globalState.token;
         if (!examConfigState) return;
         const data = {
+            //general: Object.assign({}, examConfigState.general, {url: getFrontendUrl("/courses/" + courseName + "/exams/" + examId)}),
             general: examConfigState.general,
             settings: examConfigState.settings
         }
         const result = await axios.put(url, data, {headers: {Authorization: "Bearer " + token}});
-        return result.data;
+        setExamConfigState(result.data.data);
+        return result.data.data;
     }
 
     const [backModalShow, setBackModalShow] = useState(false);
@@ -88,11 +90,17 @@ function ExamConfig() {
 
     const saveHandler = () => {
         postConfig()
-            .then(_ => {setSaveAlertShow(true)})
+            .then(_ => {
+                if (examId !== examConfigState?.general.name) navigate('/courses/' + courseName + "/examConfig/" + examConfigState?.general.name);
+                setSaveAlertShow(true)})
             .catch();
     }
 
     const submitHandler = () => {
+        if (!examConfigState?.draft) {
+            navigate('/courses/' + courseName);
+            return;
+        }
         postConfig()
             .then(_ => {navigate('/courses/' + courseName)})
             .catch();
@@ -162,7 +170,7 @@ function ExamConfig() {
                         </Col>
                     </Row>
                 </Tab.Container>
-                <div className="position-absolute bottom-0 end-0 w-25 p-3">
+                <div className={"position-fixed bottom-0 end-0 w-25 p-3" + (saveAlertShow ? "" : "d-none")}>
                     <Alert variant="success" show={saveAlertShow} onClose={() => setSaveAlertShow(false)} dismissible>
                         Your config has been saved.
                     </Alert>

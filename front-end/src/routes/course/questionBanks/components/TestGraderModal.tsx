@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Button, Col, Form, Modal, Row} from 'react-bootstrap';
+import {Button, Col, Form, Modal, Row, Spinner} from 'react-bootstrap';
 import {useParams} from "react-router-dom";
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
@@ -114,9 +114,11 @@ const TestGraderModal = ({show, setTestGraderShow, onClose, grader, getGraders, 
 
     const [testResult, setTestResult] = useState("");
     const [testSuccessShow, setTestSuccessShow] = useState(false);
+    const [spinnerShow, setSpinnerShow] = useState<boolean>(false);
 
     const onSubmit = (e: any) => {
         e.preventDefault();
+        setSpinnerShow(true);
 
         function getAnswers() {
             let answerMap = new Map<string, string[]>();
@@ -174,6 +176,7 @@ const TestGraderModal = ({show, setTestGraderShow, onClose, grader, getGraders, 
         const token = globalState.token;
         axios.post(url, testData, {headers: {Authorization: "Bearer " + token}})
             .then(response => {
+                setSpinnerShow(false);
                 setErrorMsg("");
                 setTestResult(response.data.data);
                 onClose();
@@ -181,6 +184,7 @@ const TestGraderModal = ({show, setTestGraderShow, onClose, grader, getGraders, 
                 getGraders();
             })
             .catch((error) => {
+                setSpinnerShow(false);
                 console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
@@ -215,8 +219,11 @@ const TestGraderModal = ({show, setTestGraderShow, onClose, grader, getGraders, 
                     <div><small className="text-danger">{errorMsg}</small></div>
 
                     <div className="text-end">
-                        <Button variant="secondary" onClick={() => {onClose(); setErrorMsg("");}}>Close</Button>
-                        <Button variant="primary" className="ms-2" type="submit">Confirm</Button>
+                        {!spinnerShow && <Button variant="secondary" onClick={() => {onClose(); setErrorMsg("");}}>Close</Button>}
+                        <Button variant="primary" className="ms-2" type="submit" disabled={spinnerShow}>
+                            <Spinner animation={"border"} as={"span"} role={"status"} variant="light" size="sm" className={spinnerShow ? "me-1" : "d-none"}/>
+                            <span>Confirm</span>
+                        </Button>
                     </div>
                 </Form>
             </Modal.Body>

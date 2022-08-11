@@ -14,7 +14,7 @@ interface tagProps {
     course: string;
 }
 
-const settingToQuestion = (setting: ExamConfigSettingsType, qIndex: number, tags: tagProps[], editWrapper: (arg0: number) => void, deleteWrapper: (arg0: number) => void) => {
+const SettingToQuestion = ({setting, qIndex, tags, editWrapper, deleteWrapper}:{setting: ExamConfigSettingsType, qIndex: number, tags: tagProps[], editWrapper: (arg0: number) => void, deleteWrapper: (arg0: number) => void}) => {
     const myTag = tags.find(tag => tag.id === setting.tag);
     const idLength = setting.id.length;
     const appointed = idLength > 0 ? ("Chosen from " + idLength + " questions") : "Random pick according to tag";
@@ -22,15 +22,15 @@ const settingToQuestion = (setting: ExamConfigSettingsType, qIndex: number, tags
     const subquestionScores = (
         <Table bordered>
             <thead>
-                <tr><th>Questions</th>{subquestionTitles.map(title => <th scope="col" key={title}>{title}</th>)}</tr>
+                <tr><th>Questions</th>{subquestionTitles.map((title, index) => <th scope="col" key={"question_" + qIndex + "_subtitle_" + index}>{title}</th>)}</tr>
             </thead>
             <tbody>
-                <tr><td>Scores</td>{setting.scores.map(score => <td>{score}</td>)}</tr>
+                <tr><td>Scores</td>{setting.scores.map((score, index) => <td key={"question_" + qIndex + "_subscore_" + index}>{score}</td>)}</tr>
             </tbody>
         </Table>
     )
     return (
-        <Card className="my-3 text-start" key={"exam_config_question_" + qIndex}>
+        <Card className="my-3 text-start">
             <Card.Header>
                 {qIndex + 1}. {myTag ? myTag.name : setting.title}
             </Card.Header>
@@ -160,7 +160,9 @@ const AddModal = ({show, question, setQuestion, onSubmit, onCancel, tagList, pic
                     <Modal.Body>
                         <Form.Group className="mb-2">
                             <Form.Label>Tag</Form.Label>
-                            <Form.Select required id="new-question-add-tag" value={question.tag} onChange={(e) => updateQuestion({tag: e.target.value})}>
+                            <Form.Select required id="new-question-add-tag" value={question.tag} onChange={(e) => {
+                                updateQuestion({tag: e.target.value, id: []})
+                            }}>
                                 <option value={""}>Select a tag</option>
                                 {tagListOptions(tagList)}
                             </Form.Select>
@@ -178,7 +180,10 @@ const AddModal = ({show, question, setQuestion, onSubmit, onCancel, tagList, pic
                         <Form.Group className="mb-2">
                             <Form.Label>Number of Subquestions</Form.Label>
                             <Form.Control type="number" min="0" step="1" value={question.sub_question_number}
-                                          onChange={(e) => {setBadSubQuestionsNumber(false); updateQuestion({sub_question_number: parseInt(e.target.value) || 0})}}
+                                          onChange={(e) => {
+                                              setBadSubQuestionsNumber(false);
+                                              updateQuestion({sub_question_number: parseInt(e.target.value) || 0, id: []});
+                                          }}
                                           isInvalid={badSubQuestionsNumber}
                             />
                             {question.tag && availableValuesText}
@@ -333,9 +338,11 @@ const ExamConfigQuestions = () => {
         getQuestionList().catch();
     }, [questionInInterest.tag])
 
-    const settingsToQuestion = examConfigState?.settings?.map((setting, index) => settingToQuestion(setting, index, tags, editQuestionWrapper, deleteQuestionWrapper));
+    const settingsToQuestion = examConfigState?.settings?.map((setting, index) => (
+        <SettingToQuestion key={"exam_config_question_" + index} setting={setting} qIndex={index} tags={tags}  editWrapper={editQuestionWrapper} deleteWrapper={deleteQuestionWrapper}/>
+    ));
     return (
-        <div>
+        <div className="mb-3">
             <div className="text-end mb-2">
                 <Button variant="success" className="me-1" onClick={addQuestionWrapper}><i className="bi bi-plus-square me-1"/>Add Question</Button>
                 {(settingLength >= 2) && (<Button variant="warning"><i className="bi bi-list me-1"/>Change Order</Button>)}

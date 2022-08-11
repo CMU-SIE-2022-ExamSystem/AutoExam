@@ -12,7 +12,7 @@ const DateTimePicker = ({pickerId}: { pickerId: string }) => {
     return (
         <InputGroup id={pickerId} data-td-target-input={'nearest'} data-td-target-toggle={'nearest'}>
             <Form.Control type="text" id={pickerId + '_input'} data-td-target={"#" + pickerId}/>
-            <InputGroup.Text data-td-target={"#" + pickerId} data-td-toggle={'datetimepicker'}><i
+            <InputGroup.Text data-td-target={"#" + pickerId} data-td-toggle={'datetimepicker'} className="pointer-cursor"><i
                 className="bi bi-calendar"/></InputGroup.Text>
         </InputGroup>
     )
@@ -64,7 +64,7 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
     const updateState = (updateTerm: any) => {
         const newState = Object.assign({}, examConfigState, updateTerm)
         setExamConfigState(newState);
-    }
+    };
 
     const updateGeneral = (updateTerm: any) => {
         updateState({general: Object.assign({}, examConfigState?.general, updateTerm)})
@@ -104,39 +104,78 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
             inputElement.value = moment(value.toISOString()).format("MM/DD/YYYY, h:mm A");
             return bindPicker(myElement, restrictions, value);
         })
-        pickers[0].subscribe(Namespace.events.change, (e: ChangeEvent) => {
+        const updateTime = () => {
+            console.log({
+                start_at: moment(pickers[0].viewDate.toISOString()).toISOString(true),
+                start_at_input: (document.getElementById('start_at_input') as HTMLInputElement).value,
+                end_at: moment(pickers[1].viewDate.toISOString()).toISOString(true),
+                end_at_value: (document.getElementById('end_at_input') as HTMLInputElement).value,
+                grading_deadline: moment(pickers[2].viewDate.toISOString()).toISOString(true),
+                grading_deadline_value: (document.getElementById('grading_deadline_input') as HTMLInputElement).value,
+            })
+        };
+        const p1 = pickers[0].subscribe(Namespace.events.change, (e: ChangeEvent) => {
             const newStart = e.date;
-            updateGeneral({start_at: newStart?.toISOString()});
-            pickers[1].updateOptions({
-                restrictions: {
-                    minDate: newStart
-                }
+            if (moment(newStart).diff(moment(startAtDateTime)) === 0) {
+                let picker1Date = pickers[1].viewDate;
+                pickers[1].updateOptions({
+                    restrictions: {
+                        minDate: newStart
+                    }
+                })
+                pickers[1].dates.setValue(picker1Date);
+            }
+            updateTime();
+            updateGeneral({
+                start_at: moment(pickers[0].viewDate.toISOString()).toISOString(true),
             })
         });
-        pickers[1].subscribe(Namespace.events.change, (e: ChangeEvent) => {
+        const p2 = pickers[1].subscribe(Namespace.events.change, (e: ChangeEvent) => {
             const newEnd = e.date;
-            updateGeneral({end_at: newEnd?.toISOString()});
-            pickers[0].updateOptions({
-                restrictions: {
-                    maxDate: newEnd
-                }
-            });
-            pickers[2].updateOptions({
-                restrictions: {
-                    minDate: newEnd
-                }
+            if (moment(newEnd).diff(moment(endAtDateTime)) === 0) {
+                let picker0Date = pickers[0].viewDate;
+                let picker2Date = pickers[2].viewDate;
+                pickers[0].updateOptions({
+                    restrictions: {
+                        maxDate: newEnd
+                    },
+                    useCurrent: false,
+                    defaultDate: picker0Date
+                });
+                pickers[2].updateOptions({
+                    restrictions: {
+                        minDate: newEnd
+                    },
+                    useCurrent: false,
+                    defaultDate: picker2Date
+                })
+                pickers[0].dates.setValue(picker0Date);
+                pickers[2].dates.setValue(picker2Date);
+            }
+            updateTime();
+            updateGeneral({
+                end_at: moment(pickers[1].viewDate.toISOString()).toISOString(true),
             })
         });
-        pickers[2].subscribe(Namespace.events.change, (e: ChangeEvent) => {
+        const p3 = pickers[2].subscribe(Namespace.events.change, (e: ChangeEvent) => {
             const newDDL = e.date;
-            updateGeneral({grading_deadline: newDDL?.toISOString()});
-            pickers[1].updateOptions({
-                restrictions: {
-                    maxDate: newDDL
-                }
+            if (moment(newDDL).diff(moment(gradingDeadlineDateTime)) === 0) {
+                let picker1Date = pickers[1].viewDate;
+                pickers[1].updateOptions({
+                    restrictions: {
+                        maxDate: newDDL
+                    },
+                    useCurrent: false,
+                    defaultDate: picker1Date
+                })
+                pickers[1].dates.setValue(picker1Date);
+            }
+            updateTime();
+            updateGeneral({
+                grading_deadline: moment(pickers[2].viewDate.toISOString()).toISOString(true)
             })
         });
-    }, [dataReady]);
+    }, [dataReady, examConfigState]);
 
     return (
         <Row className="text-start">
@@ -168,6 +207,10 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
                     <Form.Group className="mb-3">
                         <Form.Label>Grading Deadline</Form.Label>
                         <DateTimePicker pickerId="grading_deadline"/>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Zoom Link</Form.Label>
+                        <Form.Control type="text" value={examConfigState?.general.zoom || ""} onChange={(e) => {updateGeneral({zoom: e.target.value})}} />
                     </Form.Group>
                 </Form>
             </Col>

@@ -15,6 +15,7 @@ function ExamInstructions() {
     const courseName = params.course_name, examId = params.exam_id;
 
     const [description, setDescription] = useState<string>("");
+    const [zoomLink, setZoomLink] = useState<string>("");
 
     const getTestGeneralInfo = useCallback(() => {
         const examUrl = getBackendApiUrl(`/courses/${courseName}/assessments/${examId}`);
@@ -38,6 +39,7 @@ function ExamInstructions() {
                     return;
                 }
                 setDescription(testInfo.description);
+                setZoomLink(testInfo.zoom);
             })
     }, [getTestGeneralInfo]);
 
@@ -52,9 +54,8 @@ function ExamInstructions() {
                         <div>
                             <h1 className="my-3">{params.exam_id}</h1>
                             <h2 className="text-start my-4"><strong>Instructions</strong></h2>
-                            <div dangerouslySetInnerHTML={{__html: description}}/>
-                            <Alert key="primary" variant="primary" className="text-start my-4">Please turn on your camera to
-                                start the exam.</Alert>
+                            <div className="test-start" dangerouslySetInnerHTML={{__html: description}}/>
+                            {zoomLink.length > 0 && <Alert key="primary" variant="primary" className="text-start my-4">Zoom Link: {zoomLink}</Alert>}
                             <Link to="questions">
                                 <Button type="button" className="btn btn-lg btn-primary w-50">Start</Button>
                             </Link>
