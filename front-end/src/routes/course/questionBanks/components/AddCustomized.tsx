@@ -4,6 +4,7 @@ import {Button, Col, Form, InputGroup, Row} from 'react-bootstrap';
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
+import CodeEditor from "@uiw/react-textarea-code-editor";
 
 interface blankProps {
     is_choice: boolean;
@@ -16,7 +17,7 @@ interface graderProps {
     blanks: blankProps[];
 }
 
-const Blank = ({subSubId}: {subSubId: string}) => {
+const Blank = ({subSubId, type}: {subSubId: string, type: string}) => {
     const [solutionIdx, setSolutionIdx] = useState(0);
     const [solutionList, setSolutionList] = useState<number[]>([]);
 
@@ -28,10 +29,56 @@ const Blank = ({subSubId}: {subSubId: string}) => {
         return (
             <Row className="d-flex flex-row align-items-center my-2" key={idx}>
                 <Col>
-                    <Form.Control id={subSubId + "_solution" + index} name={subSubId + "_solutions"}/>
+                {type === "string" ?
+                    <Form.Control id={subSubId + "_solution" + index} name={subSubId + "_solutions"}/> :
+                    <CodeEditor
+                        id={subSubId + "_solution" + index}
+                        name={subSubId + "_solutions"}
+                        language={"c"}
+                        className="mb-3"
+                        padding={10}
+                        style={{
+                            height: "200px",
+                            fontSize: 12,
+                            backgroundColor: "#f5f5f5",
+                            fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                        }}
+                    />
+                }
                 </Col>
                 <Col xs={1}>
                     <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteSolution(idx)}/>
+                </Col>
+            </Row>
+        );
+    })
+
+    return (
+        <div>
+            {solutions}
+            <div className="text-end">
+                <Button variant="primary" onClick={() => {setSolutionList([...solutionList, solutionIdx]); setSolutionIdx(solutionIdx + 1)}}>Add Solution</Button>
+            </div>
+        </div>
+    )
+}
+
+const Code = ({subSubId}: {subSubId: string}) => {
+    const [solutionIdx, setSolutionIdx] = useState(0);
+    const [solutionList, setSolutionList] = useState< number[]>([]);
+
+    const deleteSolution = (idx: number) => {
+        setSolutionList(solutionList.filter((solution) => solution !== idx));
+    }
+
+    const solutions = solutionList.map((solution, index) => {
+        return (
+            <Row className="d-flex flex-row align-items-center my-2" key={solution}>
+                <Col>
+                    
+                </Col>
+                <Col xs={1}>
+                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteSolution(solution)}/>
                 </Col>
             </Row>
         );
@@ -147,7 +194,7 @@ const AddCustomized = ({id, displayIdx, onDelete}: {id: number, displayIdx: numb
                 return (
                     <div key={index}>
                         <Form.Label>{(index + 1) + (blank.type === "string"? ". Blank" : ". Code")}</Form.Label>
-                        <Blank subSubId={"sub" + id + "_sub" + index}/>
+                        <Blank subSubId={"sub" + id + "_sub" + index} type ={blank.type}/>
                         <br/>
                     </div>
                 )

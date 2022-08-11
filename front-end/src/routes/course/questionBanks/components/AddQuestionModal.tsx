@@ -30,7 +30,7 @@ interface tagProps {
     name: string;
 }
 
-const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, errorMsg, setErrorMsg} : {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, errorMsg: string, setErrorMsg: any}) => {
+const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, graders, errorMsg, setErrorMsg} : {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, graders: graderProps[], errorMsg: string, setErrorMsg: any}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
     
@@ -56,18 +56,19 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, erro
         return (<></>);
     });
 
-    const [graders, setGraders] = useState<graderProps[]>([]);
+    // const [graders, setGraders] = useState<graderProps[]>([]);
 
-    const getGraders = useCallback(async () => {
-        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
-        const token = globalState.token;
-        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        setGraders(result.data.data);
-    }, [globalState.token, params.course_name])
+    // const getGraders = useCallback(async () => {
+    //     const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
+    //     const token = globalState.token;
+    //     const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
+    //     setGraders(result.data.data);
+    //     console.log(result.data.data)
+    // }, [globalState.token, params.course_name])
 
-    useEffect(() => {
-        getGraders().catch();
-    }, [getGraders])
+    // useEffect(() => {
+    //     getGraders().catch();
+    // }, [getGraders])
 
     const getSubquestionsData = () => {
         function getSingleBlankData(type: string, id: number) {
@@ -139,6 +140,8 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, erro
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
             const graderName = (document.getElementById("sub" + id + "_grader") as HTMLInputElement).value;
             const grader = graders.filter((grader) => grader.name === graderName)[0];
+            console.log(grader)
+            console.log("test")
             let choices: (object[] | null)[] = [];
             let solutions: string[][] = []
             grader.blanks.forEach((blank: blankProps, index) => {
