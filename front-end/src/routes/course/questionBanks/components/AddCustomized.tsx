@@ -81,7 +81,7 @@ const Choice = ({subSubId}: {subSubId: string}) => {
     );
 }
 
-const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => void}) => {
+const AddCustomized = ({id, displayIdx, onDelete}: {id: number, displayIdx: number, onDelete: (id: number) => void}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
     
@@ -111,7 +111,7 @@ const AddCustomized = ({id, onDelete}: {id: number, onDelete: (id: number) => vo
     return (
         <>
         <Form.Group>
-            <Form.Label><h5>Subquestion (Customized)</h5></Form.Label>
+            <Form.Label><h5>{displayIdx + ". Customized"}</h5></Form.Label>
         </Form.Group>
 
         <Form.Group className="mb-3">

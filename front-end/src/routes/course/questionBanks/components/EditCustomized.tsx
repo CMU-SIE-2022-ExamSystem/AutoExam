@@ -136,7 +136,7 @@ const Choice = ({subSubId, multiple, choiceData, solutionData}: {subSubId: strin
     );
 }
 
-const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: subQuestionDataType | null, onDelete: (id: number) => void}) => {
+const EditCustomized = ({id, displayIdx, subQuestion, onDelete}: {id: number, displayIdx: number, subQuestion: subQuestionDataType | null, onDelete: (id: number) => void}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
     
@@ -176,7 +176,7 @@ const EditCustomized = ({id, subQuestion, onDelete}: {id: number, subQuestion: s
     return (
         <>
         <Form.Group>
-            <Form.Label><h5>Subquestion (Customized)</h5></Form.Label>
+            <Form.Label><h5>{displayIdx + ". Customized"}</h5></Form.Label>
         </Form.Group>
 
         <Form.Group className="mb-3">

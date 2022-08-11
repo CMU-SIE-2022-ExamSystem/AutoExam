@@ -7,7 +7,7 @@ interface solutionProps {
     solution_content: string;
 }
 
-const EditSingleBlank = ({id, subQuestion, onDelete}: {id: number, subQuestion: subQuestionDataType | null, onDelete: (id: number) => void}) => {
+const EditSingleBlank = ({id, displayIdx, subQuestion, onDelete}: {id: number, displayIdx: number,  subQuestion: subQuestionDataType | null, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");
     const [solutionIdx, setSolutionIdx] = useState(0);
     const [solutionList, setSolutionList] = useState<solutionProps[]>([]);
@@ -55,7 +55,7 @@ const EditSingleBlank = ({id, subQuestion, onDelete}: {id: number, subQuestion: 
     return (
         <>
         <Form.Group>
-            <Form.Label><h5>Subquestion (Single Blank)</h5></Form.Label>
+            <Form.Label><h5>{displayIdx + ". Single Blank"}</h5></Form.Label>
         </Form.Group>
 
         <Form.Group className="mb-3">
