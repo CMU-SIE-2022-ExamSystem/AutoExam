@@ -5,15 +5,17 @@ import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
 import graderDataType from './graderDataType';
+import { WithContext as ReactTags } from 'react-tag-input';
+import "../../../../App.css"
 
 interface inputProps {
     input_idx: number;
     type: string;
 }
 
-interface moduleProps {
-    module_idx: number;
-    name: string;
+interface tagProps {
+    id: string;
+    text: string;
 }
 
 const EditForciblyModal = ({show, onClose, grader, fileData, uploadGraderFile, graderData, editGrader, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, grader: graderDataType, fileData: FormData, uploadGraderFile: (name: string, file: FormData, force: boolean) => void, graderData: object, editGrader: (name: string, graderData: object, force: boolean) => void, errorMsg: string, setErrorMsg: any}) => {
@@ -42,7 +44,7 @@ const EditForciblyModal = ({show, onClose, grader, fileData, uploadGraderFile, g
     )
 }
 
-const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, grader: graderDataType, getGraders: () => void, errorMsg: string, setErrorMsg: any}) => {
+const EditGraderModal = ({show, onClose, grader, getGraders, clearGrader, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, grader: graderDataType, getGraders: () => void, clearGrader: () => void, errorMsg: string, setErrorMsg: any}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
 
@@ -52,8 +54,15 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
     const [inputIdx, setInputIdx] = useState(0);
     const [inputList, setInputList] = useState<inputProps[]>([]);
 
-    const [moduleIdx, setModuleIdx] = useState(0);
-    const [moduleList, setModuleList] = useState<moduleProps[]>([]);
+    const [tags, setTags] = useState<tagProps[]>([]);
+
+    const handleDelete = (i: number) => {
+        setTags(tags.filter((tag, index) => index !== i))
+    }
+
+    const handleAddition = (tag: tagProps) => {
+        setTags([...tags, tag])
+    }
 
     useEffect(() => {
         clearState();
@@ -72,17 +81,15 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                 ]))
             })
         grader !== undefined && grader.modules !== null &&
-            setModuleIdx(grader.modules.length);
-        grader !== undefined && grader.modules !== null &&
-            grader.modules.forEach((module, index) => {
-                setModuleList((prevState) => ([
-                    ...prevState,
-                    {
-                        module_idx: index,
-                        name: module
-                    }
-                ]))
-            })
+        grader.modules.forEach((module) => {
+            setTags((prevState) => ([
+                ...prevState,
+                {
+                    id: module,
+                    text: module
+                }
+            ]))
+        })
     }, [grader])
 
     const deleteInput = (idx: number) => {
@@ -105,23 +112,6 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                 </Col>
             </Row>
         );
-    })
-
-    const deleteModule = (idx: number) => {
-        setModuleList(moduleList.filter((module) => module.module_idx !== idx));
-    }
-
-    const modules = moduleList.map((module, index) => {
-        return (
-            <Row className="d-flex flex-row align-items-center my-2" key={module.module_idx}>
-                <Col>
-                    <Form.Control id={"module" + module.module_idx} defaultValue={module.name}/>
-                </Col>
-                <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteModule(module.module_idx)}/>
-                </Col>
-            </Row>
-        )
     })
 
     const [file, setFile] = useState<any>();
@@ -167,15 +157,14 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
             });
             return blanksData;
         }
-    
+
         const getModules = () => {
-            if (moduleList.length === 0) return null;
-    
+            if (tags.length === 0) return null;
+
             let modulesData: string[] = []
-            moduleList.forEach((module) => {
-                const moduleName = (document.getElementById("module" + module.module_idx) as HTMLInputElement).value;
-                modulesData.push(moduleName);
-            });
+            tags.forEach((tag) => {
+                modulesData.push(tag.text)
+            })
             return modulesData;
         }
 
@@ -253,13 +242,12 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
     const clearState = () => {
         setInputIdx(0);
         setInputList([]);
-        setModuleIdx(0);
-        setModuleList([]);
+        setTags([]);
     }
     
     return (
         <>
-        <Modal show={show} onHide={() => {onClose(); setErrorMsg("");}} backdrop="static" size="lg">
+        <Modal show={show} onHide={() => {onClose(); clearGrader(); clearState(); setErrorMsg("");}} backdrop="static" size="lg">
             <Modal.Header>
                 <Modal.Title>Edit Grader</Modal.Title>
             </Modal.Header>
@@ -289,10 +277,13 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
 
                         <Form.Group className="mb-3">
                             <Form.Label>Module</Form.Label>
-                            {modules}
-                            <div className='text-end'>
-                                <Button variant="primary" onClick={() => {setModuleList([...moduleList, {module_idx: moduleIdx, name: ""}]); setModuleIdx(moduleIdx + 1)}}>Add Module</Button>
-                            </div>
+                            <ReactTags
+                                tags={tags}
+                                name="modules"
+                                handleDelete={handleDelete}
+                                handleAddition={handleAddition}
+                                inputFieldPosition="bottom"
+                            />
                         </Form.Group>
                         <hr/>
                     </>
@@ -307,7 +298,7 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
                     <div><small className="text-danger">{errorMsg}</small></div>
 
                     <div className="text-end">
-                        <Button variant="secondary" onClick={() => {onClose(); setErrorMsg("");}}>Close</Button>
+                        <Button variant="secondary" onClick={() => {onClose(); clearGrader(); clearState(); setErrorMsg("");}}>Close</Button>
                         <Button variant="primary" className="ms-2" type="submit">Confirm</Button>
                     </div>
                 </Form>

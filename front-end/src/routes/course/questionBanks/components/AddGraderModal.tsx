@@ -4,10 +4,17 @@ import {useParams} from "react-router-dom";
 import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
+import { WithContext as ReactTags } from 'react-tag-input';
+import "../../../../App.css"
 
 interface inputProps {
     id: number;
     type: string;
+}
+
+interface tagProps {
+    id: string;
+    text: string;
 }
 
 const UploadFileModal = ({show, onClose, name, getGraders, errorMsg, setErrorMsg}: {show: boolean, onClose: () => void, name: string, getGraders: () => void, errorMsg: string, setErrorMsg: any}) => {
@@ -104,25 +111,15 @@ const AddGraderModal = ({show, onClose, getGraders, errorMsg, setErrorMsg}: {sho
         );
     })
 
-    const [moduleIdx, setModuleIdx] = useState(0);
-    const [moduleList, setModuleList] = useState<number[]>([]);
+    const [tags, setTags] = useState<tagProps[]>([]);
 
-    const deleteModule = (idx: number) => {
-        setModuleList(moduleList.filter((module) => module !== idx));
+    const handleDelete = (i: number) => {
+        setTags(tags.filter((tag, index) => index !== i))
     }
 
-    const modules = moduleList.map((module) => {
-        return (
-            <Row className="d-flex flex-row align-items-center my-2" key={module}>
-                <Col>
-                    <Form.Control id={"module" + module}/>
-                </Col>
-                <Col xs={1}>
-                    <i className="bi-trash" style={{cursor: "pointer"}} onClick={() => deleteModule(module)}/>
-                </Col>
-            </Row>
-        )
-    })
+    const handleAddition = (tag: tagProps) => {
+        setTags([...tags, tag])
+    }
 
     const [uploadFileShow, setUploadFileShow] = useState(false);
 
@@ -149,18 +146,17 @@ const AddGraderModal = ({show, onClose, getGraders, errorMsg, setErrorMsg}: {sho
             });
             return blanksData;
         }
-    
+
         const getModules = () => {
-            if (moduleList.length === 0) return null;
-    
+            if (tags.length === 0) return null;
+
             let modulesData: string[] = []
-            moduleList.forEach((module) => {
-                const moduleName = (document.getElementById("module" + module) as HTMLInputElement).value;
-                modulesData.push(moduleName);
-            });
+            tags.forEach((tag) => {
+                modulesData.push(tag.text)
+            })
             return modulesData;
         }
-
+    
         const graderData = {
             name: name,
             blanks: getBlanks(),
@@ -191,8 +187,7 @@ const AddGraderModal = ({show, onClose, getGraders, errorMsg, setErrorMsg}: {sho
     const clearState = () => {
         setInputIdx(0);
         setInputList([]);
-        setModuleIdx(0);
-        setModuleList([]);
+        setTags([]);
     }
 
     return (
@@ -225,10 +220,13 @@ const AddGraderModal = ({show, onClose, getGraders, errorMsg, setErrorMsg}: {sho
 
                     <Form.Group className="mb-3">
                         <Form.Label>Module</Form.Label>
-                        {modules}
-                        <div className='text-end'>
-                            <Button variant="primary" onClick={() => {setModuleList([...moduleList, moduleIdx]); setModuleIdx(moduleIdx + 1)}}>Add Module</Button>
-                        </div>
+                        <ReactTags
+                            tags={tags}
+                            name="modules"
+                            handleDelete={handleDelete}
+                            handleAddition={handleAddition}
+                            inputFieldPosition="bottom"
+                        />
                     </Form.Group>
 
                     <div><small className="text-danger">{errorMsg}</small></div>

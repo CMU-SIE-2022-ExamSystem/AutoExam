@@ -22,6 +22,14 @@ const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean
     const [testGraderShow, setTestGraderShow] = useState(false);
     const [graderError, setGraderError] = useState("");
 
+    const emptyGrader: graderDataType = {
+        name: "",
+        blanks: [],
+        modules: [],
+        valid: false,
+        uploaded: false
+    }
+
     const getGraders = useCallback(async () => {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
         const token = globalState.token;
@@ -77,6 +85,7 @@ const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean
             onClose={() => setEditGraderShow(false)}
             grader={grader as graderDataType}
             getGraders={getGraders}
+            clearGrader={() => setGrader(emptyGrader)}
             errorMsg={graderError}
             setErrorMsg={setGraderError}
         />
@@ -86,6 +95,7 @@ const GraderModal = ({show, errorMessage, onClose, clearMessage}: {show: boolean
             onClose={() => setDeleteGraderShow(false)}
             grader={grader as graderDataType}
             getGraders={getGraders}
+            clearGrader={() => setGrader(emptyGrader)}
             errorMsg={graderError}
             setErrorMsg={setGraderError}
         />
