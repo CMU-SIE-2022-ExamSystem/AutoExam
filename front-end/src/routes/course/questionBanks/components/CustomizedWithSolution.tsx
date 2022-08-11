@@ -1,5 +1,6 @@
 import { Form } from "react-bootstrap";
 import { subQuestionDataType } from "../../../../components/questionTemplate/subQuestionDataType";
+import CodeEditor from "@uiw/react-textarea-code-editor";
 
 const CustomizedWithSolution = ({index, subQuestion}: {index: number, subQuestion: subQuestionDataType}) => {
     return (
@@ -28,7 +29,27 @@ const CustomizedWithSolution = ({index, subQuestion}: {index: number, subQuestio
                     return (
                         <div key={index} className="mb-3">
                             <Form.Label>{"(" + (index + 1) + (blank.type === "string"? ") Blank" : ") Code")}</Form.Label>
-                            <Form.Control disabled readOnly value={subQuestion.solutions[index]}/>
+                            {blank.type === "string" ?
+                                <Form.Control disabled readOnly value={subQuestion.solutions[index]}/> :
+                                <>
+                                {subQuestion.solutions[index].map((solution, index) => (
+                                    <CodeEditor
+                                        className="mb-3"
+                                        key={index}
+                                        language={"c"}
+                                        value={solution}
+                                        padding={10}
+                                        readOnly
+                                        style={{
+                                            height: "200px",
+                                            fontSize: 12,
+                                            backgroundColor: "#f5f5f5",
+                                            fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+                                        }}
+                                    />
+                                ))}
+                                </>
+                            }
                         </div>
                     )
                 }

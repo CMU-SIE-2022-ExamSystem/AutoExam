@@ -17,6 +17,17 @@ interface tagProps {
     name: string;
 }
 
+interface blankProps {
+    type: 'string' | 'code';
+    is_choice: boolean;
+    multiple: boolean;
+}
+
+interface graderProps {
+    name: string;
+    blanks: blankProps[];
+}
+
 const AddTagModal = ({show, errorMessage, onClose, onSubmit, clearMessage}: {show: boolean, errorMessage: string, onClose: () => void, onSubmit: (tag: string) => void, clearMessage: () => void}) => {
     const [value, setValue] = useState("");
     return (
@@ -262,8 +273,20 @@ function QuestionBank () {
             .catch();
     }, [getTags, getQuestionsByTag]);
 
+    const [graders, setGraders] = useState<graderProps[]>([]);
     const [graderShow, setGraderShow] = useState(false);
     const [graderError, setGraderError] = useState("");
+
+    const getGraders = useCallback(async () => {
+        const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
+        const token = globalState.token;
+        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
+        setGraders(result.data.data);
+    }, [globalState.token, params.course_name])
+
+    useEffect(() => {
+        getGraders().catch();
+    }, [getGraders])
 
     return (
         <AppLayout>
@@ -296,7 +319,7 @@ function QuestionBank () {
                         <Col xs={10}>
                             <Row className="text-end">
                                 <Link to="#"><Button variant="primary" className='me-4 mt-4' onClick={() => setGraderShow(true)}>Grader</Button></Link>
-                                <Link to="#"><Button variant="primary" className='me-4 my-4' onClick={() => setAddQuestionShow(true)}>Add Question</Button></Link>
+                                <Link to="#"><Button variant="primary" className='me-4 my-4' onClick={() => {setAddQuestionShow(true); getGraders()}}>Add Question</Button></Link>
                             </Row>
                             <Tab.Content className="text-start mx-4">
                                 {tags.map((tag) => {
@@ -341,6 +364,7 @@ function QuestionBank () {
                     tags={tags}
                     getTags={getTags}
                     getQuestionsByTag={getQuestionsByTag}
+                    graders={graders}
                     errorMsg={questionError}
                     setErrorMsg={setQuestionError}
                 />

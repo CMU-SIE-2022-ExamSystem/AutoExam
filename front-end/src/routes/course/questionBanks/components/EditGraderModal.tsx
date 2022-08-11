@@ -226,7 +226,6 @@ const EditGraderModal = ({show, onClose, grader, getGraders, errorMsg, setErrorM
         } else {
             url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name);
         }
-        console.log(url)
         const token = globalState.token;
         axios.put(url, graderData, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
