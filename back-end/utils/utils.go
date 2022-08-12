@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	cp "github.com/otiai10/copy"
 )
@@ -45,7 +44,7 @@ func CreateFolder(path string) error {
 
 func Copy_file(file, src, dest string) {
 	// copy certain file from src folder to dest folder
-	fmt.Println(file, src, dest)
+	// fmt.Println(file, src, dest)
 	src = filepath.Join(src, file)
 	dest = filepath.Join(dest, file)
 	if _, err := os.Stat(src); os.IsNotExist(err) {
@@ -128,7 +127,7 @@ func MakeAnswertar(path string) bool {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		color.Yellow(err.Error() + stdout.String() + stderr.String())
+		// color.Yellow(err.Error() + stdout.String() + stderr.String())
 		return false
 	} else {
 		return true

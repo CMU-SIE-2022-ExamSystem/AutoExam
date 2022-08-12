@@ -7,7 +7,6 @@ import (
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
@@ -92,7 +91,7 @@ func Check_authlevel(user_id uint, class_name string) string {
 		User_InstructorCourses := userCourseInstance.ClassesAsInstructor
 		for _, v := range User_InstructorCourses {
 			if class_name == v {
-				color.Yellow("this user is instructor")
+				// color.Yellow("this user is instructor")
 				return "instructor"
 			}
 		}
@@ -100,7 +99,7 @@ func Check_authlevel(user_id uint, class_name string) string {
 		User_TACourses := userCourseInstance.ClassesAsTA
 		for _, v := range User_TACourses {
 			if class_name == v {
-				color.Yellow("this user is a TA")
+				// color.Yellow("this user is a TA")
 				return "course_assistant"
 			}
 		}
@@ -108,15 +107,15 @@ func Check_authlevel(user_id uint, class_name string) string {
 		User_StudentCourses := userCourseInstance.ClassesAsStudent
 		for _, v := range User_StudentCourses {
 			if class_name == v {
-				color.Yellow("this user is a student")
+				// color.Yellow("this user is a student")
 				return "student"
 			}
 		}
-		color.Yellow("this user is not one of the three roles of this course")
+		// color.Yellow("this user is not one of the three roles of this course")
 		return ""
 	} else {
 		// this user not existed
-		color.Yellow("this user is not existing")
+		// color.Yellow("this user is not existing")
 		return ""
 	}
 }

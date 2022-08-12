@@ -3,24 +3,23 @@ package dao
 import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
-	"github.com/fatih/color"
 )
 
 func insertBaseCourse(course models.Course) error {
 	if err := global.DB.Create(&course).Error; err != nil {
-		color.Yellow("Insert course table failed")
+		// color.Yellow("Insert course table failed")
 		return err
 	}
-	color.Yellow("Insert course table successfully")
+	// color.Yellow("Insert course table successfully")
 	return nil
 }
 
 func insertBaseCourseRelation(course models.Base_Course_Relationship) error {
 	if err := global.DB.Create(&course).Error; err != nil {
-		color.Yellow("Insert course relationship table failed")
+		// color.Yellow("Insert course relationship table failed")
 		return err
 	}
-	color.Yellow("Insert course relationship table successfully")
+	// color.Yellow("Insert course relationship table successfully")
 	return nil
 }
 
@@ -62,13 +61,13 @@ func CreateBaseCourse(name string) bool {
 			Name: name,
 		}
 		if err := insertBaseCourse(new_course); err != nil {
-			color.Yellow("There was an error adding this base course, please try again.")
+			// color.Yellow("There was an error adding this base course, please try again.")
 			return false
 		}
-		color.Yellow("Create course table successfully.")
+		// color.Yellow("Create course table successfully.")
 		return true
 	} else {
-		color.Yellow("This base course course already exists.")
+		// color.Yellow("This base course course already exists.")
 		return false
 	}
 }
@@ -77,10 +76,10 @@ func ReadAllBaseCourse() ([]models.Course, error) {
 	var courses []models.Course
 	result := global.DB.Find(&courses)
 	if result.Error != nil {
-		color.Yellow("Read all course table failed")
+		// color.Yellow("Read all course table failed")
 		return courses, result.Error
 	}
-	color.Yellow("Read all course table successfully")
+	// color.Yellow("Read all course table successfully")
 	return courses, nil
 }
 
@@ -88,10 +87,10 @@ func UpdateBaseCourse(name, new_name string) (bool, error) {
 	if !usedBaseCourse(name) {
 		var course models.Course
 		if err := global.DB.Where("name = ?", name).Find(&course).Update("name", new_name).Error; err != nil {
-			color.Yellow("Update course table failed")
+			// color.Yellow("Update course table failed")
 			return false, err
 		}
-		color.Yellow("Update course table successfully")
+		// color.Yellow("Update course table successfully")
 		return true, nil
 	}
 	return false, nil
@@ -112,7 +111,7 @@ func CreateBaseCourseRelation(coursename, base string) bool {
 			Name: base,
 		}
 		if err := insertBaseCourse(new_course); err != nil {
-			color.Yellow("There was an error adding this base course, please try again.")
+			// color.Yellow("There was an error adding this base course, please try again.")
 			return false
 		}
 	}
@@ -126,13 +125,13 @@ func CreateBaseCourseRelation(coursename, base string) bool {
 		}
 
 		if err := insertBaseCourseRelation(course_relation); err != nil {
-			color.Yellow("There was an error adding this course relationship, please try again.")
+			// color.Yellow("There was an error adding this course relationship, please try again.")
 			return false
 		} else {
 			return true
 		}
 	} else {
-		color.Yellow("This course relationship already exists.")
+		// color.Yellow("This course relationship already exists.")
 		return false
 	}
 }
@@ -141,10 +140,10 @@ func ReadBaseCourseRelation(coursename string) (string, bool) {
 	var course models.Base_Course_Relationship
 	rows := global.DB.Where(&models.Base_Course_Relationship{Course_name: coursename}).Find(&course)
 	if rows.RowsAffected < 1 {
-		color.Yellow("Read course relationship table failed.")
+		// color.Yellow("Read course relationship table failed.")
 		return course.Base_course, false
 	}
-	color.Yellow("Read course relationship table successfully.")
+	// color.Yellow("Read course relationship table successfully.")
 	return course.Base_course, true
 }
 
@@ -154,17 +153,17 @@ func UpdateBaseCourseRelation(coursename, new_base string) error {
 			Name: new_base,
 		}
 		if err := insertBaseCourse(new_course); err != nil {
-			color.Yellow("There was an error adding this base course, please try again.")
+			// color.Yellow("There was an error adding this base course, please try again.")
 			return err
 		}
 	}
 
 	var course models.Base_Course_Relationship
 	if err := global.DB.Where("course_name = ?", coursename).Find(&course).Update("base_course", new_base).Error; err != nil {
-		color.Yellow("Update course relationship table failed.")
+		// color.Yellow("Update course relationship table failed.")
 		return err
 	}
-	color.Yellow("Update course relationship table successfully.")
+	// color.Yellow("Update course relationship table successfully.")
 	return nil
 }
 

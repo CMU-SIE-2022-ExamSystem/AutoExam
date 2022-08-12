@@ -9,7 +9,6 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
 )
@@ -37,8 +36,8 @@ func UserRefreshHandler(c *gin.Context) {
 		user.Refresh_token = autolab_resp.Refresh_token
 		user.Create_at = utils.GetNowTime()
 		user.Expires_in = autolab_resp.Expires_in
-		color.Yellow(user.Access_token)
-		color.Yellow(user.Refresh_token)
+		// color.Yellow(user.Access_token)
+		// color.Yellow(user.Refresh_token)
 		global.DB.Save(&user)
 	}
 }
@@ -65,8 +64,8 @@ func UserRefreshByEmailHandler(c *gin.Context, email string) string {
 		user.Refresh_token = autolab_resp.Refresh_token
 		user.Create_at = utils.GetNowTime()
 		user.Expires_in = autolab_resp.Expires_in
-		color.Yellow(user.Access_token)
-		color.Yellow(user.Refresh_token)
+		// color.Yellow(user.Access_token)
+		// color.Yellow(user.Refresh_token)
 		global.DB.Save(&user)
 	}
 	return autolab_resp.Access_token

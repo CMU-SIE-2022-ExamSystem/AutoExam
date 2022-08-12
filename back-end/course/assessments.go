@@ -1,7 +1,6 @@
 package course
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -86,7 +85,7 @@ func modify_yml(c *gin.Context, pro_path string, assessment models.Download_Asse
 		response.ErrAssessmentInternaldResponse(c, "There is an error when building assessment!")
 	}
 
-	fmt.Println("data written")
+	// fmt.Println("data written")
 }
 
 func make_tar(c *gin.Context, path, name string) {

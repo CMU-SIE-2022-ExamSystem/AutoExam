@@ -8,7 +8,6 @@ import (
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/utils"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,7 +33,7 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 	user, flag := find_userinfo(userinfo_resp.Email)
 
 	if flag {
-		color.Yellow("User is already in our DB!")
+		// color.Yellow("User is already in our DB!")
 		user.Access_token = autolab_resp.Access_token
 		user.Refresh_token = autolab_resp.Refresh_token
 		user.Create_at = utils.GetNowTime()
@@ -47,7 +46,7 @@ func Userinfo_Handler(c *gin.Context, autolab_resp models.Autolab_Response) {
 		user_info := models.User_Info_Front{Token: jwt_token, First_name: user.First_name, Last_name: user.Last_name}
 		response.SuccessResponse(c, user_info)
 	} else {
-		color.Yellow("User is not in our DB!")
+		// color.Yellow("User is not in our DB!")
 		new_user := models.User{
 			Email:         userinfo_resp.Email,
 			First_name:    userinfo_resp.First_name,
