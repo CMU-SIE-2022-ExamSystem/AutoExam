@@ -61,16 +61,6 @@ type General struct {
 	Zoom             string `json:"zoom" bson:"zoom"`                                                                                                                                          // zoom url for invigilation
 }
 
-type General_Update struct {
-	Description      string `yaml:"description" json:"description" bson:"description"`                                                                                                         // description of assessment
-	Start_at         string `yaml:"start_at" json:"start_at" bson:"start_at" default:"2022-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`                         // start time of assessment
-	End_at           string `yaml:"end_at" json:"end_at" bson:"end_at" default:"2023-06-15T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"`                               // end time of assessment
-	Grading_deadline string `yaml:"grading_deadline" json:"grading_deadline" bson:"grading_deadline" default:"2023-06-16T15:04:05Z" binding:"required,datetime=2006-01-02T15:04:05.000-07:00"` // grading deadline of assessment
-	MaxSubmissions   int    `yaml:"max_submissions" json:"max_submissions" bson:"max_submissions" binding:"required,gte=1"`                                                                    // number of submission, Exam category would only accept 1
-	Url              string `json:"url" bson:"url"`
-	Zoom             string `json:"zoom" bson:"zoom"` // zoom url for invigilation
-}
-
 // @Description questions settings structure
 type Settings struct {
 	Id                []string  `yaml:"id" json:"id" bson:"id"`                                                                       // specify the possible question ids for the assessment, can be empty. If there are multiple ids, the exam would randomly choose from those ids. If there is no id, the exam would randomly select the question based on tag_id and sub_question_number

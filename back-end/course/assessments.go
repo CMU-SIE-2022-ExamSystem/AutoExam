@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
@@ -62,6 +63,7 @@ func copy_template(c *gin.Context, path string) {
 // replace template file and writeup
 func replace_template(c *gin.Context, path, name, url string) {
 	prog := filepath.Join(path, "replace.sh")
+	url = strings.ReplaceAll(url, "/", "\\/")
 	run_exec(c, prog, name, url)
 }
 

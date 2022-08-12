@@ -16,7 +16,11 @@ if [ ! -d "$FOLDER" ]; then
    curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s
 fi
 
-# # run server
+
+# clean tmp folder
+rm -r -f tmp
+
+# run server
 echo "run server"
 # go run main.go
 ./bin/air

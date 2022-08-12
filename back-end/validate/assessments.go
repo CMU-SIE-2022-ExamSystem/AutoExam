@@ -71,7 +71,7 @@ func AssessmentUpdateValidation(sl validator.StructLevel) {
 			// validate id
 			if len(setting.Id) != 0 {
 				for _, id := range setting.Id {
-					quetsion, _ := dao.ReadQuestionById(id)
+					quetsion, _ := dao.ReadAutoExamQuestionById(id)
 					// validate id's tag
 					if quetsion.Tag != setting.Tag {
 						sl.ReportError(setting.Id, "id", "Id", "notValidIdTag", id+","+utils.Ordinalize(i+1))

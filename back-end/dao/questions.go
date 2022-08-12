@@ -52,6 +52,19 @@ func ReadQuestionById(id string) (Questions, error) {
 	return tags.ToQuestions(), err
 }
 
+func ReadAutoExamQuestionById(id string) (AutoExam_Questions, error) {
+	client := global.Mongo
+	//get the collection instance
+	collection := client.Database("auto_exam").Collection(Que_Collection_Name)
+
+	objectid, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.D{{Key: "_id", Value: objectid}}
+
+	var tags AutoExam_Questions
+	err := collection.FindOne(context.TODO(), filter).Decode(&tags)
+	return tags, err
+}
+
 func ReadOrgQuestionById(id string) (AutoExam_Questions, error) {
 	client := global.Mongo
 	//get the collection instance

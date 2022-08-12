@@ -48,9 +48,9 @@ func ErrAssessmentInternaldResponse(c *gin.Context, message string) {
 	ErrorInternalResponse(c, err)
 }
 
-func ErrAssessmentGenerateResponse(c *gin.Context, course, assessment string) {
-	var temp AssessmentNotValidError
-	err := Error{Type: Assessment, Message: ReplaceMessageCourseAssessmentName(&temp, course, assessment)}
+func ErrAssessmentGenerateResponse(c *gin.Context, assessment, error_message string) {
+	var temp AssessmentGenerateError
+	err := Error{Type: Assessment, Message: ReplaceMessageAssessmentNameErrorMessage(&temp, assessment, error_message)}
 	ErrorResponseWithStatus(c, err, http.StatusNotFound)
 }
 
