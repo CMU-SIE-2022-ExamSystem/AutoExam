@@ -81,6 +81,8 @@ back-end/docs
 # python env
 back-end/autograder/exec/env/
 back-end/autograder/exec/autograders/__pycache__/
+back-end/autograder/exec/autograders/*.json
+back-end/autograder/exec/autograders/*.txt
 
 # vscode
 .vscode/
