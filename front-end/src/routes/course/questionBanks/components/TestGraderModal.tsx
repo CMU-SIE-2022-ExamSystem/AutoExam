@@ -27,13 +27,12 @@ const TestSuccessModal = ({show, onClose, setTestGraderShow, result, grader, get
             valid: true
         }
         axios.put(url, data, {headers: {Authorization: "Bearer " + token}})
-            .then(response => {
+            .then(_ => {
                 setErrorMsg("");
                 onClose();
                 getGraders();
             })
             .catch((error) => {
-                console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });
@@ -201,7 +200,6 @@ const TestGraderModal = ({show, setTestGraderShow, onClose, grader, getGraders, 
     }
 
     const testGrader = async (name: string, testData: object) => {
-        console.log(testData)
         const url = getBackendApiUrl("/courses/" + params.course_name + "/autograder/" + name + "/test");
         const token = globalState.token;
         axios.post(url, testData, {headers: {Authorization: "Bearer " + token}})
@@ -215,7 +213,6 @@ const TestGraderModal = ({show, setTestGraderShow, onClose, grader, getGraders, 
             })
             .catch((error) => {
                 setSpinnerShow(false);
-                console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });
@@ -233,7 +230,6 @@ const TestGraderModal = ({show, setTestGraderShow, onClose, grader, getGraders, 
                     {grader !== undefined &&
                     <>
                         <Form.Label>{"Name: " + grader.name}</Form.Label><br/>
-
                         {
                             grader.blanks.map((blank, index) => (
                                 <OneInBlank key={index} blank={blank} blankIdx={index + 1}/>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
+import React, {useState} from 'react';
+import {Button, Col, Form, InputGroup, Row} from 'react-bootstrap';
 
 const AddChoice = ({type, id, displayIdx, onDelete}: {type: string, id: number, displayIdx: number, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");

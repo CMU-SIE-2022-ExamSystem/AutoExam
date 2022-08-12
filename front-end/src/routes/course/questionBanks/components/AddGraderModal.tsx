@@ -38,8 +38,6 @@ const UploadFileModal = ({show, onClose, name, getGraders, errorMsg, setErrorMsg
     }
 
     const uploadGraderFile = async (name: string, file: FormData) => {
-        console.log("upload grader file: " + name)
-        console.log(file)
         const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name + "/upload");
         const token = globalState.token;
         axios.put(url, file, {headers: {Authorization: "Bearer " + token}})
@@ -49,7 +47,6 @@ const UploadFileModal = ({show, onClose, name, getGraders, errorMsg, setErrorMsg
                 getGraders();
             })
             .catch((error) => {
-                console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });
@@ -68,6 +65,8 @@ const UploadFileModal = ({show, onClose, name, getGraders, errorMsg, setErrorMsg
                         <Form.Text>upload the grader file with .py extension</Form.Text>
                         <Form.Control type="file" onChange={saveFile}/>
                     </Form.Group>
+
+                    <div><small className="text-danger">{errorMsg}</small></div>
 
                     <div className="text-end">
                         <Button variant="secondary" onClick={() => {onClose(); setErrorMsg("");}}>Close</Button>
@@ -166,7 +165,6 @@ const AddGraderModal = ({show, onClose, getGraders, errorMsg, setErrorMsg}: {sho
     }
 
     const addGrader = async (graderData: object) => {
-        console.log(graderData)
         const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
         const token = globalState.token;
         axios.post(url, graderData, {headers: {Authorization: "Bearer " + token}})
@@ -178,7 +176,6 @@ const AddGraderModal = ({show, onClose, getGraders, errorMsg, setErrorMsg}: {sho
                 getGraders();
             })
             .catch((error) => {
-                console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });

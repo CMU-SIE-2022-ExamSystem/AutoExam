@@ -20,7 +20,6 @@ const DeleteGraderModal = ({show, onClose, grader, getGraders, clearGrader, erro
                 getGraders();
             })
             .catch((error) => {
-                console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });

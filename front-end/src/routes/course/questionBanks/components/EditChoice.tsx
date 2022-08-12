@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
-import { subQuestionDataType } from '../../../../components/questionTemplate/subQuestionDataType';
+import React, {useState, useEffect} from 'react';
+import {Button, Col, Form, InputGroup, Row} from 'react-bootstrap';
+import {subQuestionDataType} from '../../../../components/questionTemplate/subQuestionDataType';
 
 interface choiceProps {
     choice_idx: number;

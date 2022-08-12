@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import { Button, Col, Form, Row } from 'react-bootstrap';
-import { subQuestionDataType } from '../../../../components/questionTemplate/subQuestionDataType';
+import {Button, Col, Form, Row} from 'react-bootstrap';
+import {subQuestionDataType} from '../../../../components/questionTemplate/subQuestionDataType';
 
 interface solutionProps {
     solution_idx: number;
