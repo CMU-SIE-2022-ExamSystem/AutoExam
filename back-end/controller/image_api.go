@@ -66,34 +66,33 @@ func SearchOneImg_Handler(c *gin.Context) {
 }
 
 // SearchImgIDs_Handler godoc
-// @Summary get image ids of the base course input
+// @Summary get all image ids of the course input
 // @Schemes
-// @Description get image ids of the base course input, and get a string array
+// @Description get all image ids of the course input, and get a string array
 // @Tags images
 // @Accept json
 // @Produce json
-// @Param		base_course 	path	string	true	"Base Course Name"
+// @Param		course_name 	path	string	true	"Course Name"
 // @Success 200 "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 404 "not exists"
+// @Failure 500 {object} response.DBesponse{error=response.MySQLReadError} "mysql error"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLReadAllError} "mysql error"
 // @Security ApiKeyAuth
-// @Router /images/getIDs/{base_course}  [get]
+// @Router /images/getIDs/{course_name}  [get]
 func SearchImgIDs_Handler(c *gin.Context) {
 	jwt.Check_Baselevel(c)
-	baseCourse := c.Param("base_course")
-	if !dao.ValidBaseCourse(baseCourse) {
-		response.ErrCourseNoBaseCourseResponse(c, baseCourse)
+
+	_, baseCourse := course.GetCourseBaseCourse(c)
+
+	flag, ids, err := dao.SearchCoursePictureIDs(baseCourse)
+	if !flag {
+		response.ErrImageNotExistsResponse(c)
 	} else {
-		flag, ids, err := dao.SearchCoursePictureIDs(baseCourse)
-		if !flag {
-			response.ErrImageNotExistsResponse(c)
-		} else {
-			if err != nil {
-				response.ErrMySQLReadAllResponse(c, "fail to read instances of this base course!")
-			}
-			response.SuccessResponse(c, ids)
+		if err != nil {
+			response.ErrMySQLReadAllResponse(c, "fail to read instances of this base course!")
 		}
+		response.SuccessResponse(c, ids)
 	}
 }
 
@@ -102,36 +101,33 @@ func SearchImgIDs_Handler(c *gin.Context) {
 // }
 
 // UploadImage_Handler godoc
-// @Summary upload the image and its type, base course to database, and get the image id
+// @Summary upload the image and its type, its base course to database, and get the image id
 // @Schemes
 // @Description upload the image and its type, base course to database, and get the image id
 // @Tags images
 // @Accept mpfd
 // @Produce json
-// @Param		base_course 	path	string	true	"Base Course Name"
+// @Param		course_name 	path	string	true	"Course Name"
 // @Param		img_type		path	string	true	"Image Type"
 // @Param file formData file true "the image file"
 // @Success 200 "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
+// @Failure 500 {object} response.DBesponse{error=response.MySQLReadError} "mysql error"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLCreateError} "mysql error"
 // @Security ApiKeyAuth
-// @Router /images/{base_course}/{img_type}/upload [post]
+// @Router /images/{course_name}/{img_type}/upload [post]
 func UploadImage_Handler(c *gin.Context) {
 	jwt.Check_Baselevel(c)
-	baseCourse := c.Param("base_course")
+	_, baseCourse := course.GetCourseBaseCourse(c)
 
-	if !dao.ValidBaseCourse(baseCourse) {
-		response.ErrCourseNoBaseCourseResponse(c, baseCourse)
-	} else {
-		imgType := c.Param("img_type")
-		var imgBody Image_Upload
-		validate.ValidateForm(c, &imgBody)
-		id, err := dao.InsertOnePicture(baseCourse, imgType, course.FileToByte(c, imgBody.File))
-		if err != nil {
-			response.ErrMySQLCreateResponse(c, "failed to upload picture")
-		}
-		response.SuccessResponse(c, id)
+	imgType := c.Param("img_type")
+	var imgBody Image_Upload
+	validate.ValidateForm(c, &imgBody)
+	id, err := dao.InsertOnePicture(baseCourse, imgType, course.FileToByte(c, imgBody.File))
+	if err != nil {
+		response.ErrMySQLCreateResponse(c, "failed to upload picture")
 	}
+	response.SuccessResponse(c, id)
 
 }
 
@@ -142,69 +138,65 @@ func UploadImage_Handler(c *gin.Context) {
 // @Tags images
 // @Accept mpfd
 // @Produce json
-// @Param		base_course 	path	string	true	"Base Course Name"
+// @Param		course_name 	path	string	true	"Course Name"
 // @Param		img_id		path	string	true	"Image ID"
-// @Param		img_type		path	string	true	"Image Type"
+// @Param		img_type		path	string	true	"New Image Type"
 // @Param file formData file true "the image file"
 // @Success 200 "success"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 404 "not exists"
+// @Failure 500 {object} response.DBesponse{error=response.MySQLReadError} "mysql error"
 // @Failure 500 {object} response.DBesponse{error=response.MySQLUpdateError} "mysql error"
 // @Security ApiKeyAuth
-// @Router /images/{base_course}/{img_id}/{img_type}/update [put]
+// @Router /images/{course_name}/{img_id}/{img_type}/update [put]
 func UpdateImage_Handler(c *gin.Context) {
 	jwt.Check_Baselevel(c)
-	baseCourse := c.Param("base_course")
+	_, baseCourse := course.GetCourseBaseCourse(c)
 	imgID := c.Param("img_id")
-	if !dao.ValidBaseCourse(baseCourse) {
-		response.ErrCourseNoBaseCourseResponse(c, baseCourse)
+	imgType := c.Param("img_type")
+	var imgBody Image_Upload
+	validate.ValidateForm(c, &imgBody)
+	flag, err := dao.UpadateOnePicture(baseCourse, imgID, imgType, course.FileToByte(c, imgBody.File))
+	if !flag {
+		response.ErrImageNotExistsResponse(c)
 	} else {
-		imgType := c.Param("img_type")
-		var imgBody Image_Upload
-		validate.ValidateForm(c, &imgBody)
-		flag, err := dao.UpadateOnePicture(baseCourse, imgID, imgType, course.FileToByte(c, imgBody.File))
-		if !flag {
-			response.ErrImageNotExistsResponse(c)
-		} else {
-			if err != nil {
-				response.ErrMySQLUpdateResponse(c, "update image failed")
-			}
-			response.SuccessResponse(c, "update image succeed")
+		if err != nil {
+			response.ErrMySQLUpdateResponse(c, "update image failed")
 		}
+		response.SuccessResponse(c, "update image succeed")
 	}
 }
 
 // DeleteImg_Handler godoc
-// @Summary delete an image according to input id and base course
+// @Summary delete an image according to input id and its base course
 // @Schemes
-// @Description delete an image according to input id and base course
+// @Description delete an image according to input id and its base course
 // @Tags images
 // @Accept json
 // @Produce json
-// @Param		base_course		path	string	true	"Base Course Name"
+// @Param		course_name 	path	string	true	"Course Name"
 // @Param		img_id		path	string	true	"Image ID"
 // @Success 204
 // @Failure 500 {object} response.DBesponse{error=response.MySQLDeleteError} "mysql error"
+// @Failure 500 {object} response.DBesponse{error=response.MySQLReadError} "mysql error"
 // @Failure 400 {object} response.BadRequestResponse{error=response.CourseNoBaseCourseError} "no base course"
 // @Failure 404 "not exists"
 // @Security ApiKeyAuth
-// @Router /images/{base_course}/{img_id}/delete [delete]
+// @Router /images/{course_name}/{img_id}/delete [delete]
 func DeleteImg_Handler(c *gin.Context) {
 	jwt.Check_Baselevel(c)
-	baseCourse := c.Param("base_course")
-	if !dao.ValidBaseCourse(baseCourse) {
-		response.ErrCourseNoBaseCourseResponse(c, baseCourse)
+	_, baseCourse := course.GetCourseBaseCourse(c)
+
+	ImgID := c.Param("img_id")
+	flag, err := dao.DeletePicture(baseCourse, ImgID)
+	if !flag {
+		response.ErrImageNotExistsResponse(c)
 	} else {
-		ImgID := c.Param("img_id")
-		flag, err := dao.DeletePicture(baseCourse, ImgID)
-		if !flag {
-			response.ErrImageNotExistsResponse(c)
+		if err != nil {
+			response.ErrMySQLDeleteResponse(c, "delete picture failed")
 		} else {
-			if err != nil {
-				response.ErrMySQLDeleteResponse(c, "delete picture failed")
-			} else {
-				response.NonContentResponse(c)
-			}
+			response.NonContentResponse(c)
 		}
 	}
+
 }

@@ -16,7 +16,7 @@ type PictureFile struct {
 	gorm.Model
 	ID         string `gorm:"primaryKey, type:varchar(32)"`
 	BaseCourse string `gorm:"index:base_course, type:varchar(64)"`
-	Type       string `gorm:"type:varchar(32)"`
+	Type       string `gorm:"type:varchar(32)"` // eg "jpg" "png"
 	Content    []byte `gorm:"type:longblob"`
 }
 
