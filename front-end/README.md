@@ -20,6 +20,7 @@ front-end/
 │  │  ├─ RightBottomAlert.tsx    /* A component only used in ExamConfig, as a testing feature of global alert */
 │  │  ├─ TopNavbar.tsx           /* The navbar at the top of most pages */
 │  ├─ images/                    /* Image resources (such as Autolab banner) */
+│  ├─ middlewares/               /* Middlewares, currently only contains auth handler */
 │  ├─ routes/                    /* Logics for each page */
 │  │  ├─ auth/                   /* Authorization pages (Autolab OAuth) */
 │  │  ├─ course/                 /* Course pages */
@@ -49,13 +50,23 @@ The global entry of this application is at `src/index.tsx`.
 
 ## .env file
 
-The `.env` file should contain these variables:
+The `.env` file must contain at least these variables:
 
 - `NODE_DEV`: set to `development` for dev environment, and `production` in production environment.
 - `REACT_APP_AUTOLAB_LOCATION`: The *Autolab* server host, for OAuth2.0 authentication purposes.
 - `REACT_APP_BACKEND_API_ROOT`: The back end server host.
 
+## Deployment
 
+Make sure you have *Node.js* in your computer.
+
+Configure a working .env file as mentioned above, and run `npm run build`.
+
+Webpack will combine the source codes into static js files in `build` folder, and it will be ready-to-serve on any server that supports HTTPS.
+
+Please be advised that this application is a **Single Page Application**, not a traditional static website. Special configurations may apply to different servers.
+
+---
 
 The following is the original Create React App README.
 

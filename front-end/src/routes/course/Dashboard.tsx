@@ -41,7 +41,6 @@ function Dashboard() {
         const url = getBackendApiUrl("/user/courses");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        console.log(result);
         setListOfCourses(result.data.data);
     }, [globalState.token]);
 

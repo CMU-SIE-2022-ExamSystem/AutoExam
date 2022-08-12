@@ -1,6 +1,5 @@
 import { Form } from 'react-bootstrap';
-import QuestionLayout from "./QuestionLayout";
-import { choiceDataType, subQuestionDataType } from "./subQuestionDataType";
+import { choiceDataType } from "./subQuestionDataType";
 import usePersistState from "../../utils/usePersistState";
 import React from "react";
 
@@ -15,7 +14,6 @@ const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, stora
             defaultChecked={value.includes(choice.choice_id)}
             onChange={(event) => {
                 const newValue = choice.choice_id;
-                //console.log(newValue);
                 event.target.checked ? setValue(newValue) : setValue("");
             }} />
     )

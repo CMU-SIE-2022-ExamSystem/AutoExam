@@ -1,5 +1,6 @@
 import {useGlobalState} from "../components/GlobalStateProvider";
 import {Navigate} from "react-router-dom";
+import React from "react";
 
 
 const RequireAuth = ({children} : {children: React.ReactNode}) => {

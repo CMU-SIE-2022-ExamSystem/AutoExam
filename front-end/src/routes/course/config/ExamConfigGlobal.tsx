@@ -105,14 +105,14 @@ const ExamConfigGlobal = ({dataReady} : {dataReady: boolean}) => {
             return bindPicker(myElement, restrictions, value);
         })
         const updateTime = () => {
-            console.log({
-                start_at: moment(pickers[0].viewDate.toISOString()).toISOString(true),
-                start_at_input: (document.getElementById('start_at_input') as HTMLInputElement).value,
-                end_at: moment(pickers[1].viewDate.toISOString()).toISOString(true),
-                end_at_value: (document.getElementById('end_at_input') as HTMLInputElement).value,
-                grading_deadline: moment(pickers[2].viewDate.toISOString()).toISOString(true),
-                grading_deadline_value: (document.getElementById('grading_deadline_input') as HTMLInputElement).value,
-            })
+            // console.log({
+            //     start_at: moment(pickers[0].viewDate.toISOString()).toISOString(true),
+            //     start_at_input: (document.getElementById('start_at_input') as HTMLInputElement).value,
+            //     end_at: moment(pickers[1].viewDate.toISOString()).toISOString(true),
+            //     end_at_value: (document.getElementById('end_at_input') as HTMLInputElement).value,
+            //     grading_deadline: moment(pickers[2].viewDate.toISOString()).toISOString(true),
+            //     grading_deadline_value: (document.getElementById('grading_deadline_input') as HTMLInputElement).value,
+            // })
         };
         const p1 = pickers[0].subscribe(Namespace.events.change, (e: ChangeEvent) => {
             const newStart = e.date;

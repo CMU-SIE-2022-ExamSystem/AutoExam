@@ -115,7 +115,7 @@ const AddModal = ({show, question, setQuestion, onSubmit, onCancel, tagList, pic
                             if (idx < 0 && e.target.checked) {
                                 prevIdList.push(filtered.id);
                                 if (question.sub_question_number === 0) {
-                                    console.log(updateQuestion({sub_question_number: filtered.sub_question_number, id: prevIdList}));
+                                    updateQuestion({sub_question_number: filtered.sub_question_number, id: prevIdList});
                                 } else {
                                     updateQuestion({id: prevIdList});
                                 }
@@ -147,7 +147,7 @@ const AddModal = ({show, question, setQuestion, onSubmit, onCancel, tagList, pic
             setBadSubQuestionsNumber(true);
             return;
         }
-        console.log(question);
+        //console.log(question);
         onSubmit();
     }
 

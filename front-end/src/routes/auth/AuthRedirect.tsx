@@ -14,7 +14,6 @@ const RedirectPage = ({pageLink, navigate}: { pageLink: string; navigate: Naviga
         e.preventDefault();
         const $authCode = document.getElementById("AutolabAuthCode") as HTMLInputElement;
         const $stateCode = localStorage.getItem('authStateValue');
-        console.log($authCode.value);
         const url = "/oauth-callback?code=" + $authCode.value + "&state=" + $stateCode;
         navigate(url, {replace: true});
     }

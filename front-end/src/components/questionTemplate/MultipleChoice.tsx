@@ -1,7 +1,6 @@
 import React from 'react';
 import {Form} from 'react-bootstrap';
-import QuestionLayout from "./QuestionLayout";
-import {choiceDataType, subQuestionDataType} from "./subQuestionDataType";
+import {choiceDataType} from "./subQuestionDataType";
 import usePersistState from "../../utils/usePersistState";
 
 const OneInMultipleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
@@ -22,7 +21,6 @@ const OneInMultipleChoice = ({choice, storageKey} : {choice: choiceDataType, sto
                 if (!prevValue.includes(choice.choice_id) && event.target.checked) {
                     newValue = prevValue.concat(choice.choice_id);
                 }
-                console.log(newValue);
                 setValue(newValue);
             }} />
     )
