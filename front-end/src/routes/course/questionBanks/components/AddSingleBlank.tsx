@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Col, Form, Row } from 'react-bootstrap';
+import React, {useState} from 'react';
+import {Button, Col, Form, Row} from 'react-bootstrap';
 
 const AddSingleBlank = ({id, displayIdx, onDelete}: {id: number, displayIdx: number, onDelete: (id: number) => void}) => {
     const [description, setDescription] = useState("");

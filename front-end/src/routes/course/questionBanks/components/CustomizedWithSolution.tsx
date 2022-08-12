@@ -1,5 +1,5 @@
-import { Form } from "react-bootstrap";
-import { subQuestionDataType } from "../../../../components/questionTemplate/subQuestionDataType";
+import {Form} from "react-bootstrap";
+import {subQuestionDataType} from "../../../../components/questionTemplate/subQuestionDataType";
 import CodeEditor from "@uiw/react-textarea-code-editor";
 
 const CustomizedWithSolution = ({index, subQuestion}: {index: number, subQuestion: subQuestionDataType}) => {
@@ -7,7 +7,6 @@ const CustomizedWithSolution = ({index, subQuestion}: {index: number, subQuestio
         <Form.Group className="mb-3">
             <Form.Label>
                 {index + ". " + subQuestion.description}
-                {/* {index + ". "}<div dangerouslySetInnerHTML={{__html: subQuestion.description}}/> */}
             </Form.Label>
 
             {subQuestion.blanks.map((blank, index) => {

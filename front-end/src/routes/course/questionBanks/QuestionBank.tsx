@@ -11,21 +11,11 @@ import CollapseQuestion from './components/CollapseQuestion';
 import AddQuestionModal from './components/AddQuestionModal';
 import EditQuestionModal from './components/EditQuestionModal';
 import GraderModal from './components/GraderModal';
+import graderDataType from './components/graderDataType';
 
 interface tagProps {
     id: string;
     name: string;
-}
-
-interface blankProps {
-    type: 'string' | 'code';
-    is_choice: boolean;
-    multiple: boolean;
-}
-
-interface graderProps {
-    name: string;
-    blanks: blankProps[];
 }
 
 const AddTagModal = ({show, errorMessage, onClose, onSubmit, clearMessage}: {show: boolean, errorMessage: string, onClose: () => void, onSubmit: (tag: string) => void, clearMessage: () => void}) => {
@@ -123,9 +113,8 @@ const DeleteQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, q
                     .catch();
             })
             .catch((error: any) => {
-                console.log(error);
                 let response = error.response.data;
-                setErrorMsg(response.error.message || response.error.message[0].message);
+                setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });
     }
 
@@ -184,7 +173,6 @@ function QuestionBank () {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/tags");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        console.log(result.data.data);
         if (result.data.data) setTags(result.data.data);
         return result.data.data;
     }, [globalState.token, params.course_name]);
@@ -201,9 +189,8 @@ function QuestionBank () {
                 getTags();
             })
             .catch((error: any) => {
-                console.log(error)
                 let response = error.response.data;
-                setTagError(response.error.message[0].message);
+                setTagError(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });
     };
 
@@ -220,8 +207,7 @@ function QuestionBank () {
             })
             .catch((error: any) => {
                 let response = error.response.data;
-                console.log(error);
-                setTagError(response.error.message[0].message);
+                setTagError(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             })
     }
 
@@ -235,8 +221,7 @@ function QuestionBank () {
             })
             .catch((error: any) => {
                 let response = error.response.data;
-                console.log(error);
-                setTagError(response.error.message);
+                setTagError(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             })
     }
 
@@ -263,7 +248,6 @@ function QuestionBank () {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/questions?tag_id=" + id + "&hidden=true");
         const token = globalState.token;
         const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
-        console.log(result.data.data);
         setQuestionsByTag(result.data.data);
     }, [globalState.token, params.course_name, params.tag])
 
@@ -273,7 +257,7 @@ function QuestionBank () {
             .catch();
     }, [getTags, getQuestionsByTag]);
 
-    const [graders, setGraders] = useState<graderProps[]>([]);
+    const [graders, setGraders] = useState<graderDataType[]>([]);
     const [graderShow, setGraderShow] = useState(false);
     const [graderError, setGraderError] = useState("");
 

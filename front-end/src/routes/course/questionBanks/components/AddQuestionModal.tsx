@@ -8,17 +8,7 @@ import HTMLEditor from "../../../../components/HTMLEditor";
 import AddSingleBlank from './AddSingleBlank';
 import AddChoice from './AddChoice';
 import AddCustomized from './AddCustomized';
-
-interface blankProps {
-    type: 'string' | 'code';
-    is_choice: boolean;
-    multiple: boolean;
-}
-
-interface graderProps {
-    name: string;
-    blanks: blankProps[];
-}
+import graderDataType, {blankDataType} from './graderDataType';
 
 interface subqProps {
     id: number;
@@ -30,7 +20,7 @@ interface tagProps {
     name: string;
 }
 
-const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, graders, errorMsg, setErrorMsg} : {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, graders: graderProps[], errorMsg: string, setErrorMsg: any}) => {
+const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, graders, errorMsg, setErrorMsg} : {show: boolean, onClose: () => void, tags: tagProps[], getTags: () => any, getQuestionsByTag: (tags: tagProps[]) => void, graders: graderDataType[], errorMsg: string, setErrorMsg: any}) => {
     const params = useParams();
     const {globalState} = useGlobalState();
     
@@ -126,11 +116,9 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, grad
             const description = (document.getElementById("sub" + id + "_description") as HTMLInputElement).value;
             const graderName = (document.getElementById("sub" + id + "_grader") as HTMLInputElement).value;
             const grader = graders.filter((grader) => grader.name === graderName)[0];
-            console.log(grader)
-            console.log("test")
             let choices: (object[] | null)[] = [];
             let solutions: string[][] = []
-            grader.blanks.forEach((blank: blankProps, index) => {
+            grader.blanks.forEach((blank: blankDataType, index: number) => {
                 if (blank.is_choice) {
                     choices[index] = []
                     solutions[index] = []
@@ -193,7 +181,6 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, grad
     }
 
     const addNewQuestion = async (questionData: object) => {
-        console.log(questionData)
         const url = getBackendApiUrl("/courses/" + params.course_name + "/questions");
         const token = globalState.token;
         axios.post(url, questionData, {headers: {Authorization: "Bearer " + token}})
@@ -206,7 +193,6 @@ const AddQuestionModal = ({show, onClose, tags, getTags, getQuestionsByTag, grad
                     .catch();
             })
             .catch((error: any) => {
-                console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
             });

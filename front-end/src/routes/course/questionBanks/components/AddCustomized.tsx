@@ -5,17 +5,7 @@ import {useGlobalState} from "../../../../components/GlobalStateProvider";
 import {getBackendApiUrl} from "../../../../utils/url";
 import axios from 'axios';
 import CodeEditor from "@uiw/react-textarea-code-editor";
-
-interface blankProps {
-    is_choice: boolean;
-    multiple: boolean;
-    type: 'string' | 'code';
-}
-
-interface graderProps {
-    name: string;
-    blanks: blankProps[];
-}
+import graderDataType from './graderDataType';
 
 const Blank = ({subSubId, type}: {subSubId: string, type: string}) => {
     const [solutionIdx, setSolutionIdx] = useState(0);
@@ -104,7 +94,7 @@ const AddCustomized = ({id, displayIdx, onDelete}: {id: number, displayIdx: numb
     const [description, setDescription] = useState("");
 
     const [graders, setGraders] = useState<string[]>([]);
-    const [grader, setGrader] = useState<graderProps>();
+    const [grader, setGrader] = useState<graderDataType>();
 
     const getGraders = useCallback(async () => {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/graders/list");
@@ -159,7 +149,6 @@ const AddCustomized = ({id, displayIdx, onDelete}: {id: number, displayIdx: numb
                     )
                 }
 
-                // blank or code
                 return (
                     <div key={index}>
                         <Form.Label>{"(" + (index + 1) + (blank.type === "string"? ") Blank" : ") Code")}</Form.Label>

@@ -25,6 +25,7 @@ const EditForciblyModal = ({show, onClose, grader, fileData, uploadGraderFile, g
         }
         editGrader(grader.name, graderData, true);
     }
+
     return (
         <Modal show={show} onHide={() => {onClose(); setErrorMsg("")}}>
             <Modal.Header>
@@ -196,7 +197,6 @@ const EditGraderModal = ({show, onClose, grader, getGraders, clearGrader, errorM
                 getGraders();
             })
             .catch((error) => {
-                console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
                 if (!force && error.response.status === 400) {
@@ -208,7 +208,6 @@ const EditGraderModal = ({show, onClose, grader, getGraders, clearGrader, errorM
     }
 
     const editGrader = async (name: string, graderData: object, force: boolean) => {
-        console.log(graderData)
         let url: string = ""
         if (force) {
             url = getBackendApiUrl("/courses/" + params.course_name + "/graders/" + name + "/force");
@@ -228,7 +227,6 @@ const EditGraderModal = ({show, onClose, grader, getGraders, clearGrader, errorM
                 getGraders();
             })
             .catch((error) => {
-                console.log(error);
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
                 if (!force && error.response.status === 400) {

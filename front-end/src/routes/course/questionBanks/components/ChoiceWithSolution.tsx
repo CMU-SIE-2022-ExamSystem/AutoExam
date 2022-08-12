@@ -1,5 +1,5 @@
-import { Form } from "react-bootstrap";
-import { choiceDataType, subQuestionDataType } from "../../../../components/questionTemplate/subQuestionDataType";
+import {Form} from "react-bootstrap";
+import {choiceDataType, subQuestionDataType} from "../../../../components/questionTemplate/subQuestionDataType";
 
 const ChoiceWithSolution = ({index, subQuestion}: {index: number, subQuestion: subQuestionDataType}) => {
     const choices = (subQuestion.choices[0] as choiceDataType[]).map((choice) => {

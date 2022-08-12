@@ -10,17 +10,7 @@ import questionDataType from '../../../../components/questionTemplate/questionDa
 import EditSingleBlank from './EditSingleBlank';
 import EditChoice from './EditChoice';
 import EditCustomized from './EditCustomized';
-
-interface blankProps {
-    type: 'string' | 'code';
-    is_choice: boolean;
-    multiple: boolean;
-}
-
-interface graderProps {
-    name: string;
-    blanks: blankProps[];
-}
+import graderDataType, {blankDataType} from './graderDataType';
 
 interface subqProps {
     id: number;
@@ -101,7 +91,7 @@ const EditQuestionModal = ({show, onClose, setEditQuestionShow, tags, getTags, g
         return (<></>);
     });
 
-    const [graders, setGraders] = useState<graderProps[]>([]);
+    const [graders, setGraders] = useState<graderDataType[]>([]);
 
     const getGraders = useCallback(async () => {
         const url = getBackendApiUrl("/courses/" + params.course_name + "/graders");
@@ -189,7 +179,7 @@ const EditQuestionModal = ({show, onClose, setEditQuestionShow, tags, getTags, g
             const grader = graders.filter((grader) => grader.name === graderName)[0];
             let choices: (object[] | null)[] = [];
             let solutions: string[][] = []
-            grader.blanks.forEach((blank: blankProps, index) => {
+            grader.blanks.forEach((blank: blankDataType, index: number) => {
                 if (blank.is_choice) {
                     choices[index] = []
                     solutions[index] = []
@@ -253,14 +243,12 @@ const EditQuestionModal = ({show, onClose, setEditQuestionShow, tags, getTags, g
     }
 
     const editQuestion = async (id: string, questionData: object, force: boolean) => {
-        console.log(questionData);
         let url: string = "";
         if (force) {
             url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id + "/force");
         } else {
             url = getBackendApiUrl("/courses/" + params.course_name + "/questions/" + id);
         }
-        console.log(url)
         const token = globalState.token;
         axios.put(url, questionData, {headers: {Authorization: "Bearer " + token}})
             .then(_ => {
@@ -277,7 +265,6 @@ const EditQuestionModal = ({show, onClose, setEditQuestionShow, tags, getTags, g
                     .catch();
             })
             .catch((error: any) => {
-                console.log(error)
                 let response = error.response.data;
                 setErrorMsg(typeof response.error.message === "string" ? response.error.message : response.error.message[0].message);
                 if (!force && error.response.status === 400 && response.error.message[0].field !== "solutions") {
