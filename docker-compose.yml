@@ -14,6 +14,8 @@ services:
       - $PWD/../front/front-end/build:/srv
       - caddy_data:/data
       - caddy_config:/config
+    env_file:
+      - autoexam.env
 
   mongodb:
     container_name: mongodb
@@ -47,9 +49,6 @@ services:
   backend:
     container_name: backend
     image: golang
-    # build: ./back-end
-    # ports:
-    #   - 8080:8080
     depends_on:
       - mysql-exam
       - mongodb

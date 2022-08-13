@@ -86,3 +86,6 @@ back-end/autograder/exec/autograders/*.txt
 
 # vscode
 .vscode/
+
+#.env
+autoexam.env
