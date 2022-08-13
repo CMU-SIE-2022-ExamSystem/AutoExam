@@ -11,7 +11,6 @@ import (
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/global"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -217,10 +216,10 @@ func write_file(file_name string, byte_rray []byte, file_path string) error {
 	pathAndName := fmt.Sprintf("%s/%s", file_path, file_name)
 	err := ioutil.WriteFile(pathAndName, byte_rray, 0666)
 	if err != nil {
-		color.Yellow("write fail!")
+		// color.Yellow("write fail!")
 		return err
 	}
-	color.Yellow("write success")
+	// color.Yellow("write success")
 	return nil
 }
 

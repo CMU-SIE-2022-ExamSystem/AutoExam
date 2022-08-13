@@ -21,7 +21,6 @@ func Routers() *gin.Engine {
 	router.BaseCourseRouter(ApiGroup)
 	router.UserRouter(ApiGroup)
 	router.SwaggerRouter(ApiGroup)
-	router.TestRouter(ApiGroup)
 	router.CourseRouter(ApiGroup)
 	router.ImageRouter(ApiGroup)
 	return Router

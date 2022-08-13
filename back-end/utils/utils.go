@@ -2,20 +2,18 @@ package utils
 
 import (
 	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
+	"io/ioutil"
 	"math"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strconv"
 	"syscall"
 	"time"
 
-	"github.com/CMU-SIE-2022-ExamSystem/exam-system/models"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
-	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	cp "github.com/otiai10/copy"
 )
@@ -46,7 +44,7 @@ func CreateFolder(path string) error {
 
 func Copy_file(file, src, dest string) {
 	// copy certain file from src folder to dest folder
-	fmt.Println(file, src, dest)
+	// fmt.Println(file, src, dest)
 	src = filepath.Join(src, file)
 	dest = filepath.Join(dest, file)
 	if _, err := os.Stat(src); os.IsNotExist(err) {
@@ -129,59 +127,16 @@ func MakeAnswertar(path string) bool {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		color.Yellow(err.Error() + stdout.String() + stderr.String())
+		// color.Yellow(err.Error() + stdout.String() + stderr.String())
 		return false
 	} else {
 		return true
 	}
 }
 
-func CheckModule() {
-	var stdout, stderr bytes.Buffer
-	cmd := exec.Command("make")
-	cmd.Dir = "./autograder/"
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: false}
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	cmd.Run()
-}
-
-func writejson(test models.GraderTest, path string, name string) error {
-	target_path := path + name + ".json"
-	file, err := os.OpenFile(target_path, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		return err
+func RemoveTmp() {
+	dir, _ := ioutil.ReadDir("./tmp")
+	for _, d := range dir {
+		os.RemoveAll(path.Join([]string{"tmp", d.Name()}...))
 	}
-	defer file.Close()
-	switch name {
-	case "answer":
-		if test.Answers.TestAutograder == nil {
-			return errors.New("the answer can not be found")
-		}
-		data, _ := json.Marshal(test.Answers)
-
-		_, err = fmt.Fprint(file, string(data))
-		return err
-	case "solution":
-		if test.Solutions.TestAutograder == nil {
-			return errors.New("the solution can not be found")
-		}
-		data, _ := json.Marshal(test.Solutions)
-
-		_, err = fmt.Fprint(file, string(data))
-		return err
-	}
-	return nil
-}
-
-func WriteGraderTest(test models.GraderTest, path string) error {
-	err := writejson(test, path, "answer")
-	if err != nil {
-		return err
-	}
-	err = writejson(test, path, "solution")
-	if err != nil {
-		return err
-	}
-	return nil
 }

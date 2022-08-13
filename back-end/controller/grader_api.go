@@ -2,7 +2,6 @@ package controller
 
 import (
 	"bytes"
-	"os"
 	"os/exec"
 	"strings"
 	"syscall"
@@ -415,13 +414,11 @@ func upload_and_store_grader(c *gin.Context, base_course, grader_name string, bo
 // @Router /courses/{course_name}/autograder/{grader_name}/test [post]
 func Testgrader_Handler(c *gin.Context) {
 	base_course, question_type := course.GetBaseCourseGrader(c)
-	os.Remove("./autograder/exec/requirements.txt")
-	os.Remove("./autograder/exec/answer.json")
-	os.Remove("./autograder/exec/solution.json")
+	utils.RemoveGraderTestFile("./autograder/exec/")
 
 	dao.SearchAndStore_grader(c, question_type, base_course, "./autograder/exec/autograders/")
 	dao.SearchAndStore_module(c, question_type, base_course, "./autograder/exec/")
-	utils.CheckModule()
+	utils.CheckModule("./autograder/")
 
 	body := models.GraderTest{}
 	c.BindJSON(&body)
@@ -437,7 +434,7 @@ func Testgrader_Handler(c *gin.Context) {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	cmd.Run()
-	os.Remove("./autograder/exec/autograders/" + question_type + ".py")
+	utils.RemoveGraderTestFile("./autograder/exec/")
 	if strings.Contains(stdout.String(), "Failure") {
 		dao.UpdateGraderValid(question_type, base_course, false)
 		response.ErrGraderTestResponse(c, stdout.String())
