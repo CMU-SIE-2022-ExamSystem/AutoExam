@@ -1,7 +1,6 @@
 package validate
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
@@ -18,7 +17,7 @@ func QuestionsCreateValidation(sl validator.StructLevel) {
 	}
 
 	grader_dict := dao.GetBasicGraderDict()
-	fmt.Println(grader_dict)
+	// fmt.Println(grader_dict)
 	// validate sub questions
 	for i, sub_question := range question.SubQuestions {
 		grader_name := sub_question.Grader

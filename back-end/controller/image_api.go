@@ -52,7 +52,7 @@ func SearchOneImg_Handler(c *gin.Context) {
 			err := ioutil.WriteFile(pathAndName, imgContent, 0666)
 			if err != nil {
 				response.ErrFileStoreResponse(c)
-				fmt.Println(err)
+				// fmt.Println(err)
 			} else {
 				c.File(pathAndName)
 				// c.File(pathAndName)

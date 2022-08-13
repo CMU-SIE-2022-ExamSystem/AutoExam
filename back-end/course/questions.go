@@ -1,8 +1,6 @@
 package course
 
 import (
-	"fmt"
-
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/dao"
 	"github.com/CMU-SIE-2022-ExamSystem/exam-system/response"
 	"github.com/gin-gonic/gin"
@@ -13,7 +11,7 @@ func GetBaseCourseQuestion(c *gin.Context) (string, string) {
 	question := c.Param("question_id")
 
 	if status, _ := dao.ValidateQuestionById(base, question); status {
-		fmt.Println(status)
+		// fmt.Println(status)
 		response.ErrQuestionNotValidResponse(c, base, question)
 	}
 	return base, question
