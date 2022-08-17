@@ -81,7 +81,8 @@ The goal of this project is to build a web-based system for autolab's instructor
    ```
    ./stop.sh
    ```
-
+   
+   
 
 ## Front-end
 ### Tech Stack
@@ -95,6 +96,7 @@ The goal of this project is to build a web-based system for autolab's instructor
         *   Many examples and libraries
 
 *   User Interface: Bootstrap (`React-Bootstrap`)
+
 
 
 ## Back-end
@@ -111,22 +113,12 @@ The goal of this project is to build a web-based system for autolab's instructor
         *   JSON Validation: You can validate the JSON data format in the request.
         *   Route grouping: Support route grouping (RouteGroup), which can make it easier to organize routes.
         *   Error management mechanism: can collect errors in the program.
+
 *   Database:   MySQL, MongoDB, Redis
     *   MySQL: For gin customized structure by gin gorm package
     *   MongoDB: For JSON object storage
     *   Redis: Distrubuted task queue for time-consuming APIs
 
-
-### Process
-*   Front-end
-    *   UI Design
-    *   UI Development
-
-*   Back-end    
-    | Process                       | Status      |
-    | ----------------------------- | ----------- |
-    | Framework Structure Design    | Finished    |
-    | Authentication                | Integrating |
-    | Autolab and Tango Integration | Developing  |
-    | Questions Storage             | Developing  |
-    | Exam Generator                | Developing  |
+*   Database:   MySQL, MongoDB
+    *   MySQL: For gin customized structure by gin gorm package
+    *   MongoDB: For JSON object storage
