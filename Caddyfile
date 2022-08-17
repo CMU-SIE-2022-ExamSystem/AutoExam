@@ -1,0 +1,21 @@
+# Comment the below out to disable SSL (not recommended)
+{$DOMAIN}:443 {
+	root * /srv/
+	encode gzip
+	try_files {path} /index.html
+	file_server
+}
+
+# Uncomment the below out to disable SSL (not recommended)
+# {$DOMAIN}:80 {
+# 	root * /srv/
+# 	encode gzip
+# 	try_files {path} /index.html
+# 	file_server
+# }
+
+
+{$DOMAIN}:8080 {
+	reverse_proxy backend:8080
+}
+

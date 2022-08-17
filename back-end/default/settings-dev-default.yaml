@@ -1,0 +1,43 @@
+# domain name or ip
+ip: "localhost"
+# gin server port
+port: 8080
+logsAddress: "./backend_logs/"
+
+# "info" for all http request, "alarm" for all non 200 http request
+logger: "info" 
+
+mysql:
+ name: "user"
+ # mysql docker container's name 
+ host: "mysql-exam"
+ port: 3306
+ password: "password"
+ dbName: "exam"
+
+autolab:
+  protocol: https  # http or https
+  skip_secure: true
+  # domain name or ip
+  ip: "autolab.andrew.cmu.edu"
+  # autolab oauth2 information
+  client_id: "k7sWygVHuP_APurTwQP8aZxFjnHLdoQTIk78JXfFTV4"
+  client_secret: "r9PNiZpmirMjSnOH07vSY4JtGTLPDxxmwVFGf9CVtP4"
+  redirect_uri: "urn:ietf:wg:oauth:2.0:oob"
+  scope:  "user_info user_courses user_scores user_submit instructor_all admin_all"
+  
+# jwt generate key
+jwt:
+  key: "afbf104a5f1c72391f03114cd741b2e7714df6270a2502dfe4ff7efd11997780"
+
+
+mongodb:
+  # mongodb docker container's name 
+  host: "mongodb"
+  port: 27017
+
+
+redis:
+  # redis docker container's name 
+  host: "redis"
+  port: 6379

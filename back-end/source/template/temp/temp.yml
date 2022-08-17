@@ -1,0 +1,60 @@
+---
+general:
+  name: temp
+  description: ''
+  display_name: temp
+  handin_filename: handin.tar
+  handin_directory: handin
+  max_grace_days: 0
+  handout: ''
+  writeup: writeup/exam.html
+  max_submissions: 1
+  disable_handins: false
+  max_size: 2
+  has_svn: false
+  category_name: Exam
+  start_at: 2022-06-15 14:13
+  due_at: 2023-06-15 14:13
+  end_at: 2023-06-15 14:13
+  grading_deadline: 2023-06-15 14:13
+problems:
+- name: Q1_sub1
+  description: ''
+  max_score: 5
+  optional: false
+- name: Q1_sub2
+  description: ''
+  max_score: 5
+  optional: false
+- name: Q1_sub3
+  description: ''
+  max_score: 10
+  optional: false
+- name: Q1_sub4
+  description: ''
+  max_score: 5
+  optional: false
+- name: Q2_sub1
+  description: ''
+  max_score: 25
+  optional: false
+- name: Q3_sub1
+  description: ''
+  max_score: 10
+  optional: false
+- name: Q3_sub2
+  description: ''
+  max_score: 5
+  optional: false
+- name: Q3_sub3
+  description: ''
+  max_score: 20
+  optional: false
+- name: Q4_sub1
+  description: ''
+  max_score: 25
+  optional: false
+autograder:
+  autograde_timeout: 180
+  autograde_image: autograding_image
+  release_score: true
