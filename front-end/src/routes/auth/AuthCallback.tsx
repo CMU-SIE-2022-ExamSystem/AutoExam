@@ -7,6 +7,9 @@ import {useGlobalState} from "../../components/GlobalStateProvider";
 
 const axios = require('axios').default;
 
+/**
+ * The callback component when the front-end receives the Authorization code from the Autolab.
+ */
 const AuthCallback = () => {
     let [authCode, setAuthCode] = useState<string>("N/A");
     let [searchParams] = useSearchParams();

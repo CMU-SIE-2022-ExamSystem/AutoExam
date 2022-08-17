@@ -51,6 +51,12 @@ const RedirectPage = ({pageLink, navigate}: { pageLink: string; navigate: Naviga
     )
 }
 
+
+/**
+ * Redirect the user to Autolab login if the environment does not provide REACT_APP_REDIRECT_URI, or display a page if provided and the URI is a special local token.
+ * See Autolab OAuth2 documentation for help.
+ * @constructor
+ */
 function AuthRedirect() {
 
     const [page, setPage] = useState(<div><h1>Redirecting...</h1></div>);

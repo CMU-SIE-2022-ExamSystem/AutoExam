@@ -1,8 +1,5 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {useNavigate, useSearchParams} from "react-router-dom";
-import ErrorLayout from "../../components/ErrorLayout";
-import {AxiosError, AxiosResponse} from "axios";
-import {getBackendApiUrl} from "../../utils/url";
+import React, {useEffect} from "react";
+import {useNavigate} from "react-router-dom";
 import {useGlobalState} from "../../components/GlobalStateProvider";
 
 const Logout = () => {
