@@ -3,6 +3,11 @@ import { choiceDataType } from "./subQuestionDataType";
 import usePersistState from "../../utils/usePersistState";
 import React from "react";
 
+/**
+ * Display a single radio checkbox.
+ * @param choice The choice contents
+ * @param storageKey ID of the component
+ */
 const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
     const {value, setValue} = usePersistState("", storageKey);
     const id = storageKey + "_choice" + choice.choice_id;
@@ -19,6 +24,12 @@ const OneInSingleChoice = ({choice, storageKey} : {choice: choiceDataType, stora
     )
 }
 
+/**
+ * A multiple choice question component (with only one answer), with storage.
+ * @param data
+ * @param storageKey The ID of the question
+ * @param displayIdx The index of the question (not used)
+ */
 const SingleChoice = ({data, storageKey, displayIdx} : {data: choiceDataType[], storageKey: string, displayIdx: number}) => {
     const radios = data.map((choice) => {
         if (!choice) return (<>Bad Question</>);

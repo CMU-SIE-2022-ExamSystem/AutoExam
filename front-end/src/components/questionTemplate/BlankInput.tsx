@@ -2,6 +2,10 @@ import usePersistState from "../../utils/usePersistState";
 import {Form} from "react-bootstrap";
 import React from "react";
 
+/**
+ * Display a blank that does not contain the feature of local storage.
+ * @param storageKey The id of the blank, in case you need to manipulate answers afterwards.
+ */
 const BlankInput = ({storageKey, displayIdx} : {storageKey: string, displayIdx: number}) => {
     const {value, setValue} = usePersistState("", storageKey);
     return (

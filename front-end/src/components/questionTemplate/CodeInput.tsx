@@ -5,6 +5,11 @@ import CodeEditor from "@uiw/react-textarea-code-editor";
 
 const listOfLanguages = ["c", "cpp", "java", "javascript", "plaintext", "python"]
 
+/**
+ * Display a code editor with highlight that does not contain the feature of local storage.
+ * Language select feature is provided.
+ * @param storageKey The id of the blank, in case you need to manipulate answers afterwards.
+ */
 const CodeInput = ({storageKey, displayIdx} : {storageKey: string, displayIdx: number}) => {
     const {value, setValue} = usePersistState("", storageKey);
     const [language, setLanguage] = useState("c");

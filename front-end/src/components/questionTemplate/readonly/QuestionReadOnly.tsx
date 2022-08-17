@@ -4,6 +4,7 @@ import {subQuestionDataType} from "../subQuestionDataType";
 import questionDataType from "../questionDataType";
 import SubQuestionReadOnly from "./SubQuestionReadOnly";
 
+// Component that displays a question
 const Question = ({questionData, questionId} : {questionData: questionDataType, questionId: number}) => {
     const subQuestions = questionData.sub_questions.map((subQuestionData: subQuestionDataType, index) => {
         let idx = (index + 1).toString();

@@ -2,6 +2,7 @@ import React from 'react';
 import {Form} from 'react-bootstrap';
 import {choiceDataType} from "../subQuestionDataType";
 
+// A single checkbox
 const OneInMultipleChoice = ({choice, storageKey} : {choice: choiceDataType, storageKey: string}) => {
     const id = storageKey + "_choice" + choice.choice_id;
     return (
@@ -14,6 +15,7 @@ const OneInMultipleChoice = ({choice, storageKey} : {choice: choiceDataType, sto
     )
 }
 
+// MultipleChoice questions with multiple answers (checkbox)
 const MultipleChoiceReadOnly = ({data, storageKey} : {data: choiceDataType[], storageKey: string}) => {
     if (!data) return (<>Bad choices field</>);
     const checkboxes = data.map((choice: any) => {

@@ -4,7 +4,11 @@ import {subQuestionDataType} from "./questionTemplate/subQuestionDataType";
 import questionDataType from "./questionTemplate/questionDataType";
 import SubQuestion from "./questionTemplate/SubQuestion";
 
-
+/**
+ * The layout of a question
+ * @param questionData question information
+ * @param questionId the index order of that question
+ */
 const Question = ({questionData, questionId} : {questionData: questionDataType, questionId: number}) => {
     const subQuestions = questionData.sub_questions.map((subQuestionData: subQuestionDataType, index) => {
         let idx = (index + 1).toString();

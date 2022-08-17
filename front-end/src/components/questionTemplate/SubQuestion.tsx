@@ -6,6 +6,12 @@ import SingleChoice from "./SingleChoice";
 import BlankInput from "./BlankInput";
 import CodeInput from "./CodeInput";
 
+/**
+ * The subquestion component
+ * @param data  The information of a sub question
+ * @param headerId  The subquestion ID (HTML id), such as "Q1_sub1"
+ * @param displayIdx  The index of the sub question
+ */
 const SubQuestion = ({data, headerId, displayIdx} : {data: subQuestionDataType, headerId: string, displayIdx: number}) => {
 
     let blanks = data.blanks.map((blank, index) => {

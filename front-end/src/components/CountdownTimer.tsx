@@ -25,6 +25,12 @@ const formTime = (remainingTime: number) => {
     return `${zeroPaddingHours}:${zeroPaddingMinutes}:${zeroPaddingSeconds}`;
 }
 
+/**
+ * A count down timer component used in exams
+ * @param targetTime a time string that can be parsed by Date(), the termination time.
+ * @param active  Power switch of the timer, when set to false, the timer will stop.
+ * @param callback  The function that executes when the time is up.
+ */
 const CountdownTimer = ({targetTime, active, callback} : {targetTime: string, active: boolean, callback: Function}) => {
     const [countdownTime, setTime] = useState(computeDiffTime(targetTime));
     const [displayState, setDisplayState] = useState(true);

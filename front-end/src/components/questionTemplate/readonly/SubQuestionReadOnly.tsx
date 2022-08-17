@@ -6,6 +6,7 @@ import SingleChoiceReadOnly from "./SingleChoiceReadOnly";
 import BlankReadOnly from "./BlankReadOnly";
 import CodeReadOnly from "./CodeReadOnly";
 
+// Component that displays a subquestion
 const SubQuestionReadOnly = ({data, headerId, displayIdx} : {data: subQuestionDataType, headerId: string, displayIdx: number}) => {
 
     let blanks = data.blanks.map((blank, index) => {

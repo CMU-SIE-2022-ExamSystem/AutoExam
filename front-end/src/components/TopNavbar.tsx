@@ -7,6 +7,11 @@ type Props = {
     brandLink? : string
 }
 
+/**
+ * The navigation bar at the top of most pages
+ * @param brand The text that display on the left most part, highlighted
+ * @param brandLink The link to jump when the user clicks on the brand text
+ */
 const TopNavbar = ({brand, brandLink} : Props) => {
     const brandName: string = brand || "ExamServer"
     const {globalState} = useGlobalState();

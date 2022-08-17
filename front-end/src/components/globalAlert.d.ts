@@ -1,5 +1,6 @@
 import React from "react";
 
+// See React-Bootstrap Alert component for help.
 export interface GlobalAlertProperties {
     show: boolean;
     content: string;

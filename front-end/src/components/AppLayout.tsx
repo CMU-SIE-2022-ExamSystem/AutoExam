@@ -3,6 +3,11 @@ import {Container} from "react-bootstrap";
 import {RightBottomAlert} from "./RightBottomAlert";
 import {useGlobalState} from "./GlobalStateProvider";
 
+/**
+ * The layout of all components
+ * @param children child React nodes
+ * @constructor
+ */
 function AppLayout({children} : {children: React.ReactNode}) {
     const {globalState, updateGlobalState} = useGlobalState();
     let alertState = globalState.alert;

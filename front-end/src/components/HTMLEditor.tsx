@@ -2,6 +2,12 @@ import React from 'react';
 import {Editor} from "@tinymce/tinymce-react";
 import {getFrontendUrl} from "../utils/url";
 
+/**
+ * An HTML editor.
+ * @param init The initial value of that editor
+ * @param update A callback function that updates the value when changes
+ * @constructor
+ */
 const HTMLEditor = ({init, update} : {init: string, update: any}) => {
     return (
         <Editor
