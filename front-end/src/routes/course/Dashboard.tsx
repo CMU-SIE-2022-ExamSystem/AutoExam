@@ -1,75 +1,82 @@
-import React, {useCallback, useEffect} from 'react';
-import { Row, Col, Card } from 'react-bootstrap';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Row, Col, Card, Button} from 'react-bootstrap';
 import AppLayout from "../../components/AppLayout";
 import TopNavbar from "../../components/TopNavbar";
 import {getBackendApiUrl} from "../../utils/url";
-import {secureGet} from "../../utils/axios";
-import {useCookies} from "react-cookie";
+import {useGlobalState} from "../../components/GlobalStateProvider";
+import {LinkContainer} from 'react-router-bootstrap';
+import {Link} from "react-router-dom";
 
 interface CourseProps {
     name: string;
+    display_name: string;
     semester: string;
-    authLevel: string;
+    auth_level: string;
 }
 
+const axios = require('axios').default;
+
 const Course = (props: CourseProps) => {
-    const { name, semester, authLevel } = props
+    const {name, semester, display_name, auth_level} = props
+
+    const capitalize = (s: string) : string => s.length > 0 ? s[0].toUpperCase() + s.slice(1) : "";
     return (
-        <Card className="text-start h-100">
-            <Card.Body className="d-flex flex-column">
-                <Card.Title className="fs-4 fw-bold">{name}</Card.Title>
-                <Card.Text>{semester}</Card.Text>
-                <footer className="text-muted mt-auto">{authLevel}</footer>
-            </Card.Body>
-        </Card>
+        <LinkContainer to={`/courses/${name}`} style={{cursor: "pointer"}}>
+            <Card className="text-start h-100">
+                <Card.Body className="d-flex flex-column">
+                    <Card.Title className="fs-4 fw-bold">{display_name}</Card.Title>
+                    <Card.Text>{semester}</Card.Text>
+                    <footer className="text-muted mt-auto">{capitalize(auth_level)}</footer>
+                </Card.Body>
+            </Card>
+        </LinkContainer>
     )
 }
 
 function Dashboard() {
-    const listOfCourses = [{
-        name: "Distributed Systems",
-        semester: "Fall 2022",
-        authLevel: "Student"
-    }, {
-        name: "Advanced Cloud Computing",
-        semester: "Fall 2022",
-        authLevel: "Student"
-    }, {
-        name: "Introduction to Computer Systems",
-        semester: "Fall 2022",
-        authLevel: "Student"
-    }]
+    const [listOfCourses, setListOfCourses] = useState<CourseProps[]>([]);
+    const {globalState} = useGlobalState();
 
-    const [cookies] = useCookies(['token']);
-
-    const getUsers = useCallback(async () => {
-        const url = getBackendApiUrl("/test/users");
-        const token = cookies.token;
-        console.log(token);
-        const result = await secureGet(url, {headers: {Authorization: "Bearer " + token}});
-        console.log(result);
-    }, [cookies]);
+    const getCourses = useCallback(async () => {
+        const url = getBackendApiUrl("/user/courses");
+        const token = globalState.token;
+        const result = await axios.get(url, {headers: {Authorization: "Bearer " + token}});
+        setListOfCourses(result.data.data);
+    }, [globalState.token]);
 
     useEffect(() => {
-        getUsers();
-    }, [getUsers])
+        getCourses().catch();
+    }, [getCourses])
+
+    const isInstructor = listOfCourses.some(course => course.auth_level === 'instructor');
 
     return (
-        <div>
-            <TopNavbar brand={null}/>
-            <AppLayout>
-                <>
-                    <h1 className="mb-4">My Courses</h1>
-                    <Row xs={1} md={2} lg={3} className="g-4">
-                        {listOfCourses.map(course => (
-                            <Col>
-                                <Course {...course}/>
-                            </Col>
-                        ))}
-                    </Row>
-                </>
-            </AppLayout>
-        </div>
+        <AppLayout>
+            <Row>
+                <TopNavbar brandLink="/dashboard" />
+            </Row>
+            <main>
+                {isInstructor && (
+                    <Row className="mb-2 text-end">
+                        <Col>
+                            <Link to="/baseCourse"><Button variant="primary" className="mx-4">Manage base course</Button></Link>
+                        </Col>
+                    </Row>)
+                }
+                <h1>My Courses</h1>
+                <Row className="mt-4">
+                    <Col xs={{span: "10", offset: "1"}}>
+                        <Row xs={1} lg={2} xl={3} className="g-4">
+                            {listOfCourses.map(course => (
+                                <Col key={course.name}>
+                                    <Course {...course}/>
+                                </Col>
+                            ))}
+                        </Row>
+                    </Col>
+                </Row>
+            </main>
+        </AppLayout>
     );
 }
 

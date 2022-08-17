@@ -1,22 +1,27 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {useSearchParams} from "react-router-dom";
+import {useNavigate, useSearchParams} from "react-router-dom";
 import ErrorLayout from "../../components/ErrorLayout";
 import {AxiosError, AxiosResponse} from "axios";
-import {getBackendApiUrl, getFrontendUrl} from "../../utils/url";
-import {useCookies} from "react-cookie";
+import {getBackendApiUrl} from "../../utils/url";
+import {useGlobalState} from "../../components/GlobalStateProvider";
 
 const axios = require('axios').default;
 
-function AuthCallback() {
-    let [authCode, setAuthCode] = useState("N/A");
+/**
+ * The callback component when the front-end receives the Authorization code from the Autolab.
+ */
+const AuthCallback = () => {
+    let [authCode, setAuthCode] = useState<string>("N/A");
     let [searchParams] = useSearchParams();
-    const [cookies, setCookie] = useCookies(['token']);
+    const {updateGlobalState} = useGlobalState();
+    const navigate = useNavigate();
 
     const CallBack = useCallback(async () => {
         const stateValue = localStorage.getItem('authStateValue')
         const stateQuery = searchParams.get('state')
+        const ignoreState = searchParams.get('ignore_state');
 
-        if (stateValue !== stateQuery) {
+        if (stateValue !== stateQuery && ignoreState !== "true") {
             return (<ErrorLayout><div>Bad State Value</div></ErrorLayout>)
         }
 
@@ -30,14 +35,16 @@ function AuthCallback() {
                 // Success, jump to dashboard
 
                 const data = result.data.data;
-                setCookie('token', data.token, {path: '/'});
+                const myName = data.firstName + " " + data.lastName;
 
-                window.location.assign(getFrontendUrl('/dashboard'));
+                let newState = updateGlobalState({name: myName, token: data.token});
+                sessionStorage.setItem('globalState', JSON.stringify(newState));
+                navigate("/dashboard");
             })
             .catch((error: AxiosError) => {
                 //Error
             })
-    }, [searchParams, setCookie])
+    }, [navigate, searchParams])
 
     useEffect(() => {
         CallBack();

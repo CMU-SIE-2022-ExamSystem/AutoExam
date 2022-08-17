@@ -1,27 +1,28 @@
 import React, {SyntheticEvent, useEffect, useState} from 'react';
 import TopNavbar from "../../components/TopNavbar";
 import AppLayout from "../../components/AppLayout";
-import {Container, Image, Form, Button} from "react-bootstrap";
+import {Container, Image, Form, Button, Row} from "react-bootstrap";
 import {nanoid} from "nanoid";
 import autolab_logo from '../../images/autolab_logo.png';
 import {getBackendApiUrl, getFrontendUrl} from "../../utils/url";
+import {NavigateFunction, useNavigate} from "react-router-dom";
 
 const axios = require('axios').default;
 
-const RedirectPage = ({pageLink}: { pageLink: string }) => {
+const RedirectPage = ({pageLink, navigate}: { pageLink: string; navigate: NavigateFunction }) => {
     const handleSubmit = (e: SyntheticEvent) => {
         e.preventDefault();
         const $authCode = document.getElementById("AutolabAuthCode") as HTMLInputElement;
         const $stateCode = localStorage.getItem('authStateValue');
-        console.log($authCode.value);
         const url = "/oauth-callback?code=" + $authCode.value + "&state=" + $stateCode;
-        window.location.replace(getFrontendUrl(url));
+        navigate(url, {replace: true});
     }
 
     return (
-        <>
-            <TopNavbar/>
             <AppLayout>
+                <Row className="mb-3">
+                    <TopNavbar/>
+                </Row>
                 <div className="col col-md-8 mx-auto">
                     <h2>Bind with Autolab</h2>
                     <Container className="mt-3 mb-5">
@@ -30,7 +31,7 @@ const RedirectPage = ({pageLink}: { pageLink: string }) => {
                             <p>After the authorization, there will be an authorization code. Paste the code here to
                                 finish binding.</p>
                         </Container>
-                        <a target="_blank" href={pageLink}>
+                        <a target="_blank" href={pageLink} rel="noreferrer">
                             <Image src={autolab_logo} alt="Autolab Logo">
                             </Image>
                         </a>
@@ -47,15 +48,21 @@ const RedirectPage = ({pageLink}: { pageLink: string }) => {
                     </Form>
                 </div>
             </AppLayout>
-        </>
     )
 }
 
+
+/**
+ * Redirect the user to Autolab login if the environment does not provide REACT_APP_REDIRECT_URI, or display a page if provided and the URI is a special local token.
+ * See Autolab OAuth2 documentation for help.
+ * @constructor
+ */
 function AuthRedirect() {
 
     const [page, setPage] = useState(<div><h1>Redirecting...</h1></div>);
+    const navigate = useNavigate();
 
-    const renderPage = async () => {
+    const renderPage = async (navigate: NavigateFunction) => {
         // Autolab link URL
         let autolabLink: string = process.env.REACT_APP_AUTOLAB_LOCATION + "/oauth/authorize";
 
@@ -71,7 +78,11 @@ function AuthRedirect() {
         // Otherwise I need authentication. Keep going through OAuth2 process.
 
         // Client ID
-        const clientId = process.env.REACT_APP_CLIENT_ID || authInfo.data.cliendId;
+        let clientId: string = authInfo.data.data.clientId;
+
+        if (process.env.REACT_APP_CLIENT_ID) {
+            clientId = process.env.REACT_APP_CLIENT_ID as string;
+        }
         autolabLink += `?response_type=code&client_id=${clientId}`;
 
         // Scope
@@ -87,7 +98,7 @@ function AuthRedirect() {
         // RedirectURI: if local, display the page
         if (process.env.REACT_APP_REDIRECT_URI === 'urn:ietf:wg:oauth:2.0:oob') {
             autolabLink += '&redirect_uri=' + encodeURIComponent(process.env.REACT_APP_REDIRECT_URI);
-            setPage(<RedirectPage pageLink={autolabLink}/>);
+            setPage(<RedirectPage pageLink={autolabLink} navigate={navigate}/>);
         } else {
             // Otherwise, set up redirectURI and redirect to Autolab.
             let redirectUri = getFrontendUrl('/oauth-callback');
@@ -99,8 +110,9 @@ function AuthRedirect() {
     }
 
     useEffect(() => {
-        renderPage();
-    }, [])
+        renderPage(navigate)
+            .catch(error => console.log("Bad Rendering"));
+    }, [navigate])
 
     return <>{page}</>
 }

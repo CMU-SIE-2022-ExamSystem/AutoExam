@@ -1,5 +1,3 @@
-import React from "react";
-import { useCookies } from 'react-cookie';
 const axios = require('axios').default;
 
 // Frontend Path
