@@ -3,18 +3,25 @@
 ## Project Structure
 | Folder       | Descriptions                            |
 |--------------|-----------------------------------------|
+| autograder   | functions for grader testing            |
 | autolab      | functions for autolab communication     |
+| backend_logs | backend logs folder                     |
 | config       | configuration of back-end server        |
 | controller   | back-end API handler                    |
+| course       | courses related operations package      |
+| dao          | functions for database operations       |
 | default      | default files of yaml                   |
 | global       | global variables of back-end server     |
 | initialize   | initialization functions                |
+| jwt          | front-end and back-end authentication   |
 | middleswares | middlewares packages of back-end server |
 | models       | models structure packages               |
+| redis        | functions for distrubuted task queue    |
 | response     | customized response structure packages  |
 | router       | mapping url to controller               |
-| test         | development router                      |
+| source       | source files for autolab assessments    |
 | utils        | utilities functions package             |
+| validate     | value validations for structs           |
 
 
 ## Run server
